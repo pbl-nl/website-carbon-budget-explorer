@@ -143,7 +143,7 @@
 		</div>
 
 		<!-- TODO compute smarter extent -->
-		<Pathway yDomain={[data.historicalCarbon.extent[1] * -.2, data.historicalCarbon.extent[1]]}>
+		<Pathway yDomain={[data.historicalCarbon.extent[1] * -0.2, data.historicalCarbon.extent[1]]}>
 			<Line
 				data={data.historicalCarbon.data.filter((d) => d.time >= 1990)}
 				x={'time'}

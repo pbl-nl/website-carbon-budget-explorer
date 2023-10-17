@@ -7,8 +7,8 @@ on:
         type: choice
         description: Please select the environment you want to deploy to.
         options:
-        - "production"
-        - "acceptance"
+          - 'production'
+          - 'acceptance'
 
 env:
   SITE_NAME: carbonbudgetexplorer
