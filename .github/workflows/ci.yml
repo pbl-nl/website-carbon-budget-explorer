@@ -136,12 +136,13 @@ jobs:
         run: npm run build
         env:
           CABE_DATA_DIR: __tests__
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+      - name: zip build
+        run: zip -r ${{ env.SITE_NAME }}.zip .
+      - name: publish build artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: node-app
-          path: .
-
+          path: ${{ env.SITE_NAME }}.zip
+          name: ${{ env.SITE_NAME }}
   deploy:
     runs-on: [self-hosted, linux]
     environment: ${{ github.event.inputs.ENVIRONMENT }}
@@ -152,12 +153,13 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_SP }}
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+      - name: download build artifact
+        uses: actions/download-artifact@v2
         with:
-          name: node-app
+          name: ${{ env.SITE_NAME }}
+          path: ${{ github.workspace }}/zip
       - name: deploy ${{ env.SITE_NAME }}
         uses: Azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.APP_SERVICE_NAME }}
-          package: .
+          package: ${{ github.workspace }}/zip/${{ env.SITE_NAME }}.zip
