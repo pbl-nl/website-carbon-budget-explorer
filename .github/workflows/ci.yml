@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ['main']
 
+env:
+  SITE_NAME: carbonbudgetexplorer
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -129,3 +132,31 @@ jobs:
         run: npm run build
         env:
           CABE_DATA_DIR: __tests__
+      - name: zip build
+        run: zip -r ${{ env.SITE_NAME }}.zip .
+      - name: publish build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ env.SITE_NAME }}.zip
+          name: ${{ env.SITE_NAME }}
+  deploy:
+    runs-on: [self-hosted, linux]
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v3
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_SP }}
+      - name: download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.SITE_NAME }}
+          path: ${{ github.workspace }}/zip
+      - name: deploy ${{ env.SITE_NAME }}
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.APP_SERVICE_NAME }}
+          package: ${{ github.workspace }}/zip/${{ env.SITE_NAME }}.zip
