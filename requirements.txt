@@ -1,0 +1,5 @@
+xarray
+netcdf4
+flask
+flask_cors
+gunicorn

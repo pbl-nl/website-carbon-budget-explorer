@@ -11,3 +11,7 @@ vite.config.ts.timestamp-*
 
 /data
 /coverage
+
+# Python
+__pycache__/
+venv/

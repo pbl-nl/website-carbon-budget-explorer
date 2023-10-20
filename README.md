@@ -4,12 +4,18 @@
 
 Web application to explore carbon budgets
 
+The web application is written with [SveltKit](https://kit.svelte.dev/).
+
 ## Data requirements
 
 Should have the following data files:
 
-1. `data/xr_total.nc` - NetCDF v3 file with totals
-2. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
+1. `data/xr_dataread.nc` - NetCDF file
+2. `data/xr_budgets_scenario.nc` - NetCDF file
+3. `data/xr_policyscen.nc` - NetCDF file
+4. `data/xr_allow_<3 letter ISO countr code>.nc` - NetCDF file for each country
+5. `data/xr_allow_<2030|2040|FC>.nc` - NetCDF file
+6. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
 
 Convert xr_total.nc to netcdf4 with
 
@@ -36,6 +42,28 @@ ds.to_netcdf(
     engine="netcdf4",
 )
 ```
+
+## API service
+
+The API web service reads the NetCDF file and returns the data as JSON which is used in the web application.
+
+It is written in Python using [Flask](https://flask.palletsprojects.com/) and [xarray](https://xarray.dev/).
+
+Python dependencies can be installed with
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+The web service can be started with
+
+```bash
+gunicorn --bind 0.0.0.0:5000 --workers 4 'ws:app'
+```
+
+(Add `--reload` argumment to reload on Python file changes)
 
 ## Developing
 
@@ -91,6 +119,10 @@ To create a production version of your app:
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+You can the production build with
+
+```bash
+node build/index.js
+```
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.

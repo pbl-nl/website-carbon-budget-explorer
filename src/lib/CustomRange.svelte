@@ -13,6 +13,8 @@
 
 	$: len = options.length;
 	$: valIndex = options.indexOf(parseFloat(value));
+	// when sliding all intermediate values are also fetched
+	// TODO could only fetch the value when the slider is released
 </script>
 
 <label>

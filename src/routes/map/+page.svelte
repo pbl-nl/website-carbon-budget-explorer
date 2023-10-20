@@ -111,7 +111,7 @@
 				<div>
 					{#if selectedFeature && selectedFeature.properties}
 						<a
-							href={`/regions/${selectedFeature.properties.ISO_A3_EH}?${$page.url.search}`}
+							href={`/regions/${selectedFeature.properties.ISO_A3_EH}${$page.url.search}`}
 							class="mb-1 mr-2 rounded-lg bg-gradient-to-br from-green-400 to-blue-600 px-5 py-2 text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
 							>{selectedFeature.properties.NAME}</a
 						>

@@ -43,8 +43,6 @@
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedEffortSharing = tweened(data.effortSharing, tweenOptions);
 	$: tweenedEffortSharing.set(data.effortSharing);
-
-	console.log(data.effortSharing['ECPC']);
 </script>
 
 <main class="flex flex-col gap-2">
