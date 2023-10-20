@@ -173,7 +173,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_SP }}
       - name: zip build
-        run: zip -r build.zip .
+        run: zip -r build.zip ws.py requirements.txt
       - name: Deploy Carbon Budget Explorer Api
         uses: Azure/webapps-deploy@v2
         with:
