@@ -178,4 +178,4 @@ jobs:
         uses: Azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.APP_SERVICE_NAME_BE }}
-          package: ${{ github.workspace }}/zip/build.zip
+          package: ${{ github.workspace }}/build.zip
