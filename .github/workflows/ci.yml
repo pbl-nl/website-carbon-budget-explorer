@@ -147,7 +147,7 @@ jobs:
     runs-on: [self-hosted, linux]
     environment: ${{ github.event.inputs.ENVIRONMENT }}
     needs:
-      - build
+      - build-frontend
     steps:
       - name: Azure Login
         uses: azure/login@v1
@@ -166,8 +166,6 @@ jobs:
   deploy-backend:
     runs-on: [self-hosted, linux]
     environment: ${{ github.event.inputs.ENVIRONMENT }}
-    needs:
-      - build
     steps:
       - uses: actions/checkout@v3
       - name: Azure Login
