@@ -24,7 +24,7 @@ CORS(app)
 # TODO validate inputs? Must if ws is public
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset("data/xr_dataread.nc")
+dsGlobal = xr.open_dataset("/data/xr_dataread.nc")
 
 @app.get("/pathwayCarbon")
 def pathwayCarbon():
@@ -140,8 +140,8 @@ def gdpOverTime(region):
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset("data/xr_alloc_2030.nc")
-# ds_alloc_2040 = xr.open_dataset("data/xr_alloc_2040.nc")
+ds_alloc_2030 = xr.open_dataset("/data/xr_alloc_2030.nc")
+# ds_alloc_2040 = xr.open_dataset("/data/xr_alloc_2040.nc")
 
 
 @app.get("/fullCenturyBudgetSpatial")
@@ -170,7 +170,7 @@ def fullCenturyBudgetSpatial():
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset("data/xr_policyscen.nc")
+ds_policyscen = xr.open_dataset("/data/xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -199,7 +199,7 @@ def policyPathway(policy, region):
 
 
 def get_ds(ISO):
-    return xr.open_dataset(f"data/xr_alloc_{ISO}.nc")
+    return xr.open_dataset(f"/data/xr_alloc_{ISO}.nc")
 
 
 @app.get("/<ISO>/<principle>")
