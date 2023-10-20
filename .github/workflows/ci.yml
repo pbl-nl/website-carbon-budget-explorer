@@ -110,7 +110,7 @@ jobs:
         run: npm test
         env:
           CABE_DATA_DIR: __tests__
-  build:
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -143,7 +143,7 @@ jobs:
         with:
           path: ${{ env.SITE_NAME }}.zip
           name: ${{ env.SITE_NAME }}
-  deploy:
+  deploy-frontend:
     runs-on: [self-hosted, linux]
     environment: ${{ github.event.inputs.ENVIRONMENT }}
     needs:
@@ -161,5 +161,23 @@ jobs:
       - name: deploy ${{ env.SITE_NAME }}
         uses: Azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.APP_SERVICE_NAME }}
+          app-name: ${{ secrets.APP_SERVICE_NAME_FE }}
           package: ${{ github.workspace }}/zip/${{ env.SITE_NAME }}.zip
+  deploy-backend:
+    runs-on: [self-hosted, linux]
+    environment: ${{ github.event.inputs.ENVIRONMENT }}
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v3
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_SP }}
+      - name: zip build
+        run: zip -r build.zip .
+      - name: Deploy Carbon Budget Explorer Api
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.APP_SERVICE_NAME_BE }}
+          package: ${{ github.workspace }}/zip/build.zip
