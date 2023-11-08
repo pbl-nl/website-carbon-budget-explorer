@@ -37,11 +37,10 @@
 		}
 	);
 	$: tickValues = range(ticks + 1).map((i) => quantile(scale.domain(), i / ticks));
-	// TODO make format configurable as prop, so CO2 and temperature can have different formats
 	const tickFormat = format('.4');
 </script>
 
-<div class="absolute bottom-4 right-14">
+<div class="absolute bottom-40 right-14 z-[400]">
 	<svg {width} {height} viewBox={`0 0 ${width} ${height}`} overflow="visible" display="block">
 		>
 		<image
@@ -64,6 +63,7 @@
 				fill="currentColor"
 				x={marginLeft - width + marginRight}
 				y={0}
+				transform="translate(-35, 250) rotate(270)"
 				text-anchor="start"
 				font-weight="bold">{title}</text
 			>

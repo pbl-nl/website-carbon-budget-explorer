@@ -1,25 +1,37 @@
 <script lang="ts">
-	import { slide } from 'svelte/transition';
+	import clsx from 'clsx';
+	import type { GeoJSON } from 'geojson';
+
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import GlobalBudgetForm from '$lib/PathwayForm.svelte';
-	import RegionFilter from '$lib/RegionFilter.svelte';
 	import LeafletMap from '$lib/charts/LeafletMap.svelte';
-	import type { GeoJSON } from 'geojson';
-
 	import { principles } from '$lib/principles';
+	import ShareTabs from '$lib/ShareTabs.svelte';
+	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
+	import AllocationCard from '$lib/AllocationCard.svelte';
+
 	import type { PageData } from './$types';
+	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
+	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
+	import RegionList from '$lib/RegionList.svelte';
 
 	export let data: PageData;
 
-	let region: string;
-	const gotoRegion = (region: string) => {
-		if (browser && region !== undefined && region !== '') {
-			goto(`/regions/${region}${$page.url.search}`);
+	let clickedFeature:
+		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
+		| undefined;
+	const gotoRegion = (
+		feature?: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
+	) => {
+		if (browser) {
+			const region = feature?.properties?.ISO_A3_EH;
+			if (region !== undefined && region !== '') {
+				goto(`/regions/${region}${$page.url.search}`);
+			}
 		}
 	};
-	$: gotoRegion(region);
+	$: gotoRegion(clickedFeature);
 
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
@@ -32,11 +44,6 @@
 		}
 	}
 
-	function changeVariable(value: string) {
-		updateQueryParam('variable', value);
-	}
-	$: changeVariable(data.variable);
-
 	function selectEffortSharing(value: string) {
 		data.effortSharing = value as keyof typeof principles;
 	}
@@ -48,140 +55,103 @@
 	}
 	$: changeEffortSharing(data.effortSharing);
 
-	let showCountriesPanel = false;
-	let showSettngsPanel = false;
+	let allocationTime = '2021-2100';
+	function updateAllocationTime(allocationTime: string) {
+		updateQueryParam('allocTime', allocationTime);
+	}
+	$: updateAllocationTime(allocationTime);
 
-	let selectedFeature:
+	let hoveredFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 		| undefined;
-	$: selectedMetric = selectedFeature
-		? data.metrics.find((m) => m.ISO === selectedFeature!.properties!.ISO_A3_EH)
+	$: hoveredMetric = hoveredFeature
+		? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
 		: undefined;
 </script>
 
-<main class="flex h-full max-h-full w-full flex-row gap-2">
+<div class="flex h-full gap-4">
+	<div id="sidebar" class="flex h-full max-w-[25%] flex-col gap-4">
+		<GlobalBudgetCard total={data.pathway.stats.total} remaining={data.pathway.stats.remaining} />
+		<GlobalQueryCard
+			choices={data.pathway.choices}
+			query={data.pathway.query}
+			onChange={updateQueryParam}
+		/>
+		<MiniPathwayCard global={data.global} />
+		<AllocationCard bind:allocationTime />
+	</div>
 	<div class="flex grow flex-col">
-		<div class="relative h-full w-full">
-			<div class="absolute left-4 top-4 z-[500] bg-slate-50 p-2 shadow-lg">
-				<button class="text-3xl" on:click={() => (showSettngsPanel = !showSettngsPanel)}>⚙</button>
-				{#if showSettngsPanel}
-					<div>
-						<!-- TODO if variable is temp then disable warming temp radio group -->
-						<GlobalBudgetForm
-							choices={data.pathway.choices}
-							query={data.pathway.query}
-							onChange={updateQueryParam}
-						/>
-						<div class="flex flex-col pt-4">
-							<h2>CO2 budget</h2>
-							<label>
-								<input
-									disabled
-									type="radio"
-									name="variable"
-									value="2030"
-									bind:group={data.variable}
-								/>
-								in 2030
-							</label>
-							<label>
-								<input
-									disabled
-									type="radio"
-									name="variable"
-									value="2040"
-									bind:group={data.variable}
-								/>
-								in 2040
-							</label>
-							<label>
-								<input type="radio" name="variable" value="2100" bind:group={data.variable} />
-								full century
-							</label>
+		<ShareTabs />
+		<div class="flex h-full max-h-full w-full flex-row gap-2">
+			<div class="flex grow flex-col">
+				<div class="relative h-full w-full">
+					<div
+						class="absolute left-0 top-0 z-[500] min-h-[4.5rem] w-64 rounded-br-md bg-white p-2 shadow"
+					>
+						{#if hoveredFeature && hoveredFeature.properties && hoveredMetric}
+							<div>
+								{hoveredFeature.properties.NAME}
+							</div>
+							<div>
+								{hoveredMetric.value.toFixed(0)} tonnes CO₂e per capita
+							</div>
+						{:else}
+							<div>Click country in map or</div>
+							<details class="dropdown">
+								<summary class="btn-ghost btn-sm btn w-60 font-normal"
+									>Select country &#9660;</summary
+								>
+								<!-- TODO dont hardcode height and width -->
+								<div
+									class="compact card dropdown-content rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
+								>
+									<!-- TODO add filter input box to make it easier to find country -->
+									<div class="card-body">
+										<RegionList regions={data.regions} />
+									</div>
+								</div>
+							</details>
+						{/if}
+					</div>
+					<div class="h-full w-full">
+						<div class="flex h-full w-full items-center justify-center bg-white">
+							<LeafletMap
+								borders={data.borders}
+								metrics={data.metrics}
+								bind:clickedFeature
+								bind:hoveredFeature
+							/>
 						</div>
 					</div>
-				{/if}
-			</div>
-			<div
-				class="absolute inset-x-1/3 top-0 z-[500] flex flex-row justify-between rounded-b-md bg-white p-2 shadow-lg"
-			>
-				{#if !data.effortSharing}
-					<div>Select an effort sharing principle below.</div>
-				{/if}
-				<div>
-					{#if selectedFeature && selectedFeature.properties}
-						<a
-							href={`/regions/${selectedFeature.properties.ISO_A3_EH}${$page.url.search}`}
-							class="mb-1 mr-2 rounded-lg bg-gradient-to-br from-green-400 to-blue-600 px-5 py-2 text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
-							>{selectedFeature.properties.NAME}</a
-						>
-					{:else}
-						Click on a region to see more information.
-					{/if}
+					<div class="absolute bottom-2 z-[400] w-full">
+						<div class="flex w-full flex-row justify-center gap-2 p-2">
+							<div class="text-lg font-bold">Choose your effort-sharing principle:</div>
+						</div>
+						<div class="flex w-full flex-row justify-center gap-2 p-2">
+							{#each Object.entries(principles) as [id, { label, summary }]}
+								<button
+									class={clsx(
+										'h-38 relative w-48 rounded border-2 object-top text-center shadow-lg',
+										data.effortSharing === id ? 'btn-neutral' : 'btn-outline bg-base-100'
+									)}
+									disabled={data.effortSharing === id}
+									on:click={() => selectEffortSharing(id)}
+								>
+									<p class=" font-bold">{label}</p>
+									<p class="text-sm">{summary}</p>
+									<a
+										class="absolute right-1 top-1 inline-block text-xl"
+										title="More information"
+										target="_blank"
+										rel="noopener"
+										href={`/about#${id}`}>ⓘ</a
+									>
+								</button>
+							{/each}
+						</div>
+					</div>
 				</div>
-
-				<div>
-					{#if selectedFeature && selectedFeature.properties && selectedMetric}
-						<!-- TODO replace with key indicators -->
-						{selectedMetric.value > 1_000
-							? `${(selectedMetric.value / 1_000).toPrecision(3)} Gt CO2`
-							: `${selectedMetric.value.toPrecision(3)} Mt CO2`}
-					{/if}
-				</div>
-			</div>
-			<div class="h-full w-full">
-				<div class="flex h-full w-full items-center justify-center bg-white">
-					<LeafletMap borders={data.borders} metrics={data.metrics} bind:selectedFeature />
-				</div>
-			</div>
-			<div class="absolute bottom-2 z-[500] flex w-full flex-row justify-center gap-2">
-				{#each Object.entries(principles) as [id, { label, summary }]}
-					<button
-						class={data.effortSharing === id
-							? 'h-38 relative w-48 border-2 border-orange-950 bg-orange-400 object-center text-center shadow-lg'
-							: 'h-38 relative w-48 border-2 bg-orange-200 object-top text-center shadow-lg'}
-						disabled={data.effortSharing === id}
-						on:click={() => selectEffortSharing(id)}
-					>
-						<p class="text-xl">{label}</p>
-						<p class="text-sm">{summary}</p>
-						<a
-							class="absolute right-1 top-1 inline-block text-xl"
-							title="More information"
-							target="_blank"
-							rel="noopener"
-							href={`/about#${id}`}>ⓘ</a
-						>
-					</button>
-				{/each}
 			</div>
 		</div>
 	</div>
-	<!-- TODO make region filter have own scroll bar and not move map down -->
-	<div class="max-h-screen overflow-y-auto">
-		<button
-			title={showCountriesPanel ? 'Click to hide region list' : 'Click to search for region'}
-			on:click={() => (showCountriesPanel = !showCountriesPanel)}
-		>
-			<span class={showCountriesPanel ? 'countries-panel-shown' : 'countries-panel-hidden'}
-				>{showCountriesPanel ? '↦' : '↧'} Find region</span
-			>
-		</button>
-		{#if showCountriesPanel}
-			<div transition:slide={{ axis: 'x' }}>
-				<RegionFilter regions={data.metrics} searchParams={$page.url.search} />
-			</div>
-		{/if}
-	</div>
-</main>
-
-<style>
-	.countries-panel-hidden {
-		text-orientation: sideways;
-		writing-mode: vertical-rl;
-	}
-	.countries-panel-shown {
-		text-orientation: upright;
-		writing-mode: horizontal-tb;
-	}
-</style>
+</div>

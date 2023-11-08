@@ -11,37 +11,10 @@ The web application is written with [SveltKit](https://kit.svelte.dev/).
 Should have the following data files:
 
 1. `data/xr_dataread.nc` - NetCDF file
-2. `data/xr_budgets_scenario.nc` - NetCDF file
-3. `data/xr_policyscen.nc` - NetCDF file
-4. `data/xr_allow_<3 letter ISO countr code>.nc` - NetCDF file for each country
-5. `data/xr_allow_<2030|2040|FC>.nc` - NetCDF file
-6. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
-
-Convert xr_total.nc to netcdf4 with
-
-```python
-import xarray as xr
-
-ds = xr.open_dataset("xr_total.nc")
-
-
-ds.to_netcdf(
-    "xr_total4.nc",
-    encoding={
-        "Region": {"dtype": "str"},
-        "Scenario": {"dtype": "str"},
-        "Model": {"dtype": "str"},
-        "Temperature": {"dtype": "str"},
-        "Negative_emissions": {"dtype": "str"},
-        "Non_CO2_mitigation_potential": {"dtype": "str"},
-        "Risk_of_exceedance": {"dtype": "str"},
-        "GF": {"zlib": True, "complevel": 9},
-        # TODO also compress other vars?
-    },
-    format="NETCDF4",
-    engine="netcdf4",
-)
-```
+1. `data/xr_policyscen.nc` - NetCDF file
+1. `data/xr_allow_<3 letter ISO countr code>.nc` - NetCDF file for each country
+1. `data/xr_allow_<2030|2040|FC>.nc` - NetCDF file
+1. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
 
 ## API service
 
@@ -126,3 +99,5 @@ node build/index.js
 ```
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+If the Python webservice is not running on `http://127.0.0.1:5000` then set `CABE_API_URL` environment variable to right URL.

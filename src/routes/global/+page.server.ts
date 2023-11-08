@@ -18,20 +18,13 @@ export const load = (async ({ url }: { url: URL }) => {
 	const curPol = await currentPolicy();
 	const ndc_ = await ndc();
 
-	const emissionGap =
-		curPol.find((d) => d.time === 2030)!.mean - pathway.find((d) => d.time === 2030)!.mean;
-	const ambitionGap =
-		ndc_.find((d) => d.time === 2030)!.mean - pathway.find((d) => d.time === 2030)!.mean;
-
 	const result = {
 		pathwayCarbon: pathway,
-		pathwayStats: await pathwayStats(url.search),
+		stats: await pathwayStats(url.search),
 		historicalCarbon: await historicalCarbon(),
 		currentPolicy: curPol,
 		ndc: ndc_,
-		netzero: await netzero(),
-		ambitionGap,
-		emissionGap
+		netzero: await netzero()
 	};
 	// TODO many rows in result have same year, so could be optimised for size
 	return {

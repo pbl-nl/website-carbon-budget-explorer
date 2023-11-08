@@ -17,28 +17,14 @@ export async function open_borders(fn: string) {
 export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties>;
 
 export class Borders {
-	public labels = new Map<string, string>();
-	public iso3to2 = new Map<string, string>();
 	constructor(public geojson: BordersCollection, public lastModified: Date) {
 		for (const feature of geojson.features) {
 			const iso = feature.properties.ISO_A3_EH;
-			const iso2 = feature.properties.ISO_A2_EH;
 			const label = feature.properties.NAME;
 			feature.properties = {
 				ISO_A3_EH: iso,
 				NAME: label
 			};
-			this.labels.set(iso, label);
-			this.iso3to2.set(iso, iso2?.toLowerCase() ?? iso);
 		}
-	}
-
-	addNames<T extends { ISO: string }>(items: T[]): (T & { name: string })[] {
-		return items.map((m) => {
-			return {
-				...m,
-				name: this.labels.get(m.ISO) || m.ISO
-			};
-		});
 	}
 }

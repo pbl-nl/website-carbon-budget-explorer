@@ -1,27 +1,31 @@
 <script lang="ts">
 	import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs?client';
+	// import {CRS} from 'leaflet?client'
 	import type { BordersCollection } from '$lib/server/db/borders';
-	import type { NamedSpatialMetric } from '$lib/server/db/utils';
 	import 'leaflet/dist/leaflet.css';
 	import { browser } from '$app/environment';
 	import type { GeoJSONOptions, MapOptions } from 'leaflet';
-	import { interpolatePuOr, interpolateRdBu, scaleSequential } from 'd3';
+	import { interpolateYlGnBu, scaleSequential } from 'd3';
 	import ColorLegend from './components/ColorLegend.svelte';
+	import type { BudgetSpatial, SpatialMetric } from '$lib/api';
 
 	export let borders: BordersCollection;
-	export let metrics: NamedSpatialMetric[];
+	export let metrics: BudgetSpatial<SpatialMetric>;
 
 	const mapOptions: MapOptions = {
-		center: [10, 0],
-		zoom: 2,
+		center: [30, 5],
+		zoom: 3,
 		minZoom: 2,
 		zoomControl: false
 		// TODO when open street map is not shown render less gray background
 	};
+	if (browser) {
+		// mapOptions.crs = CRS.EPSG4326
+	}
 
 	const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.{ext}';
 	const tileLayerOptions = {
-		minZoom: 3,
+		minZoom: 4,
 		maxZoom: 20,
 		maxNativeZoom: 19,
 		attribution:
@@ -32,12 +36,16 @@
 
 	let tileLayer;
 
-	$: domain = [0, 5_000];
-	$: colormap = interpolatePuOr;
-	$: scale = scaleSequential()
-		.clamp(true)
-		.domain(domain) // 0.8 dampens sensitivy outliers
-		.interpolator(colormap); // TODO configurable colormap?
+	function colors(specifier: string) {
+		var n = (specifier.length / 6) | 0,
+			colors = new Array(n),
+			i = 0;
+		while (i < n) colors[i] = '#' + specifier.slice(i * 6, ++i * 6);
+		return colors;
+	}
+
+	const interpolator = interpolateYlGnBu;
+	$: scale = scaleSequential().clamp(true).domain(metrics.domain).interpolator(interpolator); // TODO configurable colormap?
 
 	function getColor(d: number) {
 		return scale(d);
@@ -47,7 +55,7 @@
 
 	function getMetric(
 		feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>,
-		metrics: NamedSpatialMetric[]
+		metrics: SpatialMetric[]
 	) {
 		return metrics.find((m) => m.ISO === feature.properties!.ISO_A3_EH);
 	}
@@ -57,7 +65,7 @@
 			if (geoJsonFeature === undefined) {
 				return {};
 			}
-			const value = getMetric(geoJsonFeature, metrics)?.value;
+			const value = getMetric(geoJsonFeature, metrics.data)?.value;
 			const defaultOptions = { fillColor: 'grey', color: 'darkgrey', weight: 1 };
 			if (value === undefined) {
 				return defaultOptions;
@@ -67,14 +75,25 @@
 		}
 	};
 
-	export let selectedFeature:
+	export let clickedFeature:
+		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
+		| undefined;
+	export let hoveredFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 		| undefined;
 
 	function onClick(e: any) {
-		selectedFeature = e.detail.sourceTarget.feature;
+		clickedFeature = e.detail.sourceTarget.feature;
 		// <GeoJSON> dts says e is a LeafletMouseEvent but it is not
 		// it is CustomEvent with e.detail being the LeafletMouseEvent
+	}
+
+	function onMouseOver(e: any) {
+		hoveredFeature = e.detail.sourceTarget.feature;
+	}
+
+	function onmouseout() {
+		hoveredFeature = undefined;
 	}
 
 	let leafletMap: LeafletMap;
@@ -94,9 +113,11 @@
 				options={geoJsonOptions}
 				events={['click', 'mouseover', 'mouseout']}
 				on:click={onClick}
+				on:mouseover={onMouseOver}
+				on:mouseout={onmouseout}
 			/>
 		</LeafletMap>
-		<ColorLegend title={'Gt CO₂'} {...notypecheck({ scale: scale })} {scale} />
+		<ColorLegend title={'tonnes CO₂e per capita'} {...notypecheck({ scale: scale })} {scale} />
 	{/if}
 </div>
 

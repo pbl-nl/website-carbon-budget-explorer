@@ -1,33 +1,44 @@
-// Top colors from https://colorbrewer2.org/#type=qualitative&scheme=Pastel1&n=9
+// Top colors from https://colorbrewer2.org/#type=qualitative&scheme=Set3&n=9
+/*
+#8dd3c7
+#ffffb3
+#bebada
+#fb8072 to much like ndc
+#80b1d3
+#fdb462
+#b3de69 to much like pathway
+#fccde5
+#d9d9d9
+*/
 export const principles = {
 	GF: {
 		label: 'Grandfathering',
 		summary: 'Past emissions levels.',
-		color: '#fbb4ae'
+		color: '#8dd3c7'
 	},
 	PC: {
 		label: 'Per capita',
 		summary: 'Population.',
-		color: '#b3cde3'
+		color: '#ffffb3'
 	},
 	PCC: {
 		label: 'Per capita convergence',
 		summary: 'Population with convergence in 2040.',
-		color: '#ccebc5'
+		color: '#bebada'
 	},
 	AP: {
 		label: 'Ability to pay',
 		summary: 'A country’s ability to pay for mitigation.',
-		color: '#decbe4'
+		color: '#80b1d3'
 	},
 	GDR: {
-		label: 'Greenhouse development rights',
+		label: 'GH development rights',
 		summary: 'Equalize per capita emissions across countries.',
-		color: '#fed9a6'
+		color: '#fdb462'
 	},
 	ECPC: {
 		label: 'Equal cumulative per capita',
 		summary: 'A country’s cumulative emissions per capita.',
-		color: '#ffffcc'
+		color: '#fccde5'
 	}
 } as const;

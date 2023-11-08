@@ -9,7 +9,6 @@ export interface SpatialMetric {
 export interface PathWayQuery {
 	temperature: string;
 	exceedanceRisk: string;
-	nonCO2Mitigation: string;
 	negativeEmissions: string;
 }
 
@@ -17,6 +16,15 @@ export interface PathwayStats {
 	total: number;
 	used: number;
 	remaining: number;
+	relative: number;
+	gaps: {
+		index: number;
+		budget: number;
+		curPol: number;
+		ndc: number;
+		ambition: number;
+		emission: number;
+	};
 }
 
 export interface TimeSeriesValue {
@@ -59,31 +67,28 @@ export function pathwayQueryFromSearchParams(
 		searchParams.get('exceedanceRisk') ??
 		choices.exceedanceRisk[Math.floor(choices.exceedanceRisk.length / 2)];
 	// TODO when more choices are available use Medium==1 as default
-	const nonCO2Mitigation =
-		searchParams.get('nonCO2Mitigation') ??
-		choices.nonCO2Mitigation[Math.floor(choices.nonCO2Mitigation.length / 2)];
 	const negativeEmissions =
 		searchParams.get('negativeEmissions') ??
 		choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)];
 	return {
 		temperature,
 		exceedanceRisk,
-		nonCO2Mitigation,
 		negativeEmissions
 	};
 }
 
-export const API_URL = process.env.API_URL ?? 'http://127.0.0.1:5000';
+export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000';
 
 async function getJSON(path: string, myfetch = fetch) {
-	let url = `${API_URL}/${path}`;
+	let url = `${API_URL}${path}`;
 	if (browser) {
-		url = `/api/${path}`;
+		url = `/api${path}`;
 	}
 	console.time(url);
 	const response = await myfetch(url);
 	if (!response.ok) {
 		console.error(url);
+		console.timeEnd(url);
 		throw new Error(response.statusText);
 	}
 	const data = await response.json();
@@ -96,19 +101,19 @@ export async function pathwayChoices(): Promise<Record<keyof PathWayQuery, strin
 	return getJSON(path);
 }
 
-export async function pathwayStats(search: string): Promise<PathwayStats> {
+export async function pathwayStats(search: string, fetch?: any): Promise<PathwayStats> {
 	const path = `/pathwayStats${search}`;
-	return getJSON(path);
+	return getJSON(path, fetch);
 }
 
-export async function pathwayCarbon(search: string): Promise<UncertainTime[]> {
+export async function pathwayCarbon(search: string, fetch?: any): Promise<UncertainTime[]> {
 	// TODO: send data instead of search string?
 	// TODO: update search with default choices
-	return getJSON(`/pathwayCarbon${search}`);
+	return getJSON(`/pathwayCarbon${search}`, fetch);
 }
 
 export async function historicalCarbon(
-	region = 'WORLD',
+	region = 'EARTH',
 	start = 1990,
 	end = 2021
 ): Promise<CertainTime[]> {
@@ -133,33 +138,56 @@ export async function gdpOverTime(
 	return getJSON(`/gdpOverTime/${region}?start=${start}&end=${end}`);
 }
 
-export async function listRegions(): Promise<string[]> {
+export interface Region {
+	iso2: string;
+	iso3: string;
+	name: string;
+}
+
+export async function listRegions(): Promise<Region[]> {
 	return getJSON(`/regions`);
 }
 
+export async function regionInfo(ISO: string): Promise<Region> {
+	return getJSON(`/regions/${ISO}`);
+}
+
+export interface BudgetSpatial<T = SpatialMetric> {
+	data: T[];
+	domain: [number, number];
+}
+
 export async function fullCenturyBudgetSpatial(
+	allocationTime: string,
 	search: string
-	// effortSharing: keyof typeof principles
 	// Scenario = 'SSP2',
 	// Convergence_year = 2040
-): Promise<SpatialMetric[]> {
-	return getJSON(`/fullCenturyBudgetSpatial${search}`);
+): Promise<BudgetSpatial> {
+	return getJSON(`/map/${allocationTime}/GHG${search}`);
 }
 
 async function policyPathway(policy: string, Region: string): Promise<UncertainTime[]> {
 	return getJSON(`/policyPathway/${policy}/${Region}`);
 }
 
-export async function currentPolicy(Region = 'WORLD'): Promise<UncertainTime[]> {
+export async function currentPolicy(Region = 'EARTH'): Promise<UncertainTime[]> {
 	return await policyPathway('CurPol', Region);
 }
 
-export async function ndc(Region = 'WORLD'): Promise<UncertainTime[]> {
+export async function ndc(Region = 'EARTH'): Promise<UncertainTime[]> {
 	return await policyPathway('NDC', Region);
 }
 
-export async function netzero(Region = 'WORLD'): Promise<UncertainTime[]> {
+export async function netzero(Region = 'EARTH'): Promise<UncertainTime[]> {
 	return await policyPathway('NetZero', Region);
+}
+
+export async function indicators(ISO: string): Promise<{
+	ndcAmbition: number | null;
+	historicalCarbon: number;
+	ndc: Record<number, [number, number]>;
+}> {
+	return getJSON(`/indicators/${ISO}`);
 }
 
 export async function effortSharing(ISO: string, principle: string, search: string, fetch: any) {
@@ -171,11 +199,19 @@ export async function effortSharings(
 	search: string,
 	fetch: any
 ): Promise<Record<string, UncertainTime[]>> {
-	// return getJSON(`/${ISO}/effortSharings${search}`);
+	return getJSON(`/${ISO}/effortSharings${search}`);
 	const r: Record<string, any> = {};
 	for (const principle of Object.keys(principles)) {
 		r[principle] = await effortSharing(ISO, principle, search, fetch);
 	}
 
 	return r;
+}
+
+export async function effortSharingReductions(
+	ISO: string,
+	search: string,
+	fetch: any
+): Promise<Record<string, Record<number, number>>> {
+	return getJSON(`/${ISO}/effortSharingReductions${search}`, fetch);
 }

@@ -1,20 +1,24 @@
 <script lang="ts">
-	import type { PageData } from '../global/$types';
-
-	import PathwayForm from '$lib/PathwayForm.svelte';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+
+	import ShareTabs from '$lib/ShareTabs.svelte';
 	import Pathway from '$lib/charts/Pathway.svelte';
 	import Line from '$lib/charts/components/Line.svelte';
 	import Area from '$lib/charts/components/Area.svelte';
 	import Gap from '$lib/charts/components/Gap.svelte';
-	import { tweened } from 'svelte/motion';
-	import { cubicOut } from 'svelte/easing';
+
+	import type { PageData } from '../global/$types';
+	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
+	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
+	import type { ComponentEvents, SvelteComponent } from 'svelte';
 
 	export let data: PageData;
 
-	// TODO generalize to colormap component or so
+	// TODO generalize to colormap component or named after the series it used for
 	const ipcc_green = '#82a56e';
 	const ipcc_red = '#f5331e';
 	const ipcc_blue = '#5bb0c6';
@@ -35,52 +39,70 @@
 		emissionGapHover = !emissionGapHover;
 	}
 
+	let evt = {};
+	function hoverBuilder(tmpl: (row: any) => string) {
+		return function (e: ComponentEvents<SvelteComponent>) {
+			const row = e.detail.row;
+			if (row === undefined) {
+				return;
+			}
+			e.detail.msg = tmpl(row);
+			evt = e;
+		};
+	}
+	const hoverHistoricalCarbon = hoverBuilder(
+		(row) => `Historical emission in ${row.time} was ${row.value.toFixed(0)} Gt CO₂e`
+	);
+	const hoverPathway = hoverBuilder(
+		(row) =>
+			`Your selected global pathway emission in ${row.time} is on average ${row.mean.toFixed(
+				0
+			)} Gt CO₂e`
+	);
+	const hoverCurrentPolicy = hoverBuilder(
+		(row) => `Current policy in ${row.time} is on average ${row.mean.toFixed(0)} Gt CO₂e`
+	);
+	const hoverNdc = hoverBuilder(
+		(row) => `NDCs in ${row.time} is on average ${row.mean.toFixed(0)} Gt CO₂e`
+	);
+	const hoverNetzero = hoverBuilder(
+		(row) => `Net zero-scenarios in ${row.time} is on average ${row.mean.toFixed(0)} Gt CO₂e`
+	);
+	// When series overlap the top most series will react to mouse events
+
 	let policyPathwayToggles = {
-		current: true,
+		current: false,
 		ndc: false,
 		netzero: false
 	};
 
-	let gapIndex = data.result.ndc.map((d) => d.time).indexOf(2030);
 	let ambitionGapHover = false;
 	let emissionGapHover = false;
 
 	// $: console.log(data.result.currentPolicy); // only nans in input data...
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const globalBudgetCounter = tweened(data.result.pathwayStats.total, tweenOptions);
-	$: globalBudgetCounter.set(data.result.pathwayStats.total);
-	const remainingBudgetCounter = tweened(data.result.pathwayStats.remaining, tweenOptions);
-	$: remainingBudgetCounter.set(data.result.pathwayStats.remaining);
 	const pathwayCarbonTweened = tweened(data.result.pathwayCarbon, tweenOptions);
 	$: pathwayCarbonTweened.set(data.result.pathwayCarbon);
-	const emissionGapTweened = tweened(data.result.emissionGap, tweenOptions);
-	$: emissionGapTweened.set(data.result.emissionGap);
-	const ambitionGapTweened = tweened(data.result.ambitionGap, tweenOptions);
-	$: ambitionGapTweened.set(data.result.ambitionGap);
+	const emissionGapTweened = tweened(data.result.stats.gaps.emission, tweenOptions);
+	$: emissionGapTweened.set(data.result.stats.gaps.emission);
+	const ambitionGapTweened = tweened(data.result.stats.gaps.ambition, tweenOptions);
+	$: ambitionGapTweened.set(data.result.stats.gaps.ambition);
 </script>
 
-<div class="flex h-full flex-col items-center">
-	<div class="flex w-full grow flex-row justify-between gap-4">
-		<div class="flex max-w-[25%] flex-col gap-4 p-4 shadow-lg">
-			<div>
-				<h1 class="text-xl">Compose your pathway</h1>
-				<h2>Choose from the options below and see how it affects the remaining carbon budget.</h2>
-			</div>
-			<div class="border-4 border-[#82a56e]">
-				<PathwayForm
-					choices={data.pathway.choices}
-					query={data.pathway.query}
-					onChange={updateQueryParam}
-				/>
-			</div>
-			<div>
-				<h1 class="text-xl">Reference pathways</h1>
-				<!-- <h2>(Currenty policy)</h2> -->
-				<h2>Compare your own pathway with the following references:</h2>
-			</div>
-			<div class="grow">
-				<ul>
+<div class="flex gap-4">
+	<div id="sidebar" class="flex h-full max-w-[25%] flex-col justify-between gap-4">
+		<GlobalBudgetCard total={data.result.stats.total} remaining={data.result.stats.remaining} />
+		<GlobalQueryCard
+			choices={data.pathway.choices}
+			query={data.pathway.query}
+			onChange={updateQueryParam}
+		/>
+		<div class="card-compact card prose bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h2 class="not-prose card-title">Reference pathways</h2>
+				<p>Compare your pathway to the following reference pathways:</p>
+				<ul class="not-prose">
 					<li>
 						<label>
 							<b style={`color: ${ipcc_red}`}>▬</b>
@@ -103,96 +125,119 @@
 						>
 					</li>
 				</ul>
-			</div>
-			<div class="p-4 shadow-lg">
-				<h1>Difference between your scenario and current policy</h1>
-				<ul>
-					<li on:mouseenter={toggleEmissionGap} on:mouseleave={toggleEmissionGap}>
-						<span class="cursor-grab hover:bg-slate-200">
-							Emission gap: {($emissionGapTweened / 1_000).toFixed(2)} GtCO2
-						</span>
-					</li>
-					<li on:mouseenter={toggleAmbitionGap} on:mouseleave={toggleAmbitionGap}>
-						<span class="cursor-grab hover:bg-slate-200">
-							Ambition gap: {($ambitionGapTweened / 1_000).toFixed(2)} GtCO2
-						</span>
-					</li>
-				</ul>
-			</div>
-		</div>
-
-		<div class="flex grow flex-col gap-4">
-			<div class="flex flex-row gap-4 rounded-lg border-4 p-2">
-				<div class="border-4 border-green-400 bg-green-300 p-2 shadow-xl">
-					<p class="text-4xl">
-						{($remainingBudgetCounter / 1_000).toFixed(0)}
-					</p>
-					<p>Gt CO2</p>
-					<p>Global budget</p>
-				</div>
-				<div class="border-4 border-green-400 bg-green-300 p-2 shadow-xl">
-					<p class="text-4xl">
-						{($remainingBudgetCounter / 1_000 / 37).toFixed(0)}x
-					</p>
-					<p>current emissions</p>
-				</div>
-				<!-- <ul>
-					<li>Remaining carbon budget: {($remainingBudgetCounter / 1_000).toFixed(2)} Gt CO2</li>
-					<li>Total historical emissions: {(data.result.pathwayStats.used / 1_000).toFixed(2)} Gt CO2</li>
-					
-				</ul> -->
-			</div>
-			<div class="grow p-4 shadow-lg">
-				<Pathway>
-					<Line data={data.result.historicalCarbon} x={'time'} y={'value'} color="black" />
-					{#if policyPathwayToggles.current || emissionGapHover}
-						<Line data={data.result.currentPolicy} x={'time'} y={'mean'} color={ipcc_red} />
-						<Area
-							data={data.result.currentPolicy}
-							x={'time'}
-							y0={'min'}
-							y1={'max'}
-							color={ipcc_red}
-						/>
-					{/if}
-					{#if policyPathwayToggles.ndc || ambitionGapHover}
-						<Line data={data.result.ndc} x={'time'} y={'mean'} color={ipcc_blue} />
-						<Area data={data.result.ndc} x={'time'} y0={'min'} y1={'max'} color={ipcc_blue} />
-					{/if}
-					{#if policyPathwayToggles.netzero}
-						<Line data={data.result.netzero} x={'time'} y={'mean'} color={ipcc_purple} />
-						<Area data={data.result.netzero} x={'time'} y0={'min'} y1={'max'} color={ipcc_purple} />
-					{/if}
-
-					{#if ambitionGapHover}
-						<Gap
-							x={2030}
-							y0={data.result.ndc[gapIndex].mean}
-							y1={$pathwayCarbonTweened.find((d) => d.time === 2030)?.mean || 0}
-						/>
-					{/if}
-					{#if emissionGapHover}
-						<Gap
-							x={2030}
-							y0={data.result.currentPolicy[gapIndex].mean}
-							y1={$pathwayCarbonTweened.find((d) => d.time === 2030)?.mean || 0}
-						/>
-					{/if}
-
-					<Line data={$pathwayCarbonTweened} x={'time'} y={'mean'} color={ipcc_green} />
-					<Area data={$pathwayCarbonTweened} x={'time'} y0={'min'} y1={'max'} color={ipcc_green} />
-				</Pathway>
+				<p>
+					The difference between your pathway and the reference pathways is characterized by the <span
+						class="tooltip"
+						role="tooltip"
+						on:mouseenter={toggleEmissionGap}
+						on:mouseleave={toggleEmissionGap}
+						data-tip="The emission gap is the difference between your scenario and the current policy."
+						>emission 🛈</span
+					>
+					and
+					<span
+						class="tooltip"
+						role="tooltip"
+						on:mouseenter={toggleAmbitionGap}
+						on:mouseleave={toggleAmbitionGap}
+						data-tip="The ambition gap is the
+				difference between your scenario and the NDCs.">ambition 🛈</span
+					>
+					gaps.
+				</p>
 			</div>
 		</div>
-		<div class="flex h-full max-w-[25%] flex-col justify-between gap-4 p-4 shadow-lg">
-			<div>
-				<a
-					class="mb-2 mr-2 block rounded-lg bg-gradient-to-br from-green-400 to-blue-600 px-5 py-2.5 text-center text-3xl font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800"
-					href={`/map${$page.url.search}`}
-				>
-					Next step: Allocate
-				</a>
+		<div class="stats shadow-xl">
+			<div class="stat tooltip place-items-center">
+				<div class="stat-title">Emission gap in 2030</div>
+				<div class="stat-value">{$emissionGapTweened.toFixed(0)}</div>
+				<div class="stat-desc" title="Gigaton carbon dioxide equivalent">Gt CO₂e</div>
 			</div>
+
+			<div class="stat place-items-center">
+				<div class="stat-title">Ambition gap in 2030</div>
+				<div class="stat-value">{$ambitionGapTweened.toFixed(0)}</div>
+				<div class="stat-desc" title="Gigaton carbon dioxide equivalent">Gt CO₂e</div>
+				<p class="text-xs" />
+			</div>
+		</div>
+	</div>
+
+	<div class="flex grow flex-col">
+		<ShareTabs />
+		<div class="relative grow bg-base-100 p-4 shadow-lg">
+			<Pathway {evt} yAxisTtle="Greenhouse gas emissions (Gt CO₂e/year)">
+				<Line
+					data={data.result.historicalCarbon}
+					x={'time'}
+					y={'value'}
+					color="black"
+					on:mouseover={hoverHistoricalCarbon}
+					on:mouseout={(e) => (evt = e)}
+				/>
+				{#if policyPathwayToggles.current || emissionGapHover}
+					<Line data={data.result.currentPolicy} x={'time'} y={'mean'} color={ipcc_red} />
+					<Area
+						data={data.result.currentPolicy}
+						x={'time'}
+						y0={'min'}
+						y1={'max'}
+						color={ipcc_red}
+						on:mouseover={hoverCurrentPolicy}
+						on:mouseout={(e) => (evt = e)}
+					/>
+				{/if}
+				{#if policyPathwayToggles.ndc || ambitionGapHover}
+					<Line data={data.result.ndc} x={'time'} y={'mean'} color={ipcc_blue} />
+					<Area
+						data={data.result.ndc}
+						x={'time'}
+						y0={'min'}
+						y1={'max'}
+						color={ipcc_blue}
+						on:mouseover={hoverNdc}
+						on:mouseout={(e) => (evt = e)}
+					/>
+				{/if}
+				{#if policyPathwayToggles.netzero}
+					<Line data={data.result.netzero} x={'time'} y={'mean'} color={ipcc_purple} />
+					<Area
+						data={data.result.netzero}
+						x={'time'}
+						y0={'min'}
+						y1={'max'}
+						color={ipcc_purple}
+						on:mouseover={hoverNetzero}
+						on:mouseout={(e) => (evt = e)}
+					/>
+				{/if}
+
+				{#if ambitionGapHover}
+					<Gap
+						x={data.result.stats.gaps.index}
+						y0={data.result.stats.gaps.ndc}
+						y1={data.result.stats.gaps.budget}
+					/>
+				{/if}
+				{#if emissionGapHover}
+					<Gap
+						x={data.result.stats.gaps.index}
+						y0={data.result.stats.gaps.curPol}
+						y1={data.result.stats.gaps.budget}
+					/>
+				{/if}
+
+				<Line data={$pathwayCarbonTweened} x={'time'} y={'mean'} color={ipcc_green} />
+				<Area
+					data={$pathwayCarbonTweened}
+					x={'time'}
+					y0={'min'}
+					y1={'max'}
+					color={ipcc_green}
+					on:mouseover={hoverPathway}
+					on:mouseout={(e) => (evt = e)}
+				/>
+			</Pathway>
 		</div>
 	</div>
 </div>
