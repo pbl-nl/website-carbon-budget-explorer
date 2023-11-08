@@ -25,10 +25,10 @@ CORS(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 # TODO validate inputs? Must if ws is public, and now it is due to src/routes/api/\[...path\]/+server.ts
-# TODO make data/ configurable
+# TODO make /data/ configurable
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset("data/xr_dataread.nc")
+dsGlobal = xr.open_dataset("/data/xr_dataread.nc")
 
 
 @app.get("/pathwayCarbon")
@@ -84,12 +84,12 @@ def pathwaySelection():
 
 
 available_region_files = set(
-    [r.lstrip("data/xr_alloc_").rstrip(".nc") for r in glob("data/xr_alloc_*.nc")]
+    [r.lstrip("/data/xr_alloc_").rstrip(".nc") for r in glob("/data/xr_alloc_*.nc")]
 )
 
 def build_regions():
     countries_geojson = {}
-    for g in loads(Path("data/ne_110m_admin_0_countries.geojson").read_text())["features"]:
+    for g in loads(Path("/data/ne_110m_admin_0_countries.geojson").read_text())["features"]:
         ps = g["properties"]
         countries_geojson[ps["ISO_A3_EH"]] = {
             "name": ps["NAME"],
@@ -258,10 +258,10 @@ def gdpOverTime(region):
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset("data/xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset("data/xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset("data/xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset("data/xr_alloc_FC.nc")
+ds_alloc_2030 = xr.open_dataset("/data/xr_alloc_2030.nc")
+ds_alloc_2040 = xr.open_dataset("/data/xr_alloc_2040.nc")
+ds_alloc_2050 = xr.open_dataset("/data/xr_alloc_2050.nc")
+ds_alloc_FC = xr.open_dataset("/data/xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -342,7 +342,7 @@ def fullCenturyBudgetSpatial(year):
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset("data/xr_policyscen.nc")
+ds_policyscen = xr.open_dataset("/data/xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -414,7 +414,7 @@ def indicators(region):
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = f"data/xr_alloc_{ISO}.nc"
+    fn = f"/data/xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
