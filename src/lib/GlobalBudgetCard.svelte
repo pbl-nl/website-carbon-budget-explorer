@@ -2,29 +2,25 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
-	export let total: number;
 	export let remaining: number;
+	export let relative: number;
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const globalBudgetCounter = tweened(total, tweenOptions);
-	$: globalBudgetCounter.set(total);
 	const remainingBudgetCounter = tweened(remaining, tweenOptions);
 	$: remainingBudgetCounter.set(remaining);
+	const relativeBudgetCounter = tweened(relative, tweenOptions);
+	$: relativeBudgetCounter.set(relative);
 </script>
 
-<div class="stats shadow">
-	<div class="stat place-items-center">
-		<div class="stat-title">Global carbon budget</div>
-		<div class="stat-value">{($remainingBudgetCounter / 1_000).toFixed(0)}</div>
-		<div class="stat-desc" title="Gigaton carbon dioxide equivalent">Gt CO₂e</div>
+<div class="grid min-w-full grid-cols-2 place-items-center rounded bg-base-100 p-2 shadow-xl">
+	<div class="text-center text-base-content/60">Global carbon budget</div>
+	<div class="text-center text-base-content/60">That amounts to</div>
+
+	<div class="text-4xl font-extrabold">{$remainingBudgetCounter.toFixed()}</div>
+	<div class="text-4xl font-extrabold">
+		{$relativeBudgetCounter.toFixed()}x
 	</div>
 
-	<div class="stat place-items-center">
-		<div class="stat-title">That amounts to</div>
-		<div class="stat-value">
-			<!-- TODO fix this hardcoded 37, should be global emissions in 2021 -->
-			{($remainingBudgetCounter / 1_000 / 37).toFixed(0)}x
-		</div>
-		<div class="stat-desc">the current annual emissions</div>
-	</div>
+	<div class="text-center text-xs text-base-content/60" title="Gigaton carbon dioxide">Gt CO₂</div>
+	<div class="text-center text-xs text-base-content/60">the current annual emissions</div>
 </div>

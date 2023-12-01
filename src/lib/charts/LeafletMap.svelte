@@ -8,6 +8,8 @@
 	import { interpolateYlGnBu, scaleSequential } from 'd3';
 	import ColorLegend from './components/ColorLegend.svelte';
 	import type { BudgetSpatial, SpatialMetric } from '$lib/api';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 
 	export let borders: BordersCollection;
 	export let metrics: BudgetSpatial<SpatialMetric>;
@@ -17,7 +19,6 @@
 		zoom: 3,
 		minZoom: 2,
 		zoomControl: false
-		// TODO when open street map is not shown render less gray background
 	};
 	if (browser) {
 		// mapOptions.crs = CRS.EPSG4326
@@ -36,22 +37,17 @@
 
 	let tileLayer;
 
-	function colors(specifier: string) {
-		var n = (specifier.length / 6) | 0,
-			colors = new Array(n),
-			i = 0;
-		while (i < n) colors[i] = '#' + specifier.slice(i * 6, ++i * 6);
-		return colors;
-	}
+	const tweenOptions = { duration: 1000, easing: cubicOut };
+	const tweenedDomain = tweened(metrics.domain, tweenOptions);
+	$: tweenedDomain.set(metrics.domain);
 
 	const interpolator = interpolateYlGnBu;
-	$: scale = scaleSequential().clamp(true).domain(metrics.domain).interpolator(interpolator); // TODO configurable colormap?
+	$: scale = scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator);
 
 	function getColor(d: number) {
 		return scale(d);
 	}
 	// TODO Deal with nans?
-	// TODO add colorbar
 
 	function getMetric(
 		feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>,
@@ -117,7 +113,11 @@
 				on:mouseout={onmouseout}
 			/>
 		</LeafletMap>
-		<ColorLegend title={'tonnes CO₂e per capita'} {...notypecheck({ scale: scale })} {scale} />
+		<ColorLegend
+			title={'Emissions allocation per capita (t CO2e/pc)'}
+			{...notypecheck({ scale: scale })}
+			{scale}
+		/>
 	{/if}
 </div>
 

@@ -28,7 +28,7 @@ export async function load({ url }: { url: URL }) {
 		'PCC'
 	);
 
-	const selectedAllocationTime = searchParam<string>(url, 'allocTime', '2021-2100');
+	const selectedAllocationTime = searchParam<string>(url, 'allocTime', '2030');
 
 	let rawMetrics: BudgetSpatial = {
 		data: [],

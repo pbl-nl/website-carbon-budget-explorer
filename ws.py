@@ -24,11 +24,13 @@ CORS(app)
 # TODO improve endpoint names
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
-# TODO validate inputs? Must if ws is public, and now it is due to src/routes/api/\[...path\]/+server.ts
-# TODO make /data/ configurable
+# TODO make data/ configurable
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset("/data/xr_dataread.nc")
+dsGlobal = xr.open_dataset("data/xr_dataread.nc")
+
+# PCC convergence year is standard on 2050
+DEFAULT_CONVERGENCE_YEAR = 2050
 
 
 @app.get("/pathwayCarbon")
@@ -84,12 +86,18 @@ def pathwaySelection():
 
 
 available_region_files = set(
-    [r.lstrip("/data/xr_alloc_").rstrip(".nc") for r in glob("/data/xr_alloc_*.nc")]
+    [
+        r.lstrip("data/xr_alloc_").rstrip(".nc").lstrip("\\xr_alloc")
+        for r in glob("data/xr_alloc_*.nc")
+    ]
 )
+
 
 def build_regions():
     countries_geojson = {}
-    for g in loads(Path("/data/ne_110m_admin_0_countries.geojson").read_text())["features"]:
+    for g in loads(
+        Path("data/ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
+    )["features"]:
         ps = g["properties"]
         countries_geojson[ps["ISO_A3_EH"]] = {
             "name": ps["NAME"],
@@ -111,11 +119,19 @@ def build_regions():
             "iso3": "Northern America",
             "name": "Northern America",
         },
-        "VCT": {"iso2": "VC", "iso3": "VCT", "name": "Saint Vincent and the Grenadines"},
+        "VCT": {
+            "iso2": "VC",
+            "iso3": "VCT",
+            "name": "Saint Vincent and the Grenadines",
+        },
         "EU": {"iso2": "EU", "iso3": "EU", "name": "European Union"},
         "CPV": {"iso2": "CV", "iso3": "CPV", "name": "Cape Verde"},
         "BHR": {"iso2": "BH", "iso3": "BHR", "name": "Bahrain"},
-        "SIDS": {"iso2": None, "iso3": "SIDS", "name": "Small Island Developing States"},
+        "SIDS": {
+            "iso2": None,
+            "iso3": "SIDS",
+            "name": "Small Island Developing States",
+        },
         "KNA": {"iso2": "KN", "iso3": "KNA", "name": "Saint Kitts and Nevis"},
         "MCO": {"iso2": "MC", "iso3": "MCO", "name": "Monaco"},
         "TON": {"iso2": "TO", "iso3": "TON", "name": "Tonga"},
@@ -128,7 +144,11 @@ def build_regions():
         "NRU": {"iso2": "NR", "iso3": "NRU", "name": "Nauru"},
         "WSM": {"iso2": "WS", "iso3": "WSM", "name": "Samoa"},
         "AND": {"iso2": "AD", "iso3": "AND", "name": "Andorra"},
-        "Australasia": {"iso2": None, "iso3": "Australasia", "name": "Australasia"},
+        "Australasia": {
+            "iso2": None,
+            "iso3": "Australasia",
+            "name": "Australasia",
+        },
         "DMA": {"iso2": "DM", "iso3": "DMA", "name": "Dominica"},
         "SGP": {"iso2": "SG", "iso3": "SGP", "name": "Singapore"},
         "TUV": {"iso2": "TV", "iso3": "TUV", "name": "Tuvalu"},
@@ -138,10 +158,18 @@ def build_regions():
         "MHL": {"iso2": "MH", "iso3": "MHL", "name": "Marshall Islands"},
         "G7": {"iso2": None, "iso3": "G7", "name": "Group of Seven (G7)"},
         "VAT": {"iso2": "VA", "iso3": "VAT", "name": "Vatican City"},
-        "African Group": {"iso2": None, "iso3": "African Group", "name": "African Group"},
+        "African Group": {
+            "iso2": None,
+            "iso3": "African Group",
+            "name": "African Group",
+        },
         "FSM": {"iso2": "FM", "iso3": "FSM", "name": "Micronesia"},
         "G20": {"iso2": None, "iso3": "G20", "name": "Group of 20 (G20)"},
-        "LDC": {"iso2": None, "iso3": "LDC", "name": "Least developed countries"},
+        "LDC": {
+            "iso2": None,
+            "iso3": "LDC",
+            "name": "Least developed countries",
+        },
         "NIU": {"iso2": "NU", "iso3": "NIU", "name": "Niue"},
         "COK": {"iso2": "CK", "iso3": "COK", "name": "Cook Islands"},
     }
@@ -156,11 +184,14 @@ def build_regions():
                 data.append(additional_regions[region])
     return sorted(data, key=lambda x: x["name"])
 
+
 available_regions = build_regions()
+
 
 @app.get("/regions")
 def regions():
     return available_regions
+
 
 @app.get("/regions/<region>")
 def region(region):
@@ -172,45 +203,51 @@ def region(region):
 
 @app.get("/pathwayStats")
 def pathwayStats():
-    used = dsGlobal.GHG_hist.sel(Region="EARTH").sum().values.tolist()
-    remaining = (
-        dsGlobal.GHG_globe.sel(
-            TrajUnc="Medium",
-            **pathwaySelection(),
+    def stats(emission_type):
+        if emission_type == 'ghg':
+            hist = dsGlobal.GHG_hist
+            globe = dsGlobal.GHG_globe
+        elif emission_type == 'co2':
+            hist = dsGlobal.CO2_hist
+            globe = dsGlobal.CO2_globe
+        else:
+            raise ValueError(f"Emission type {emission_type} not supported")
+
+        used = hist.sel(Region="EARTH").sum().values.tolist()
+        remaining = globe.sel(TrajUnc="Medium",**pathwaySelection()).sum().values.tolist()
+        total = used + remaining
+        reference = hist.sel(Region="EARTH").sel(Time=2021).item()
+        relative = remaining / reference
+
+        # TODO gaps is not needed on non-global pages, so dont compute if there
+        gap_index = 2030
+        pathway = (
+            globe.sel(Time=gap_index, TrajUnc="Medium", **pathwaySelection())
+            .mean()
+            .values
+            + 0
         )
-        .sum()
-        .values.tolist()
-    )
-    total = used + remaining
-    # TODO fix this hardcoded 37, should be global emissions in 2021
-    relative = remaining / 37
+        curPol = ds_policyscen.CurPol.sel(Region="EARTH", Time=gap_index).mean().values + 0
+        ndc = ds_policyscen.NDC.sel(Region="EARTH", Time=gap_index).mean().values + 0
 
-    # Calculate gaps
-    # TODO gaps is not needed on non-global pages, so dont compute if there
-    gap_index = 2030
-    pathway = (
-        dsGlobal.GHG_globe.sel(Time=gap_index, TrajUnc="Medium", **pathwaySelection())
-        .mean()
-        .values
-        + 0
-    )
-    curPol = ds_policyscen.CurPol.sel(Region="EARTH", Time=gap_index).mean().values + 0
-    ndc = ds_policyscen.NDC.sel(Region="EARTH", Time=gap_index).mean().values + 0
-
-    gaps = {
-        "index": gap_index,
-        "budget": pathway / 1000,
-        "curPol": curPol / 1000,
-        "ndc": ndc / 1000,
-        "emission": (curPol - pathway) / 1000,
-        "ambition": (ndc - pathway) / 1000,
-    }
+        gaps = {
+            "index": gap_index,
+            "budget": pathway / 1000,
+            "curPol": curPol / 1000,
+            "ndc": ndc / 1000,
+            "emission": (curPol - pathway) / 1000,
+            "ambition": (ndc - pathway) / 1000,
+        }
+        return {
+            "total": total / 1000,
+            "used": used / 1000,
+            "remaining": remaining / 1000,
+            "relative": relative,
+            "gaps": gaps
+        }
     return {
-        "total": total,
-        "used": used,
-        "remaining": remaining,
-        "relative": relative,
-        "gaps": gaps,
+        "co2": stats("co2"),
+        "ghg": stats("ghg")
     }
 
 
@@ -258,10 +295,10 @@ def gdpOverTime(region):
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset("/data/xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset("/data/xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset("/data/xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset("/data/xr_alloc_FC.nc")
+ds_alloc_2030 = xr.open_dataset("data/xr_alloc_2030.nc")
+ds_alloc_2040 = xr.open_dataset("data/xr_alloc_2040.nc")
+ds_alloc_2050 = xr.open_dataset("data/xr_alloc_2050.nc")
+ds_alloc_FC = xr.open_dataset("data/xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -277,7 +314,7 @@ def fullCenturyBudgetSpatial(year):
     if effortSharing in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
     if effortSharing == "PCC":
-        selection.update(Convergence_year=2040)
+        selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
 
     file_by_year = {
         "2030": ds_alloc_2030,
@@ -301,48 +338,25 @@ def fullCenturyBudgetSpatial(year):
     )
     rows = df.to_dict(orient="records")
 
-    domain = [
-        min(rows, key=lambda x: x["value"])["value"],
-        max(rows, key=lambda x: x["value"])["value"],
-    ]
+    ds = (
+        file_by_year[year]
+        .sel(
+            Scenario="SSP2",
+            Convergence_year=DEFAULT_CONVERGENCE_YEAR,
+            **pathwaySelection(),
+        )
+        .sel(TrajUnc="Medium")
+    ).to_array("variable")
+
+    domain = [ds.quantile(0.1).item(), ds.quantile(0.5).item()]
+
     # Round domain to nearest 10
     domain = [d // 10 * 10 for d in domain]
-
-    # Floating randomness make plot look weird for pc
-    # [222.999999322, 223.00000067800002]
-    # added fudge factor
-    if effortSharing == "PC" or (effortSharing == "PCC" and year == "2040"):
-        domain = [
-            domain[0] - 10,
-            domain[1] + 10,
-        ]
-
-    # TODO calculate domain from all principles
-    # ECPC is much bigger then other principles, so looks weird
-    # if effortSharing != "ECPC":
-    #     similar_principles = ["PC", "PCC", "AP", "GDR", "GF"]
-    #     domainds = file_by_year[year][similar_principles].sel(
-    #         Scenario="SSP2",
-    #         Convergence_year=2040,
-    #         **pathwaySelection())
-    #     domain_std = domainds.std()
-    #     domain_mean = domainds.mean()
-    #     sigma = 1
-    #     raw_domain = [
-    #         domain_mean - (sigma * domain_std),
-    #         domain_mean + (sigma * domain_std),
-    #     ]
-    #     domain = [
-    #         min([v.values.tolist() for v in raw_domain[0].values()]),
-    #         max([v.values.tolist() for v in raw_domain[1].values()])
-    #     ]
-    # print(domain)
-
     return {"data": rows, "domain": domain}
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset("/data/xr_policyscen.nc")
+ds_policyscen = xr.open_dataset("data/xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -410,11 +424,10 @@ def indicators(region):
 # Country-specific data (xr_alloc_<ISO>.nc)
 
 
-
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = f"/data/xr_alloc_{ISO}.nc"
+    fn = f"data/xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
@@ -429,7 +442,7 @@ def effortSharing(ISO, principle):
     if principle in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
     if principle == "PCC":
-        selection.update(Convergence_year=2040)
+        selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
 
     ds = get_ds(ISO)[principle].sel(**selection)
     df = ds.rename(Time="time").to_pandas()
@@ -443,7 +456,10 @@ def effortSharing(ISO, principle):
         df = df.transpose()
 
     return (
-        df.agg(["mean", "min", "max"], axis=1).reset_index().dropna().to_dict(orient="records")
+        df.agg(["mean", "min", "max"], axis=1)
+        .reset_index()
+        .dropna()
+        .to_dict(orient="records")
     )
 
 
@@ -482,7 +498,7 @@ def effortSharingReductions(ISO):
         if principle in ["PC", "PCC", "AP", "GDR", "ECPC"]:
             pselection.update(Scenario="SSP2")
         if principle == "PCC":
-            pselection.update(Convergence_year=2040)
+            pselection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
         reductions[principle] = {}
         for period in periods:
             pselection.update(Time=period)

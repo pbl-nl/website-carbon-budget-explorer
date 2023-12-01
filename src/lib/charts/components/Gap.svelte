@@ -51,6 +51,9 @@
 		y2={$yScale(y1)}
 		stroke={color}
 	/>
+	<text x={$xScale(x) + width} y={($yScale(y0) + $yScale(y1)) / 2}
+		>{Math.abs(y1 - y0).toFixed()} Gt CO₂e</text
+	>
 	<!-- <line x1=x, x2=x, y1=y0, y2=y1></line>
 	<line x1=x, x2=x, y1=y0, y2=y1></line> -->
 </g>

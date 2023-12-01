@@ -37,8 +37,4 @@
 			<span class={index === valIndex ? 'font-extrabold' : ''}>{option}</span>
 		{/each}
 	</div>
-	<!-- TODO make value show up at place of slider? -->
-	<!-- <div class="badge- badge">
-		{value}
-	</div> -->
 </label>

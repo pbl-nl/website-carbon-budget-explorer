@@ -21,17 +21,18 @@
 	$: onChange('negativeEmissions', negativeEmissions);
 </script>
 
-<div class="card card-compact prose bg-base-100 shadow-xl">
+<div class="card-compact card prose min-w-full bg-base-100 shadow-xl">
 	<div class="card-body">
 		<div>
 			<h2 class="not-prose card-title">Global budget</h2>
-			<p>How much to reduce?</p>
+			<p class="italic">How much do we have left?</p>
 			<p>
 				Limit global warming to (&deg;C)
 				<span
 					class="tooltip text-lg"
-					data-tip="The temperature target determines how many greenhouse gases we can still emit, globally. A
-			less ambitious target (for example, 2.2°C) means tolerating more emissions.">🛈</span
+					data-tip="The temperature target determines the emissions we can globally still emit. A
+			less ambitious target (for example, 2.2°C) implies the possibility to emit more greenhouse gases."
+					>ⓘ</span
 				>
 				<CustomRange
 					bind:value={temperature}
@@ -42,9 +43,10 @@
 			<p>
 				Acceptable risk of exceeding global warming limit
 				<span
-					class="tooltip text-lg"
-					data-tip="The risk of exceeding the temperature target is also relevant to the budget. Less risk
-						means that your budget is more to the 'safe' side.">🛈</span
+					class="tooltip z-[750] text-lg"
+					data-tip="The temperature rise at any level of cumulative emissions has some uncertainties.
+					Therefore, if you want to be sure to remain within a given temperature level (small risk), you will need to shrink the budget even more."
+					>ⓘ</span
 				>
 				<CustomRange
 					bind:value={exceedanceRisk}
@@ -53,14 +55,14 @@
 				/>
 			</p>
 			<h2 class="not-prose card-title">Global pathway</h2>
-			<p>How quickly to reduce?</p>
+			<p><i>How do we spend these emissions over time?</i></p>
 			<p>
-				Assumption on negative emissions in 2050 - 2100
+				End-of-century negative emissions
 				<span
 					class="tooltip text-lg"
-					data-tip="How quickly we need to reduce depends on the amount of negative emissions we expect to
-					achieve in the future. With less negative emissions you need to reduce faster. The global
-				budget remains the same.">🛈</span
+					data-tip="A major influence on the shape of the global pathway is the assumption on the amount of negative emissions.
+					More negative emissions (slider to the right) gives us some slack in the coming decades, and vice versa."
+					>ⓘ</span
 				>
 				<CustomRange
 					bind:value={negativeEmissions}

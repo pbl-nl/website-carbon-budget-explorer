@@ -2,17 +2,21 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			screens: {
+				'2xl': '1680px'
+			}
+		}
 	},
 	plugins: [require('@tailwindcss/forms'), require('daisyui'), require('@tailwindcss/typography')],
 	daisyui: {
 		themes: [
 			{
 				mytheme: {
-					primary: '#1e3a8a',
-					secondary: '#7b92b2',
-					accent: '#67cba0',
-					neutral: '#181a2a',
+					primary: '#2B5161',
+					secondary: '#0099D9',
+					accent: '#A9C810',
+					neutral: '#0069AA',
 					'base-100': '#ffffff',
 					info: '#3abff8',
 					success: '#36d399',

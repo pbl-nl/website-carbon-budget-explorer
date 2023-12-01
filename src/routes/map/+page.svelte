@@ -1,6 +1,5 @@
 <script lang="ts">
 	import clsx from 'clsx';
-	import type { GeoJSON } from 'geojson';
 
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
@@ -10,11 +9,13 @@
 	import ShareTabs from '$lib/ShareTabs.svelte';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import AllocationCard from '$lib/AllocationCard.svelte';
+	import type { GeoJSON } from 'geojson';
 
 	import type { PageData } from './$types';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import RegionList from '$lib/RegionList.svelte';
+	import Sidebar from '$lib/Sidebar.svelte';
 
 	export let data: PageData;
 
@@ -55,7 +56,7 @@
 	}
 	$: changeEffortSharing(data.effortSharing);
 
-	let allocationTime = '2021-2100';
+	let allocationTime = '2030';
 	function updateAllocationTime(allocationTime: string) {
 		updateQueryParam('allocTime', allocationTime);
 	}
@@ -70,16 +71,21 @@
 </script>
 
 <div class="flex h-full gap-4">
-	<div id="sidebar" class="flex h-full max-w-[25%] flex-col gap-4">
-		<GlobalBudgetCard total={data.pathway.stats.total} remaining={data.pathway.stats.remaining} />
+	<Sidebar>
+		<GlobalBudgetCard
+			remaining={data.pathway.stats.co2.remaining}
+			relative={data.pathway.stats.co2.relative}
+		/>
 		<GlobalQueryCard
 			choices={data.pathway.choices}
 			query={data.pathway.query}
 			onChange={updateQueryParam}
 		/>
-		<MiniPathwayCard global={data.global} />
 		<AllocationCard bind:allocationTime />
-	</div>
+		<div class="hidden 2xl:flex 2xl:flex-1">
+			<MiniPathwayCard global={data.global} />
+		</div>
+	</Sidebar>
 	<div class="flex grow flex-col">
 		<ShareTabs />
 		<div class="flex h-full max-h-full w-full flex-row gap-2">
@@ -96,7 +102,7 @@
 								{hoveredMetric.value.toFixed(0)} tonnes CO₂e per capita
 							</div>
 						{:else}
-							<div>Click country in map or</div>
+							<div>Click on a country or</div>
 							<details class="dropdown">
 								<summary class="btn-ghost btn-sm btn w-60 font-normal"
 									>Select country &#9660;</summary
@@ -125,28 +131,22 @@
 					</div>
 					<div class="absolute bottom-2 z-[400] w-full">
 						<div class="flex w-full flex-row justify-center gap-2 p-2">
-							<div class="text-lg font-bold">Choose your effort-sharing principle:</div>
+							<div class="prose text-lg font-bold">Choose a method of allocation:</div>
 						</div>
-						<div class="flex w-full flex-row justify-center gap-2 p-2">
+						<div class="flex w-full flex-row content-stretch justify-stretch gap-2 p-2">
 							{#each Object.entries(principles) as [id, { label, summary }]}
 								<button
 									class={clsx(
-										'h-38 relative w-48 rounded border-2 object-top text-center shadow-lg',
+										'tooltip h-16 flex-1 rounded border-2 text-center shadow-lg before:w-36',
 										data.effortSharing === id ? 'btn-neutral' : 'btn-outline bg-base-100'
 									)}
 									disabled={data.effortSharing === id}
 									on:click={() => selectEffortSharing(id)}
+									data-tip={summary}
 								>
-									<p class=" font-bold">{label}</p>
-									<p class="text-sm">{summary}</p>
-									<a
-										class="absolute right-1 top-1 inline-block text-xl"
-										title="More information"
-										target="_blank"
-										rel="noopener"
-										href={`/about#${id}`}>ⓘ</a
-									>
+									{label}
 								</button>
+								<!-- TODO bring back link to about page? -->
 							{/each}
 						</div>
 					</div>

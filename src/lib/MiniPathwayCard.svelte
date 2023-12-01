@@ -14,8 +14,8 @@
 		currentPolicy: UncertainTime[];
 	};
 
-	const ipcc_green = '#82a56e';
-	const ipcc_red = '#f5331e';
+	const ipcc_green = '#A9C810';
+	const ipcc_red = '#c82f10';
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const pathwayCarbonTweened = tweened(global.pathwayCarbon, tweenOptions);
@@ -30,7 +30,7 @@
 			<!-- TODO on x-axis have less or no ticks, now they are overlapping and unreadable -->
 			<!-- TODO would be cool when you navigate from /global to /map this chart would view transition from full screen to minimap -->
 			<!-- TODO would be nice when you hover over line or area it would show tooltip with series description -->
-			<Pathway xTicks={3} yTicks={4}>
+			<Pathway xTicks={3} yTicks={4} yAxisTtle="GHG emissions (Gt CO₂e/year)">
 				<Line data={global.historicalCarbon} x={'time'} y={'value'} color="black" />
 				<Line data={$pathwayCarbonTweened} x={'time'} y={'mean'} color={ipcc_green} />
 				<Area data={$pathwayCarbonTweened} x={'time'} y0={'min'} y1={'max'} color={ipcc_green} />

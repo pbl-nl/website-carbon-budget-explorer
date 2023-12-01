@@ -61,11 +61,12 @@
 			{/each}
 			<text
 				fill="currentColor"
-				x={marginLeft - width + marginRight}
+				x={-50}
 				y={0}
 				transform="translate(-35, 250) rotate(270)"
 				text-anchor="start"
-				font-weight="bold">{title}</text
+				font-weight="bold"
+				font-size="14px">{title}</text
 			>
 		</g>
 	</svg>
