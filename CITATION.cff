@@ -1,0 +1,45 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Carbon Budget Explorer
+message: >-
+  Web application to visualize countries' carbon emission
+  pathways under various views on fairness.
+type: software
+authors:
+  - given-names: Peter
+    family-names: Kalverla
+    email: p.kalverla@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-5025-7862'
+  - given-names: Stefan
+    family-names: Verhoeven
+    email: s.verhoeven@esciencecenter.nl
+    affiliation: Netherlands eScience Center
+    orcid: 'https://orcid.org/0000-0002-5821-2060'
+  - given-names: Mark
+    family-names: Dekker
+    email: mark.dekker@pbl.nl
+    affiliation: Netherlands Environmental Assessment Agency
+    orcid: 'https://orcid.org/0000-0002-3543-6889'
+repository-code: 'https://github.com/pbl-nl/website-carbon-budget-explorer'
+url: 'https://www.carbonbudgetexplorer.eu'
+abstract: >-
+  Many countries commit to rapid climate action, but their
+  ambitions don't add up to reach the Paris goals. It is not
+  trivial to define which countries should do more. This is
+  a matter of fairness. But what is fair in this context?
+  Should rich countries mitigate more, because they have the
+  means to do so? Or the countries that have emitted a lot
+  in the past? Clearly, there is no single answer, because
+  it depends on what you think is fair. However, these
+  principles can be quantified. The Carbon Budget Explorer
+  allows navigating through the implications of different
+  views on fairness.
+keywords:
+  - Climate change
+  - Carbon budget
+  - Fair shares
+  - Climate policy
+license: Apache-2.0
