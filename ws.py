@@ -311,11 +311,17 @@ def population_map(year, scenario="SSP2"):
 def fullCenturyBudgetSpatial(year):
     """Get map of GHG by year"""
     effortSharing = request.args.get("effortSharing", "PCC")
-    selection = dict(**pathwaySelection())
+    selection = pathwaySelection()
     if effortSharing in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
     if effortSharing == "PCC":
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+    if effortSharing in ["ECPC", "GDR"]:
+        selection.update(Historical_startyear=1990)
+    if effortSharing == "ECPC":
+        selection.update(Discount_factor=2.0)
+    if effortSharing == "GDR":
+        selection.update(RCI_weight='Half', Capability_threshold='Th')
 
     file_by_year = {
         "2030": ds_alloc_2030,
