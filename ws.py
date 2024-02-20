@@ -17,6 +17,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import numpy as np
 import xarray as xr
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app)
@@ -31,6 +32,18 @@ dsGlobal = xr.open_dataset("/data/xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
+
+# ECPC discount factor
+DEFAULT_DISCOUNT_FACTOR = 2.0
+
+# Default start year for ECPC and GDR
+DEFAULT_HISTORICAL_STARTYEAR = 1990
+
+# GDR RCI weight
+DEFAULT_RCI_WEIGHT = 'Half'
+
+# GDR capability threshold
+DEFAULT_CAPABILITY_THRESHOLD = 'Th'
 
 
 @app.get("/pathwayCarbon")
@@ -438,37 +451,40 @@ def get_ds(ISO):
 
 @app.get("/<ISO>/<principle>")
 def effortSharing(ISO, principle):
-    selection = pathwaySelection()
-    # the timing and nonco2red dimensions are not applicable for iso (for now)
-    # so we delete the keys in the selection
-    del selection["Timing"]
-    del selection["NonCO2red"]
+    selection = pathwaySelection()    
+    ds = (get_ds(ISO)[principle]
+          .sel(**selection)
+          .rename(Time="time")
+    )
+    # set time as the first dimension
+    dim_order = ["time"] + [dim for dim in ds.dims if dim != "time"]
+    ds = ds.transpose(*dim_order)
 
-    # TODO should I do aggregation on Scenario and Convergence_year?
-    # or use static selection?
+    # extract the 'most reasonable' (mr) df which will be the main trajectory line
+    mr_selection = dict()
     if principle in ["PC", "PCC", "AP", "GDR", "ECPC"]:
-        selection.update(Scenario="SSP2")
+        mr_selection.update(Scenario="SSP2")
     if principle == "PCC":
-        selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+        mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+    if principle in ["ECPC", "GDR"]:
+        mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
+    if principle == "ECPC":
+        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
+    if principle == "GDR":
+        mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
+                            Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
+        
+    mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
 
-    ds = get_ds(ISO)[principle].sel(**selection)
-    df = ds.rename(Time="time").to_pandas()
-    if principle in ["GF", "PC", "ECPC"]:
-        # These effort sharing principles have Time dimension after TrajUnc dimension
-        # While all other principles have TrajUnc dimension after Time dimension
-        # Causing columns to be Time and TrajUnc to be rows in dataframe
-        # We want the opposite
-        # TODO order dimensions for each principle in same way, so this is not needed anymore
-
-        df = df.transpose()
+    agg_dims = [dim for dim in ds.dims if dim != "time"]
+    min_df = ds.min(agg_dims, skipna=True).to_pandas().rename("min")
+    max_df = ds.max(agg_dims, skipna=True).to_pandas().rename("max")
 
     return (
-        df.agg(["mean", "min", "max"], axis=1)
+        pd.concat([mr_df, min_df, max_df], axis=1)
         .reset_index()
-        .dropna()
         .to_dict(orient="records")
     )
-
 
 principles = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
 
