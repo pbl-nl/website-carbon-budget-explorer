@@ -57,7 +57,7 @@ def pathwayCarbon():
         )
         .rename({"Time": "time"})
         .to_pandas()
-        .rename("carbon")
+        .rename("value")
         .reset_index()
     )
     return df.to_dict(orient="records")
