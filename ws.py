@@ -57,13 +57,10 @@ def pathwayCarbon():
         )
         .rename({"Time": "time"})
         .to_pandas()
-    )
-    return (
-        df.agg(func=["min", "mean", "max"])
-        .transpose()
+        .rename("carbon")
         .reset_index()
-        .to_dict(orient="records")
     )
+    return df.to_dict(orient="records")
 
 
 @app.get("/pathwayChoices")
@@ -72,16 +69,21 @@ def pathwayChoices():
         "temperature": dsGlobal.Temperature.values.tolist(),
         "exceedanceRisk": dsGlobal.Risk.values.tolist(),
         "negativeEmissions": dsGlobal.NegEmis.values.tolist(),
+        "timing": dsGlobal.Timing.values.tolist(),
+        "nonCO2red": dsGlobal.NonCO2red.values.tolist()
     }
 
 
 def pathwaySelection():
     choices = pathwayChoices()
+    # default is to take middle option for each choice
     defaults = {k: v[len(v) // 2] for k, v in choices.items()}
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),
         Risk=request.args.get("exceedanceRisk", defaults["exceedanceRisk"]),
         NegEmis=request.args.get("negativeEmissions", defaults["negativeEmissions"]),
+        Timing=request.args.get("timing", defaults["timing"]),
+        NonCO2red=request.args.get("nonCO2red", defaults["nonCO2red"])
     )
 
 
@@ -214,7 +216,7 @@ def pathwayStats():
             raise ValueError(f"Emission type {emission_type} not supported")
 
         used = hist.sel(Region="EARTH").sum().values.tolist()
-        remaining = globe.sel(TrajUnc="Medium",**pathwaySelection()).sum().values.tolist()
+        remaining = globe.sel(**pathwaySelection()).sum().values.tolist()
         total = used + remaining
         reference = hist.sel(Region="EARTH").sel(Time=2021).item()
         relative = remaining / reference
@@ -222,8 +224,7 @@ def pathwayStats():
         # TODO gaps is not needed on non-global pages, so dont compute if there
         gap_index = 2030
         pathway = (
-            globe.sel(Time=gap_index, TrajUnc="Medium", **pathwaySelection())
-            .mean()
+            globe.sel(Time=gap_index, **pathwaySelection())
             .values
             + 0
         )
@@ -327,7 +328,6 @@ def fullCenturyBudgetSpatial(year):
         (
             file_by_year[year][effortSharing]
             .sel(**selection)
-            .mean(dim="TrajUnc")  # TODO: sel "Medium" instead of calculate mean?
             / population_map(year=2021)
         )
         .rename(Region="ISO")
@@ -345,7 +345,6 @@ def fullCenturyBudgetSpatial(year):
             Convergence_year=DEFAULT_CONVERGENCE_YEAR,
             **pathwaySelection(),
         )
-        .sel(TrajUnc="Medium")
     ).to_array("variable")
 
     domain = [ds.quantile(0.1).item(), ds.quantile(0.5).item()]
@@ -433,9 +432,11 @@ def get_ds(ISO):
 
 @app.get("/<ISO>/<principle>")
 def effortSharing(ISO, principle):
-    selection = dict(
-        **pathwaySelection(),
-    )
+    selection = pathwaySelection()
+    # the timing and nonco2red dimensions are not applicable for iso (for now)
+    # so we delete the keys in the selection
+    del selection["Timing"]
+    del selection["NonCO2red"]
 
     # TODO should I do aggregation on Scenario and Convergence_year?
     # or use static selection?

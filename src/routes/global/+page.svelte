@@ -284,8 +284,15 @@
 					/>
 				{/if}
 
-				<Line data={$pathwayCarbonTweened} x={'time'} y={'mean'} color={ipcc_green} />
-				<Area
+				<Line data={$pathwayCarbonTweened} 
+					x={'time'}
+					y={'carbon'}
+					color={ipcc_green}
+					on:mouseover={hoverPathway}
+					on:mouseout={(e) => (evt = e)}
+				/>
+				<!-- TODO: hovering on line doesn't work yet... -->
+				<!-- <Area
 					data={$pathwayCarbonTweened}
 					x={'time'}
 					y0={'min'}
@@ -293,7 +300,7 @@
 					color={ipcc_green}
 					on:mouseover={hoverPathway}
 					on:mouseout={(e) => (evt = e)}
-				/>
+				/> -->
 			</Pathway>
 		</div>
 	</div>

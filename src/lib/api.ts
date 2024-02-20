@@ -10,6 +10,8 @@ export interface PathWayQuery {
 	temperature: string;
 	exceedanceRisk: string;
 	negativeEmissions: string;
+	timing: string;
+	nonCO2red: string;
 }
 
 export interface PathwayStatsType {
@@ -75,15 +77,23 @@ export function pathwayQueryFromSearchParams(
 	const negativeEmissions =
 		searchParams.get('negativeEmissions') ??
 		choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)];
+	const timing =
+		searchParams.get('timing') ??
+		choices.timing[Math.floor(choices.timing.length / 2)]
+	const nonCO2red =
+		searchParams.get('nonCO2red') ??
+		choices.nonCO2red[Math.floor(choices.nonCO2red.length / 2)]
 	return {
 		temperature,
 		exceedanceRisk,
-		negativeEmissions
+		negativeEmissions,
+		timing,
+		nonCO2red
 	};
 }
 
-export const API_URL = process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for production
-// export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for development
+// export const API_URL = process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for production
+export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for development
 
 async function getJSON(path: string, myfetch = fetch) {
 	let url = `${API_URL}${path}`;

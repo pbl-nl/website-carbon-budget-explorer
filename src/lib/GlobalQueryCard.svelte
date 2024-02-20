@@ -9,16 +9,22 @@
 	let defaults = {
 		temperature: choices.temperature[Math.floor(choices.temperature.length / 2)],
 		exceedanceRisk: choices.exceedanceRisk[Math.floor(choices.exceedanceRisk.length / 2)],
-		negativeEmissions: choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)]
+		negativeEmissions: choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)],
+		timing: choices.timing[Math.floor(choices.timing.length / 2)],
+		nonCO2red: choices.nonCO2red[Math.floor(choices.nonCO2red.length / 2)]
 	};
 
 	let temperature: string = query.temperature || defaults.temperature;
 	let exceedanceRisk: string = query.exceedanceRisk || defaults.exceedanceRisk;
 	let negativeEmissions: string = query.negativeEmissions || defaults.negativeEmissions;
+	let timing: string = query.timing || defaults.timing;
+	let nonCO2red: string = query.nonCO2red || defaults.nonCO2red;
 
 	$: onChange('temperature', temperature);
 	$: onChange('exceedanceRisk', exceedanceRisk);
 	$: onChange('negativeEmissions', negativeEmissions);
+	$: onChange('timing', timing);
+	$: onChange('nonCO2red', nonCO2red);
 </script>
 
 <div class="card-compact card prose min-w-full bg-base-100 shadow-xl">
@@ -54,6 +60,19 @@
 					name="risk"
 				/>
 			</p>
+			<p>
+				TODO: nonco2red
+				<span
+					class="tooltip z-[750] text-lg"
+					data-tip="TODO: nonCO2red tooltip."
+					>ⓘ</span
+				>
+				<CustomRange
+					bind:value={nonCO2red}
+					options={choices.nonCO2red.map((d) => Number(d))}
+					name="nonCO2red"
+				/>
+			</p>
 			<h2 class="not-prose card-title">Global pathway</h2>
 			<p><i>How do we spend these emissions over time?</i></p>
 			<p>
@@ -68,6 +87,19 @@
 					bind:value={negativeEmissions}
 					options={choices.negativeEmissions.map((d) => Number(d))}
 					name="negEmis"
+				/>
+			</p>
+			<p>
+				TODO: timing
+				<span
+					class="tooltip text-lg"
+					data-tip="TODO: timing tooltip."
+					>ⓘ</span
+				>
+				<CustomRange
+					bind:value={timing}
+					options={choices.timing.map((d) => String(d))}
+					name="timing"
 				/>
 			</p>
 		</div>
