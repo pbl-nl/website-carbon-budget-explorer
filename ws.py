@@ -28,7 +28,7 @@ CORS(app)
 # TODO make /data/ configurable
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset("/data/xr_dataread.nc")
+dsGlobal = xr.open_dataset("/data/DataUpdate_02_2024/xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -102,8 +102,8 @@ def pathwaySelection():
 
 available_region_files = set(
     [
-        r.lstrip("/data/xr_alloc_").rstrip(".nc").lstrip("\\xr_alloc")
-        for r in glob("/data/xr_alloc_*.nc")
+        r.lstrip("/data/DataUpdate_02_2024/xr_alloc_").rstrip(".nc").lstrip("\\xr_alloc")
+        for r in glob("/data/DataUpdate_02_2024/xr_alloc_*.nc")
     ]
 )
 
@@ -111,7 +111,7 @@ available_region_files = set(
 def build_regions():
     countries_geojson = {}
     for g in loads(
-        Path("/data/ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
+        Path("/data/DataUpdate_02_2024/ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
     )["features"]:
         ps = g["properties"]
         countries_geojson[ps["ISO_A3_EH"]] = {
@@ -309,10 +309,10 @@ def gdpOverTime(region):
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset("/data/xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset("/data/xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset("/data/xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset("/data/xr_alloc_FC.nc")
+ds_alloc_2030 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2030.nc")
+ds_alloc_2040 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2040.nc")
+ds_alloc_2050 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2050.nc")
+ds_alloc_FC = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -374,7 +374,7 @@ def fullCenturyBudgetSpatial(year):
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset("/data/xr_policyscen.nc")
+ds_policyscen = xr.open_dataset("/data/DataUpdate_02_2024/xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -445,7 +445,7 @@ def indicators(region):
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = f"/data/xr_alloc_{ISO}.nc"
+    fn = f"/data/DataUpdate_02_2024/xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
