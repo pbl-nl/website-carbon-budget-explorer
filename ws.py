@@ -330,11 +330,12 @@ def fullCenturyBudgetSpatial(year):
     if effortSharing == "PCC":
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if effortSharing in ["ECPC", "GDR"]:
-        selection.update(Historical_startyear=1990)
+        selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
     if effortSharing == "ECPC":
-        selection.update(Discount_factor=2.0)
+        selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
     if effortSharing == "GDR":
-        selection.update(RCI_weight='Half', Capability_threshold='Th')
+        selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, 
+                         Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
 
     file_by_year = {
         "2030": ds_alloc_2030,
