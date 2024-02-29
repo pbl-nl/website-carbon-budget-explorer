@@ -97,7 +97,7 @@
 	);
 	const hoverPathway = hoverBuilder(
 		(row) =>
-			`Your selected global pathway emission in ${row.time} is on average ${row.value.toFixed(
+			`Your selected global pathway emission in ${row.time} is ${row.value.toFixed(
 				1
 			)} Gt CO₂e`
 	);

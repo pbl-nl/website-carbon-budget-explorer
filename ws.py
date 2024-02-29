@@ -34,7 +34,7 @@ dsGlobal = xr.open_dataset("/data/DataUpdate_02_2024/xr_dataread.nc")
 DEFAULT_CONVERGENCE_YEAR = 2050
 
 # ECPC discount factor
-DEFAULT_DISCOUNT_FACTOR = 2.0
+DEFAULT_DISCOUNT_FACTOR = 0.0
 
 # Default start year for ECPC and GDR
 DEFAULT_HISTORICAL_STARTYEAR = 1990
@@ -89,8 +89,13 @@ def pathwayChoices():
 
 def pathwaySelection():
     choices = pathwayChoices()
-    # default is to take middle option for each choice
-    defaults = {k: v[len(v) // 2] for k, v in choices.items()}
+    # this specifies the defaults that are shown in the global graph, but not the default slider settings!
+    defaults = {'temperature': 2.0,
+                'exceedanceRisk': 0.5,
+                'negativeEmissions': 0.5,
+                'timing': 'Delayed',
+                'nonCO2red': 0.5}#{k: v[len(v) // 2] for k, v in choices.items()}
+
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),
         Risk=request.args.get("exceedanceRisk", defaults["exceedanceRisk"]),
@@ -229,7 +234,7 @@ def pathwayStats():
             raise ValueError(f"Emission type {emission_type} not supported")
 
         used = hist.sel(Region="EARTH").sum().values.tolist()
-        remaining = globe.sel(**pathwaySelection()).sum().values.tolist()
+        remaining = dsGlobal.sel(**pathwaySelection()).Budget.values.tolist()
         total = used + remaining
         reference = hist.sel(Region="EARTH").sel(Time=2021).item()
         relative = remaining / reference
@@ -255,8 +260,8 @@ def pathwayStats():
         return {
             "total": total / 1000,
             "used": used / 1000,
-            "remaining": remaining / 1000,
-            "relative": relative,
+            "remaining": remaining,
+            "relative": relative * 1000,
             "gaps": gaps
         }
     return {
@@ -367,10 +372,10 @@ def fullCenturyBudgetSpatial(year):
         )
     ).to_array("variable")
 
-    domain = [ds.quantile(0.1).item(), ds.quantile(0.5).item()]
+    domain = [ds.quantile(0.2).item(), ds.quantile(0.44).item()]
 
-    # Round domain to nearest 10
-    domain = [d // 10 * 10 for d in domain]
+    # Round domain to nearest 3
+    domain = [d // 3 * 3 for d in domain]
     return {"data": rows, "domain": domain}
 
 

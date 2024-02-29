@@ -6,13 +6,11 @@
 	export let choices: Record<keyof PathWayQuery, string[]>;
 	export let onChange: (name: string, value: string) => void;
 
-	let defaults = {
-		temperature: choices.temperature[Math.floor(choices.temperature.length / 2)],
-		exceedanceRisk: choices.exceedanceRisk[Math.floor(choices.exceedanceRisk.length / 2)],
-		negativeEmissions: choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)],
-		timing: choices.timing[Math.floor(choices.timing.length / 2)],
-		nonCO2red: choices.nonCO2red[Math.floor(choices.nonCO2red.length / 2)]
-	};
+	let defaults = {temperature: 2.0,
+                exceedanceRisk: 0.5,
+                negativeEmissions: 0.5,
+                timing: 'Immediate',
+            	nonCO2red: 0.5};
 
 	let temperature: string = query.temperature || defaults.temperature;
 	let exceedanceRisk: string = query.exceedanceRisk || defaults.exceedanceRisk;
@@ -36,7 +34,7 @@
 				Limit global warming to (&deg;C)
 				<span
 					class="tooltip text-lg"
-					data-tip="The temperature target determines the emissions we can globally still emit. A
+					data-tip="The peak temperature target determines the emissions we can globally still emit. A
 			less ambitious target (for example, 2.2°C) implies the possibility to emit more greenhouse gases."
 					>ⓘ</span
 				>
@@ -61,10 +59,12 @@
 				/>
 			</p>
 			<p>
-				TODO: nonco2red
+				Reduction of non-CO<sub>2</sub> emissions
 				<span
 					class="tooltip z-[750] text-lg"
-					data-tip="TODO: nonCO2red tooltip."
+					data-tip="Not only CO2, but also other gases play a role in the global emissions trajectory. Setting this slider to low values assumes small reductions in non-CO2 by 2040, which means that CO2 has to reduce much more, and vica versa.
+							  In the graph to the right, we show all greenhouse gases (CO2 and non-CO2), so the green line will barely move if you adjust this slider, as the temperature goal remains fixed.
+							  However, this does greatly affect the carbon budget (which is only the CO2 part) in the top-left corner of your screen."
 					>ⓘ</span
 				>
 				<CustomRange
@@ -90,10 +90,10 @@
 				/>
 			</p>
 			<p>
-				TODO: timing
+				The timing of early-century mitigation
 				<span
 					class="tooltip text-lg"
-					data-tip="TODO: timing tooltip."
+					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5, so identical data will be shown in that case."
 					>ⓘ</span
 				>
 				<CustomRange

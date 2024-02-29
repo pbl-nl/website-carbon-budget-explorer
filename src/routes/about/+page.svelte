@@ -50,7 +50,7 @@
 					>
 					projects. For more information you can contact dr.
 					<a
-						href="https://www.pbl.nl/about-pbl/employees/mark-dekker"
+						href="https://www.uu.nl/medewerkers/MMDekker"
 						target="_blank"
 						class="text-white"
 						rel="noopener noreferrer">Mark Dekker.</a
@@ -87,7 +87,7 @@
 					Three core principles of fairness are identified in scientific literature: (1)
 					responsibility, taking into account historical emissions, (2) capability, emphasizing a
 					country's financial and institutional means to implement mitigation, and (3) equality,
-					where person on Earth gets equal allocations. For comparison, we include the principle of
+					where person on Earth gets equal allocations. For comparison and as a reference, we include the principle of
 					continuity. These principles are subsequently quantified using mathematical formula:
 					so-called allocation methods such as 'per capita' and 'ability to pay'.
 				</QA>
@@ -145,6 +145,21 @@
 						href="https://essd.copernicus.org/articles/15/2295/2023/"
 						target="_blank"
 						rel="noopener noreferrer">Forster et al. (2023)</a
+					>. The negative emissions slider is based on percentiles of 2100 emissions in IPCC AR6 WGIII scenarios.
+				</QA>
+				<QA question="How did you do the allocations?">
+					There are multiple methodologically distinct ways of allocating global emissions. We allocate global emissions
+					year by year. For example, the 'per capita' allocation method distributes global emissions of a given year based on population distributions. 
+					This is similar to the temporal allocations done in
+					<a
+						href="https://link.springer.com/article/10.1007/s10584-019-02368-y"
+						target="_blank"
+						rel="noopener noreferrer">Van den Berg et al. (2019)</a
+					>., for example, but different from the budget-based (and subsequent linear projection of) allocation in 
+					<a
+						href="https://newclimate.org/resources/publications/what-is-a-fair-emissions-budget-for-the-netherlands"
+						target="_blank"
+						rel="noopener noreferrer">Fekete et al. (2022)</a
 					>.
 				</QA>
 				<QA question="What data sources did you use?">
@@ -169,7 +184,9 @@
 						href="https://link.springer.com/article/10.1007/s10584-019-02368-y"
 						target="_blank"
 						rel="noopener noreferrer">Van den Berg et al. (2019)</a
-					>. The 'Per Capita' method uses a country's population share in the global population and
+					>. 
+					<br />
+					<br />The 'Per Capita' method uses a country's population share in the global population and
 					allocates future emissions accordingly. Naturally, the socio-economic scenario affects
 					this method. All five SSPs are used in our analysis.
 					<br />
@@ -204,7 +221,7 @@
 				<h2 id="other">Other</h2>
 				<QA question="How can I contact you?">
 					All questions, comments and ideas are welcome. Please can dr. <a
-						href="https://www.pbl.nl/about-pbl/employees/mark-dekker"
+						href="https://www.uu.nl/medewerkers/MMDekker"
 						target="_blank"
 						rel="noopener noreferrer">Mark Dekker</a
 					> from the Netherlands Environmental Assessment Agency.
@@ -213,7 +230,7 @@
 					For general purposes, feel free to refer this work as Dekker, M.M. (2023) The Carbon
 					Budget Explorer. [Online]. Available: https://www.carbonbudgetexplorer.eu. <br />
 					<br /> For scientific purposes, because the data is still undergoing many developments, we
-					recommend waiting for the preprint of the scientific article (estimated Jan/Feb 2024) before
+					recommend waiting for the preprint of the scientific article (estimated in spring 2024) before
 					citing the research.
 				</QA>
 				<QA question="Will the data and code be publicly available?">
@@ -221,10 +238,7 @@
 					available. We expect to publish this in spring 2024.
 				</QA>
 				<QA question="What future updates are expected?">
-					The Explorer is currently still in a beta version, which means that we will be making
-					updates on the layout, back-end and even the underlying data over the coming months. A
-					preprint of the scientific work will come out in January or February 2024. The reference
-					will appear here.
+					The Explorer is constantly in development, by updating NDC or other data, but also in terms of layout. If you have any ideas of improvement, please feel free to contact us.
 				</QA>
 			</section>
 		</div>
