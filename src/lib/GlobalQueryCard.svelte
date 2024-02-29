@@ -6,19 +6,23 @@
 	export let choices: Record<keyof PathWayQuery, string[]>;
 	export let onChange: (name: string, value: string) => void;
 
-	let defaults = {
-		temperature: choices.temperature[Math.floor(choices.temperature.length / 2)],
-		exceedanceRisk: choices.exceedanceRisk[Math.floor(choices.exceedanceRisk.length / 2)],
-		negativeEmissions: choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)]
-	};
+	let defaults = {temperature: 2.0,
+                exceedanceRisk: 0.5,
+                negativeEmissions: 0.5,
+                timing: 'Immediate',
+            	nonCO2red: 0.5};
 
 	let temperature: string = query.temperature || defaults.temperature;
 	let exceedanceRisk: string = query.exceedanceRisk || defaults.exceedanceRisk;
 	let negativeEmissions: string = query.negativeEmissions || defaults.negativeEmissions;
+	let timing: string = query.timing || defaults.timing;
+	let nonCO2red: string = query.nonCO2red || defaults.nonCO2red;
 
 	$: onChange('temperature', temperature);
 	$: onChange('exceedanceRisk', exceedanceRisk);
 	$: onChange('negativeEmissions', negativeEmissions);
+	$: onChange('timing', timing);
+	$: onChange('nonCO2red', nonCO2red);
 </script>
 
 <div class="card-compact card prose min-w-full bg-base-100 shadow-xl">
@@ -30,7 +34,7 @@
 				Limit global warming to (&deg;C)
 				<span
 					class="tooltip text-lg"
-					data-tip="The temperature target determines the emissions we can globally still emit. A
+					data-tip="The peak temperature target determines the emissions we can globally still emit. A
 			less ambitious target (for example, 2.2°C) implies the possibility to emit more greenhouse gases."
 					>ⓘ</span
 				>
@@ -54,6 +58,21 @@
 					name="risk"
 				/>
 			</p>
+			<p>
+				Reduction of non-CO<sub>2</sub> emissions
+				<span
+					class="tooltip z-[750] text-lg"
+					data-tip="Not only CO2, but also other gases play a role in the global emissions trajectory. Setting this slider to low values assumes small reductions in non-CO2 by 2040, which means that CO2 has to reduce much more, and vica versa.
+							  In the graph to the right, we show all greenhouse gases (CO2 and non-CO2), so the green line will barely move if you adjust this slider, as the temperature goal remains fixed.
+							  However, this does greatly affect the carbon budget (which is only the CO2 part) in the top-left corner of your screen."
+					>ⓘ</span
+				>
+				<CustomRange
+					bind:value={nonCO2red}
+					options={choices.nonCO2red.map((d) => Number(d))}
+					name="nonCO2red"
+				/>
+			</p>
 			<h2 class="not-prose card-title">Global pathway</h2>
 			<p><i>How do we spend these emissions over time?</i></p>
 			<p>
@@ -68,6 +87,19 @@
 					bind:value={negativeEmissions}
 					options={choices.negativeEmissions.map((d) => Number(d))}
 					name="negEmis"
+				/>
+			</p>
+			<p>
+				The timing of early-century mitigation
+				<span
+					class="tooltip text-lg"
+					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5, so identical data will be shown in that case."
+					>ⓘ</span
+				>
+				<CustomRange
+					bind:value={timing}
+					options={choices.timing.map((d) => String(d))}
+					name="timing"
 				/>
 			</p>
 		</div>

@@ -97,7 +97,7 @@
 	);
 	const hoverPathway = hoverBuilder(
 		(row) =>
-			`Your selected global pathway emission in ${row.time} is on average ${row.mean.toFixed(
+			`Your selected global pathway emission in ${row.time} is ${row.value.toFixed(
 				1
 			)} Gt CO₂e`
 	);
@@ -284,12 +284,9 @@
 					/>
 				{/if}
 
-				<Line data={$pathwayCarbonTweened} x={'time'} y={'mean'} color={ipcc_green} />
-				<Area
-					data={$pathwayCarbonTweened}
+				<Line data={$pathwayCarbonTweened} 
 					x={'time'}
-					y0={'min'}
-					y1={'max'}
+					y={'value'}
 					color={ipcc_green}
 					on:mouseover={hoverPathway}
 					on:mouseout={(e) => (evt = e)}
