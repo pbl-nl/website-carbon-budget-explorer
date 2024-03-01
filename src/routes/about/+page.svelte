@@ -87,9 +87,10 @@
 					Three core principles of fairness are identified in scientific literature: (1)
 					responsibility, taking into account historical emissions, (2) capability, emphasizing a
 					country's financial and institutional means to implement mitigation, and (3) equality,
-					where person on Earth gets equal allocations. For comparison and as a reference, we include the principle of
-					continuity. These principles are subsequently quantified using mathematical formula:
-					so-called allocation methods such as 'per capita' and 'ability to pay'.
+					where person on Earth gets equal allocations. For comparison and as a reference, we
+					include the principle of continuity. These principles are subsequently quantified using
+					mathematical formula: so-called allocation methods such as 'per capita' and 'ability to
+					pay'.
 				</QA>
 				<QA question="How does this relate to just transitions?">
 					Emissions are indicative for the general burden of climate policy, but clearly not the
@@ -145,17 +146,20 @@
 						href="https://essd.copernicus.org/articles/15/2295/2023/"
 						target="_blank"
 						rel="noopener noreferrer">Forster et al. (2023)</a
-					>. The negative emissions slider is based on percentiles of 2100 emissions in IPCC AR6 WGIII scenarios.
+					>. The negative emissions slider is based on percentiles of 2100 emissions in IPCC AR6
+					WGIII scenarios.
 				</QA>
 				<QA question="How did you do the allocations?">
-					There are multiple methodologically distinct ways of allocating global emissions. We allocate global emissions
-					year by year. For example, the 'per capita' allocation method distributes global emissions of a given year based on population distributions. 
-					This is similar to the temporal allocations done in
+					There are multiple methodologically distinct ways of allocating global emissions. We
+					allocate global emissions year by year. For example, the 'per capita' allocation method
+					distributes global emissions of a given year based on population distributions. This is
+					similar to the temporal allocations done in
 					<a
 						href="https://link.springer.com/article/10.1007/s10584-019-02368-y"
 						target="_blank"
 						rel="noopener noreferrer">Van den Berg et al. (2019)</a
-					>., for example, but different from the budget-based (and subsequent linear projection of) allocation in 
+					>., for example, but different from the budget-based (and subsequent linear projection of)
+					allocation in
 					<a
 						href="https://newclimate.org/resources/publications/what-is-a-fair-emissions-budget-for-the-netherlands"
 						target="_blank"
@@ -184,10 +188,10 @@
 						href="https://link.springer.com/article/10.1007/s10584-019-02368-y"
 						target="_blank"
 						rel="noopener noreferrer">Van den Berg et al. (2019)</a
-					>. 
+					>.
 					<br />
-					<br />The 'Per Capita' method uses a country's population share in the global population and
-					allocates future emissions accordingly. Naturally, the socio-economic scenario affects
+					<br />The 'Per Capita' method uses a country's population share in the global population
+					and allocates future emissions accordingly. Naturally, the socio-economic scenario affects
 					this method. All five SSPs are used in our analysis.
 					<br />
 					<br />
@@ -238,7 +242,8 @@
 					available. We expect to publish this in spring 2024.
 				</QA>
 				<QA question="What future updates are expected?">
-					The Explorer is constantly in development, by updating NDC or other data, but also in terms of layout. If you have any ideas of improvement, please feel free to contact us.
+					The Explorer is constantly in development, by updating NDC or other data, but also in
+					terms of layout. If you have any ideas of improvement, please feel free to contact us.
 				</QA>
 			</section>
 		</div>
