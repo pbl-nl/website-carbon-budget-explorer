@@ -7,11 +7,11 @@
 	export let onChange: (name: string, value: string) => void;
 
 	let defaults = {
-		temperature: 2.0,
-		exceedanceRisk: 0.5,
-		negativeEmissions: 0.5,
+		temperature: '2.0',
+		exceedanceRisk: '0.5',
+		negativeEmissions: '0.5',
 		timing: 'Immediate',
-		nonCO2red: 0.5
+		nonCO2red: '0.5'
 	};
 
 	let temperature: string = query.temperature || defaults.temperature;
