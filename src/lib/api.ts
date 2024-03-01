@@ -78,11 +78,9 @@ export function pathwayQueryFromSearchParams(
 		searchParams.get('negativeEmissions') ??
 		choices.negativeEmissions[Math.floor(choices.negativeEmissions.length / 2)];
 	const timing =
-		searchParams.get('timing') ??
-		choices.timing[Math.floor(choices.timing.length / 2)]
+		searchParams.get('timing') ?? choices.timing[Math.floor(choices.timing.length / 2)];
 	const nonCO2red =
-		searchParams.get('nonCO2red') ??
-		choices.nonCO2red[Math.floor(choices.nonCO2red.length / 2)]
+		searchParams.get('nonCO2red') ?? choices.nonCO2red[Math.floor(choices.nonCO2red.length / 2)];
 	return {
 		temperature,
 		exceedanceRisk,
