@@ -42,7 +42,7 @@
 				>
 				<CustomRange
 					bind:value={temperature}
-					options={choices.temperature.map((d) => Number(d))}
+					options={choices.temperature.map((d) => String(d))}
 					name="temperature"
 				/>
 			</p>
@@ -56,7 +56,7 @@
 				>
 				<CustomRange
 					bind:value={exceedanceRisk}
-					options={choices.exceedanceRisk.map((d) => Number(d))}
+					options={choices.exceedanceRisk.map((d) => String(d))}
 					name="risk"
 				/>
 			</p>
@@ -71,7 +71,7 @@
 				>
 				<CustomRange
 					bind:value={nonCO2red}
-					options={choices.nonCO2red.map((d) => Number(d))}
+					options={choices.nonCO2red.map((d) => String(d))}
 					name="nonCO2red"
 				/>
 			</p>
@@ -87,7 +87,7 @@
 				>
 				<CustomRange
 					bind:value={negativeEmissions}
-					options={choices.negativeEmissions.map((d) => Number(d))}
+					options={choices.negativeEmissions.map((d) => String(d))}
 					name="negEmis"
 				/>
 			</p>

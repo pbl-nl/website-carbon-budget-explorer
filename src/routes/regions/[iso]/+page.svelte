@@ -102,7 +102,7 @@
 								: data.indicators.ndcAmbition.toFixed(0)}<span
 								class="tooltip cursor-pointer"
 								role="tooltip"
-								data-tip="In terms of greenhouse gases without taking into account land use, land use change and forestry (LULUCF)."
+								data-tip="The NDC data used here is outdated. It will be updated in the next round."
 								>% reduction ⓘ</span
 							>
 						</span>

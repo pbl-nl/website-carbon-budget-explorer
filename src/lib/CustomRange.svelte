@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let value: string;
 	// TODO allow options to have a value or a label and value
-	export let options: number[];
+	export let options: string[];
 	export let name: string;
 
 	type ChangeEvent = Event & {
@@ -13,7 +13,7 @@
 	}
 
 	$: len = options.length;
-	$: valIndex = options.indexOf(parseFloat(value));
+	$: valIndex = options.indexOf(value); //parseFloat(value));
 	// when sliding all intermediate values are also fetched
 	// TODO could only fetch the value when the slider is released
 </script>
