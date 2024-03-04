@@ -7,11 +7,11 @@
 	export let onChange: (name: string, value: string) => void;
 
 	let defaults = {
-		temperature: '2.0',
-		exceedanceRisk: '0.5',
-		negativeEmissions: '0.5',
+		temperature: 2.0,
+		exceedanceRisk: 0.5,
+		negativeEmissions: 0.5,
 		timing: 'Immediate',
-		nonCO2red: '0.5'
+		nonCO2red: 0.5
 	};
 
 	let temperature: string = query.temperature || defaults.temperature;
@@ -42,7 +42,7 @@
 				>
 				<CustomRange
 					bind:value={temperature}
-					options={choices.temperature.map((d) => String(d))}
+					options={choices.temperature.map((d) => Number(d))}
 					name="temperature"
 				/>
 			</p>
@@ -56,7 +56,7 @@
 				>
 				<CustomRange
 					bind:value={exceedanceRisk}
-					options={choices.exceedanceRisk.map((d) => String(d))}
+					options={choices.exceedanceRisk.map((d) => Number(d))}
 					name="risk"
 				/>
 			</p>
@@ -71,7 +71,7 @@
 				>
 				<CustomRange
 					bind:value={nonCO2red}
-					options={choices.nonCO2red.map((d) => String(d))}
+					options={choices.nonCO2red.map((d) => Number(d))}
 					name="nonCO2red"
 				/>
 			</p>
@@ -87,7 +87,7 @@
 				>
 				<CustomRange
 					bind:value={negativeEmissions}
-					options={choices.negativeEmissions.map((d) => String(d))}
+					options={choices.negativeEmissions.map((d) => Number(d))}
 					name="negEmis"
 				/>
 			</p>

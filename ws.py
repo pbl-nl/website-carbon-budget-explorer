@@ -93,8 +93,9 @@ def pathwaySelection():
     defaults = {'temperature': 2.0,
                 'exceedanceRisk': 0.5,
                 'negativeEmissions': 0.5,
-                'timing': 'Delayed',
-                'nonCO2red': 0.5}#{k: v[len(v) // 2] for k, v in choices.items()}
+                'timing': 'Immediate',
+                'nonCO2red': 0.5}
+    # defaults = {k: v[0] for k, v in choices.items()}
 
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),
@@ -339,7 +340,7 @@ def fullCenturyBudgetSpatial(year):
     if effortSharing == "ECPC":
         selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
     if effortSharing == "GDR":
-        selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, 
+        selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                          Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
 
     file_by_year = {
@@ -457,7 +458,7 @@ def get_ds(ISO):
 
 @app.get("/<ISO>/<principle>")
 def effortSharing(ISO, principle):
-    selection = pathwaySelection()    
+    selection = pathwaySelection()
     ds = (get_ds(ISO)[principle]
           .sel(**selection)
           .rename(Time="time")
