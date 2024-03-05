@@ -86,7 +86,7 @@
 				/></svg
 			>
 			<span
-				>This website is currently in beta and is subject to frequent updates. Please see the About
+				>This website has been updated with new data in Feb 2024. Please see the About
 				page for more information</span
 			>
 		</div>
