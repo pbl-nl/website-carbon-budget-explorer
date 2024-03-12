@@ -281,7 +281,7 @@ def historicalCarbon(region="EARTH"):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     df = df.reset_index()
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
@@ -295,7 +295,7 @@ def populationOverTime(region):
     df = dsGlobal.Population.sel(
         Scenario=scenario, Region=region, Time=slice(start, end)
     ).to_pandas()
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     df = df.dropna().reset_index()  # Note the missing data!
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
@@ -309,7 +309,7 @@ def gdpOverTime(region):
     df = dsGlobal.Population.sel(
         Scenario=scenario, Region=region, Time=slice(start, end)
     ).to_pandas()
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     df = df.dropna().reset_index()  # Note the missing data!
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
@@ -410,7 +410,7 @@ def policyPathway(policy, region):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     return df.reset_index().to_dict(orient="records")
 
 
