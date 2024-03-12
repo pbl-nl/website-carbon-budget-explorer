@@ -11,6 +11,7 @@ Run with
 """
 from glob import glob
 from json import loads
+import os
 from pathlib import Path
 
 from flask import Flask, jsonify, request
@@ -108,8 +109,8 @@ def pathwaySelection():
 
 available_region_files = set(
     [
-        r.lstrip("/data/DataUpdate_02_2024/xr_alloc_").rstrip(".nc").lstrip("\\xr_alloc")
-        for r in glob("/data/DataUpdate_02_2024/xr_alloc_*.nc")
+        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc") 
+        for p in glob("/data/DataUpdate_02_2024/xr_alloc_*.nc")
     ]
 )
 
