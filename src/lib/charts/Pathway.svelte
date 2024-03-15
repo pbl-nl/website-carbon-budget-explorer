@@ -6,7 +6,7 @@
 	import type { ComponentEvents, SvelteComponent } from 'svelte';
 
 	export let xDomain: [number, number] = [1990, 2100];
-	export let yDomain: [number, number] = [0, 60];
+	export let yDomain: [number, number] = [-10, 70];
 	export let evt: ComponentEvents<SvelteComponent> = {};
 	export let yAxisTtle = '';
 	export let xTicks: number | Array<any> | undefined = undefined;

@@ -32,10 +32,10 @@
 			<!-- TODO would be nice when you hover over line or area it would show tooltip with series description -->
 			<Pathway xTicks={3} yTicks={4} yAxisTtle="GHG emissions (Gt CO₂e/year)">
 				<Line data={global.historicalCarbon} x={'time'} y={'value'} color="black" />
-				<Line data={$pathwayCarbonTweened} x={'time'} y={'mean'} color={ipcc_green} />
-				<Area data={$pathwayCarbonTweened} x={'time'} y0={'min'} y1={'max'} color={ipcc_green} />
-				<Line data={global.currentPolicy} x={'time'} y={'mean'} color={ipcc_red} />
-				<Area data={global.currentPolicy} x={'time'} y0={'min'} y1={'max'} color={ipcc_red} />
+				<Line data={$pathwayCarbonTweened} x={'time'} y={'value'} color={ipcc_green} />
+				<!-- <Area data={$pathwayCarbonTweened} x={'time'} y0={'min'} y1={'max'} color={ipcc_green} /> -->
+				<Line data={global.currentPolicy} x={'time'} y={'value'} color={ipcc_red} />
+				<!-- <Area data={global.currentPolicy} x={'time'} y0={'min'} y1={'max'} color={ipcc_red} /> -->
 			</Pathway>
 		</a>
 	</div>

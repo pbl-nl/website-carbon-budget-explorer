@@ -11,12 +11,14 @@ Run with
 """
 from glob import glob
 from json import loads
+import os
 from pathlib import Path
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import numpy as np
 import xarray as xr
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app)
@@ -27,10 +29,22 @@ CORS(app)
 # TODO make /data/ configurable
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset("/data/xr_dataread.nc")
+dsGlobal = xr.open_dataset("/data/DataUpdate_02_2024/xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
+
+# ECPC discount factor
+DEFAULT_DISCOUNT_FACTOR = 0.0
+
+# Default start year for ECPC and GDR
+DEFAULT_HISTORICAL_STARTYEAR = 1990
+
+# GDR RCI weight
+DEFAULT_RCI_WEIGHT = 'Half'
+
+# GDR capability threshold
+DEFAULT_CAPABILITY_THRESHOLD = 'Th'
 
 
 @app.get("/pathwayCarbon")
@@ -57,13 +71,10 @@ def pathwayCarbon():
         )
         .rename({"Time": "time"})
         .to_pandas()
-    )
-    return (
-        df.agg(func=["min", "mean", "max"])
-        .transpose()
+        .rename("value")
         .reset_index()
-        .to_dict(orient="records")
     )
+    return df.to_dict(orient="records")
 
 
 @app.get("/pathwayChoices")
@@ -72,23 +83,34 @@ def pathwayChoices():
         "temperature": dsGlobal.Temperature.values.tolist(),
         "exceedanceRisk": dsGlobal.Risk.values.tolist(),
         "negativeEmissions": dsGlobal.NegEmis.values.tolist(),
+        "timing": dsGlobal.Timing.values.tolist(),
+        "nonCO2red": dsGlobal.NonCO2red.values.tolist()
     }
 
 
 def pathwaySelection():
     choices = pathwayChoices()
-    defaults = {k: v[len(v) // 2] for k, v in choices.items()}
+    # this specifies the defaults that are shown in the global graph, but not the default slider settings!
+    defaults = {'temperature': 2.0,
+                'exceedanceRisk': 0.5,
+                'negativeEmissions': 0.5,
+                'timing': 'Immediate',
+                'nonCO2red': 0.5}
+    # defaults = {k: v[0] for k, v in choices.items()}
+
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),
         Risk=request.args.get("exceedanceRisk", defaults["exceedanceRisk"]),
         NegEmis=request.args.get("negativeEmissions", defaults["negativeEmissions"]),
+        Timing=request.args.get("timing", defaults["timing"]),
+        NonCO2red=request.args.get("nonCO2red", defaults["nonCO2red"])
     )
 
 
 available_region_files = set(
     [
-        r.lstrip("/data/xr_alloc_").rstrip(".nc").lstrip("\\xr_alloc")
-        for r in glob("/data/xr_alloc_*.nc")
+        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc") 
+        for p in glob("/data/DataUpdate_02_2024/xr_alloc_*.nc")
     ]
 )
 
@@ -96,7 +118,7 @@ available_region_files = set(
 def build_regions():
     countries_geojson = {}
     for g in loads(
-        Path("/data/ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
+        Path("/data/DataUpdate_02_2024/ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
     )["features"]:
         ps = g["properties"]
         countries_geojson[ps["ISO_A3_EH"]] = {
@@ -214,7 +236,7 @@ def pathwayStats():
             raise ValueError(f"Emission type {emission_type} not supported")
 
         used = hist.sel(Region="EARTH").sum().values.tolist()
-        remaining = globe.sel(TrajUnc="Medium",**pathwaySelection()).sum().values.tolist()
+        remaining = dsGlobal.sel(**pathwaySelection()).Budget.values.tolist()
         total = used + remaining
         reference = hist.sel(Region="EARTH").sel(Time=2021).item()
         relative = remaining / reference
@@ -222,8 +244,7 @@ def pathwayStats():
         # TODO gaps is not needed on non-global pages, so dont compute if there
         gap_index = 2030
         pathway = (
-            globe.sel(Time=gap_index, TrajUnc="Medium", **pathwaySelection())
-            .mean()
+            globe.sel(Time=gap_index, **pathwaySelection())
             .values
             + 0
         )
@@ -241,8 +262,8 @@ def pathwayStats():
         return {
             "total": total / 1000,
             "used": used / 1000,
-            "remaining": remaining / 1000,
-            "relative": relative,
+            "remaining": remaining,
+            "relative": relative * 1000,
             "gaps": gaps
         }
     return {
@@ -260,7 +281,7 @@ def historicalCarbon(region="EARTH"):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     df = df.reset_index()
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
@@ -274,7 +295,7 @@ def populationOverTime(region):
     df = dsGlobal.Population.sel(
         Scenario=scenario, Region=region, Time=slice(start, end)
     ).to_pandas()
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     df = df.dropna().reset_index()  # Note the missing data!
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
@@ -288,17 +309,17 @@ def gdpOverTime(region):
     df = dsGlobal.Population.sel(
         Scenario=scenario, Region=region, Time=slice(start, end)
     ).to_pandas()
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     df = df.dropna().reset_index()  # Note the missing data!
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset("/data/xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset("/data/xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset("/data/xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset("/data/xr_alloc_FC.nc")
+ds_alloc_2030 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2030.nc")
+ds_alloc_2040 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2040.nc")
+ds_alloc_2050 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2050.nc")
+ds_alloc_FC = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -310,11 +331,18 @@ def population_map(year, scenario="SSP2"):
 def fullCenturyBudgetSpatial(year):
     """Get map of GHG by year"""
     effortSharing = request.args.get("effortSharing", "PCC")
-    selection = dict(**pathwaySelection())
+    selection = pathwaySelection()
     if effortSharing in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
     if effortSharing == "PCC":
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+    if effortSharing in ["ECPC", "GDR"]:
+        selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
+    if effortSharing == "ECPC":
+        selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
+    if effortSharing == "GDR":
+        selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
+                         Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
 
     file_by_year = {
         "2030": ds_alloc_2030,
@@ -327,7 +355,6 @@ def fullCenturyBudgetSpatial(year):
         (
             file_by_year[year][effortSharing]
             .sel(**selection)
-            .mean(dim="TrajUnc")  # TODO: sel "Medium" instead of calculate mean?
             / population_map(year=2021)
         )
         .rename(Region="ISO")
@@ -345,18 +372,17 @@ def fullCenturyBudgetSpatial(year):
             Convergence_year=DEFAULT_CONVERGENCE_YEAR,
             **pathwaySelection(),
         )
-        .sel(TrajUnc="Medium")
     ).to_array("variable")
 
-    domain = [ds.quantile(0.1).item(), ds.quantile(0.5).item()]
+    domain = [ds.quantile(0.2).item(), ds.quantile(0.44).item()]
 
-    # Round domain to nearest 10
-    domain = [d // 10 * 10 for d in domain]
+    # Round domain to nearest 3
+    domain = [d // 3 * 3 for d in domain]
     return {"data": rows, "domain": domain}
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset("/data/xr_policyscen.nc")
+ds_policyscen = xr.open_dataset("/data/DataUpdate_02_2024/xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -384,7 +410,7 @@ def policyPathway(policy, region):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df.index.rename("time", True)
+    df.index.rename("time", inplace=True)
     return df.reset_index().to_dict(orient="records")
 
 
@@ -427,41 +453,46 @@ def indicators(region):
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = f"/data/xr_alloc_{ISO}.nc"
+    fn = f"/data/DataUpdate_02_2024/xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
 @app.get("/<ISO>/<principle>")
 def effortSharing(ISO, principle):
-    selection = dict(
-        **pathwaySelection(),
+    selection = pathwaySelection()
+    ds = (get_ds(ISO)[principle]
+          .sel(**selection)
+          .rename(Time="time")
     )
+    # set time as the first dimension
+    dim_order = ["time"] + [dim for dim in ds.dims if dim != "time"]
+    ds = ds.transpose(*dim_order)
 
-    # TODO should I do aggregation on Scenario and Convergence_year?
-    # or use static selection?
+    # extract the 'most reasonable' (mr) df which will be the main trajectory line
+    mr_selection = dict()
     if principle in ["PC", "PCC", "AP", "GDR", "ECPC"]:
-        selection.update(Scenario="SSP2")
+        mr_selection.update(Scenario="SSP2")
     if principle == "PCC":
-        selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+        mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+    if principle in ["ECPC", "GDR"]:
+        mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
+    if principle == "ECPC":
+        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
+    if principle == "GDR":
+        mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
+                            Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
+        
+    mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
 
-    ds = get_ds(ISO)[principle].sel(**selection)
-    df = ds.rename(Time="time").to_pandas()
-    if principle in ["GF", "PC", "ECPC"]:
-        # These effort sharing principles have Time dimension after TrajUnc dimension
-        # While all other principles have TrajUnc dimension after Time dimension
-        # Causing columns to be Time and TrajUnc to be rows in dataframe
-        # We want the opposite
-        # TODO order dimensions for each principle in same way, so this is not needed anymore
-
-        df = df.transpose()
+    agg_dims = [dim for dim in ds.dims if dim != "time"]
+    min_df = ds.min(agg_dims, skipna=True).to_pandas().rename("min")
+    max_df = ds.max(agg_dims, skipna=True).to_pandas().rename("max")
 
     return (
-        df.agg(["mean", "min", "max"], axis=1)
+        pd.concat([mr_df, min_df, max_df], axis=1)
         .reset_index()
-        .dropna()
         .to_dict(orient="records")
     )
-
 
 principles = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
 

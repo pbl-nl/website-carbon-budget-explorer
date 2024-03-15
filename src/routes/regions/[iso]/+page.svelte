@@ -64,7 +64,7 @@
 
 	function hoverEffortSharing(id: string) {
 		return hoverBuilder(
-			(row) => `${id} in ${row.time} is on average ${row.mean.toFixed(0)} Mt CO₂e`
+			(row) => `${id} in ${row.time} is ${row.mean.toFixed(0)} Mt CO₂e (with default settings)`
 		);
 	}
 </script>
@@ -102,7 +102,7 @@
 								: data.indicators.ndcAmbition.toFixed(0)}<span
 								class="tooltip cursor-pointer"
 								role="tooltip"
-								data-tip="In terms of greenhouse gases without taking into account land use, land use change and forestry (LULUCF)."
+								data-tip="The NDC data used here is outdated. It will be updated in the next round."
 								>% reduction ⓘ</span
 							>
 						</span>
@@ -114,7 +114,7 @@
 			<section id="overview" class="grow">
 				<!-- TODO compute smarter extent -->
 				<Pathway
-					yDomain={[data.historicalCarbon.extent[1] * -0.2, data.historicalCarbon.extent[1]]}
+					yDomain={[data.historicalCarbon.extent[1] * -0.3, data.historicalCarbon.extent[1] * 1.5]}
 					{evt}
 					yAxisTtle="GHG emissions (Mt CO₂e/year)"
 				>
