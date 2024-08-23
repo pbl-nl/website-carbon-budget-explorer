@@ -43,7 +43,7 @@
 	/>
 	<circle
 		cx={$xScale(x)}
-		r={width*2}
+		r={width * 2}
 		cy={$yScale(y0)}
 		stroke={color}
 		fill={color}
@@ -54,18 +54,12 @@
 		on:mouseout={() => dispatch('mouseout')}
 		role="tooltip"
 	/>
-	<text
-		x={$xScale(x)}
-		y={$yScale(y0) - 10}
-		fill={color}
-		text-anchor="middle"
-		font-size="12px"
-	> 
+	<text x={$xScale(x)} y={$yScale(y0) - 10} fill={color} text-anchor="middle" font-size="12px">
 		{text0}
 	</text>
 	<circle
 		cx={$xScale(x)}
-		r={width*2}
+		r={width * 2}
 		cy={$yScale(y1)}
 		stroke={color}
 		fill={color}
