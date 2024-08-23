@@ -16,6 +16,7 @@
 	export let y0: number;
 	export let y1: number;
 	export let width = 2;
+	export let text0: string;
 
 	// TODO use color of ndc series on global page?
 	export let color = 'black';
@@ -42,7 +43,7 @@
 	/>
 	<circle
 		cx={$xScale(x)}
-		r={width}
+		r={width*2}
 		cy={$yScale(y0)}
 		stroke={color}
 		fill={color}
@@ -53,9 +54,18 @@
 		on:mouseout={() => dispatch('mouseout')}
 		role="tooltip"
 	/>
+	<text
+		x={$xScale(x)}
+		y={$yScale(y0) - 10}
+		fill={color}
+		text-anchor="middle"
+		font-size="12px"
+	> 
+		{text0}
+	</text>
 	<circle
 		cx={$xScale(x)}
-		r={width}
+		r={width*2}
 		cy={$yScale(y1)}
 		stroke={color}
 		fill={color}

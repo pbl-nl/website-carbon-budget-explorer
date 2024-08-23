@@ -57,7 +57,7 @@
 	);
 	const hoverNdc = hoverBuilder(
 		(row) =>
-			`Nationally determined contribution at ${row.time} ranges from ${row.max.toFixed(
+			`Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
 				0
 			)} to ${row.min.toFixed(0)} Mt CO₂e`
 	);
@@ -131,6 +131,7 @@
 							x={parseInt(year)}
 							y0={range[0]}
 							y1={range[1]}
+							text0={`Min: ${range[0].toFixed(0)}`}
 							on:mouseover={hoverNdc}
 							on:mouseout={(e) => (evt = e)}
 						/>
