@@ -26,10 +26,11 @@ CORS(app)
 # TODO improve endpoint names
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
-# TODO make /data/ configurable
+
+DATA_PATH = Path("/data/DataUpdate_02_2024")
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset("/data/DataUpdate_02_2024/xr_dataread.nc")
+dsGlobal = xr.open_dataset(DATA_PATH / "xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -109,8 +110,8 @@ def pathwaySelection():
 
 available_region_files = set(
     [
-        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc") 
-        for p in glob("/data/DataUpdate_02_2024/xr_alloc_*.nc")
+        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc")
+        for p in glob(str(DATA_PATH / "xr_alloc_*.nc"))
     ]
 )
 
@@ -118,7 +119,7 @@ available_region_files = set(
 def build_regions():
     countries_geojson = {}
     for g in loads(
-        Path("/data/DataUpdate_02_2024/ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
+        Path(DATA_PATH, "ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
     )["features"]:
         ps = g["properties"]
         countries_geojson[ps["ISO_A3_EH"]] = {
@@ -316,10 +317,10 @@ def gdpOverTime(region):
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset("/data/DataUpdate_02_2024/xr_alloc_FC.nc")
+ds_alloc_2030 = xr.open_dataset(DATA_PATH / "xr_alloc_2030.nc")
+ds_alloc_2040 = xr.open_dataset(DATA_PATH / "xr_alloc_2040.nc")
+ds_alloc_2050 = xr.open_dataset(DATA_PATH / "xr_alloc_2050.nc")
+ds_alloc_FC = xr.open_dataset(DATA_PATH / "xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -382,7 +383,7 @@ def fullCenturyBudgetSpatial(year):
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset("/data/DataUpdate_02_2024/xr_policyscen.nc")
+ds_policyscen = xr.open_dataset(DATA_PATH / "xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -453,7 +454,7 @@ def indicators(region):
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = f"/data/DataUpdate_02_2024/xr_alloc_{ISO}.nc"
+    fn = DATA_PATH / f"xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
