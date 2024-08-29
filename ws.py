@@ -27,7 +27,8 @@ CORS(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
-DATA_PATH = Path("/data/DataUpdate_02_2024")
+# DATA_PATH = Path("/data/DataUpdate_NDC_06_2024")
+DATA_PATH = Path("/data/DataUpdate_08_2024")
 
 # Global data (xr_dataread.nc)
 dsGlobal = xr.open_dataset(DATA_PATH / "xr_dataread.nc")
@@ -415,12 +416,21 @@ def policyPathway(policy, region):
     return df.reset_index().to_dict(orient="records")
 
 
+# def ndcAmbition(region):
+#     ndc2030 = dsGlobal.GHG_ndc.sel(Region=region, Time=2030).mean().values.tolist()
+#     if np.isnan(ndc2030):
+#         return None
+#     hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
+#     return -(ndc2030 - hist1990) / hist1990 * 100
+
 def ndcAmbition(region):
-    ndc2030 = dsGlobal.GHG_ndc.sel(Region=region, Time=2030).mean().values.tolist()
+    ndc2030 = dsGlobal.GHG_ndc.sel(Region=region).mean().values.tolist()
     if np.isnan(ndc2030):
         return None
     hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
-    return -(ndc2030 - hist1990) / hist1990 * 100
+    hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
+    # return -(ndc2030 - hist1990) / hist1990 * 100
+    return -(ndc2030 - hist2015) / hist2015 * 100
 
 
 def historicalCarbonIndicator(region, start, end):
@@ -430,10 +440,14 @@ def historicalCarbonIndicator(region, start, end):
         .values.tolist()
     )
 
+# def ndcRange(region, period=2030):
+#     ds = dsGlobal.GHG_ndc.sel(Region=region, Time=period)
+#     return {period: [ds.min().values.tolist(), ds.max().values.tolist()]}
 
-def ndcRange(region, period=2030):
-    ds = dsGlobal.GHG_ndc.sel(Region=region, Time=period)
-    return {period: [ds.min().values.tolist(), ds.max().values.tolist()]}
+
+def ndcRange(region):
+    ds = dsGlobal.GHG_ndc.sel(Region=region)
+    return {2030: [ds.min().values.tolist(), ds.max().values.tolist()]}
 
 
 @app.get("/indicators/<region>")
