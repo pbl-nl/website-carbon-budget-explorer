@@ -137,16 +137,6 @@
 						on:mouseover={hoverHistoricalCarbon}
 						on:mouseout={(e) => (evt = e)}
 					/>
-					{#each Object.entries(data.indicators.ndc) as [year, range]}
-						<NdcRange
-							x={parseInt(year)}
-							y0={range[0]}
-							y1={range[1]}
-							text0={`Min: ${range[0].toFixed(0)}`}
-							on:mouseover={hoverNdc}
-							on:mouseout={(e) => (evt = e)}
-						/>
-					{/each}
 					{#each Object.entries(principles) as [id, { color, label }]}
 						{#if activeEffortSharings[id]}
 							<g name={id}>
@@ -163,6 +153,21 @@
 							</g>
 						{/if}
 					{/each}
+					{#each Object.entries(data.indicators.ndc) as [year, range]}
+						<NdcRange
+							x={parseInt(year)}
+							y0={range[0]}
+							y1={range[1]}
+							textNdcMin={`Min: ${range[0].toFixed(0)}`}
+							textNdcMax={`Max: ${range[1].toFixed(0)}`}
+							textNdc={`NDC`}
+
+
+							on:mouseover={hoverNdc}
+							on:mouseout={(e) => (evt = e)}
+						/>
+					{/each}
+
 				</Pathway>
 			</section>
 		</div>

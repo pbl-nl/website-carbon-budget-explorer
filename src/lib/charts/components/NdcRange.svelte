@@ -16,7 +16,9 @@
 	export let y0: number;
 	export let y1: number;
 	export let width = 2;
-	export let text0: string;
+	export let textNdcMin: string;
+	export let textNdcMax: string;
+	export let textNdc: string;
 
 	// TODO use color of ndc series on global page?
 	export let color = 'black';
@@ -54,8 +56,36 @@
 		on:mouseout={() => dispatch('mouseout')}
 		role="tooltip"
 	/>
-	<text x={$xScale(x)} y={$yScale(y0) - 10} fill={color} text-anchor="middle" font-size="12px">
-		{text0}
+	<text 
+		x={$xScale(x)} 
+		y={$yScale(y0) + 25}
+		fill={color} 
+		text-anchor="middle" 
+		font-size="13px"
+		class="text-container"
+	>
+		{textNdcMin}
+	</text>
+	<text 
+		x={$xScale(x)} 
+		y={$yScale(y1) - 15} 
+		fill={color} 
+		text-anchor="middle" 
+		font-size="13px"
+		class="text-container"
+	>
+		{textNdcMax}
+	</text>
+	<text 
+		x={$xScale(x) - 60} 
+		y={$yScale(y1) + 8} 
+		fill={color} 
+		text-anchor="middle" 
+		font-size="16px"
+		font-weight="bold"
+		class="text-container"
+	>
+		{textNdc}
 	</text>
 	<circle
 		cx={$xScale(x)}
@@ -76,5 +106,11 @@
 	line {
 		fill: none;
 		stroke-width: 2;
+	}
+
+	.text-container {
+		position: relative; /* or absolute/fixed if needed */
+    	z-index: 9999; /* High value to ensure it is on top */
+    	background: white; /* Optional: to ensure text is readable */
 	}
 </style>
