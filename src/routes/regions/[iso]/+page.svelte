@@ -88,23 +88,34 @@
 			<CountryHeader info={data.info} />
 			<section id="key-indicators">
 				<div class="px-12">
-					<p>
+					<!-- <p>
 						<span class="font-bold"> Historical emissions: </span>
 						<span>
 							{(data.indicators.historicalCarbon / 1_000).toFixed()}
 							Gt CO₂e
 						</span>
-					</p>
+					</p> -->
 					<p>
-						<span class="font-bold"> NDC ambition in 2030 relative to 1990: </span><span
-							>{data.indicators.ndcAmbition === null
+						<span class="font-bold"> NDC ambition in 2030 relative to 2015: </span>
+						<span>
+							{#if data.indicators.ndcAmbition === null}
+            					-
+        					{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
+            					{data.indicators.ndcAmbition.min.toFixed(0)}
+        					{:else}
+            					{`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`}
+        					{/if}
+
+							<!-- {data.indicators.ndcAmbition === null
 								? '-'
-								: data.indicators.ndcAmbition.toFixed(0)}<span
+								// : data.indicators.ndcAmbition.toFixed(0)}
+								: `${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`} -->
+								<span
 								class="tooltip cursor-pointer"
 								role="tooltip"
 								data-tip="The NDC data used here is outdated. It will be updated in the next round."
-								>% reduction ⓘ</span
-							>
+								>% reduction ⓘ
+							</span>
 						</span>
 					</p>
 				</div>

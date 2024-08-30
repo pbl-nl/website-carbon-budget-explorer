@@ -424,13 +424,22 @@ def policyPathway(policy, region):
 #     return -(ndc2030 - hist1990) / hist1990 * 100
 
 def ndcAmbition(region):
-    ndc2030 = dsGlobal.GHG_ndc.sel(Region=region).mean().values.tolist()
-    if np.isnan(ndc2030):
+    # ndc2030 = dsGlobal.GHG_ndc.sel(Region=region).mean().values.tolist()
+    ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
+    ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
+
+    if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
         return None
-    hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
+    # hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
     hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
     # return -(ndc2030 - hist1990) / hist1990 * 100
-    return -(ndc2030 - hist2015) / hist2015 * 100
+    # percent_reduction = -(ndc2030 - hist2015) / hist2015 * 100
+    return {
+        # "mean": percent_reduction,
+        "min": -(ndc2030_max - hist2015) / hist2015 * 100,
+        "max": -(ndc2030_min - hist2015) / hist2015 * 100
+    }
+    # return -(ndc2030 - hist2015) / hist2015 * 100
 
 
 def historicalCarbonIndicator(region, start, end):
@@ -555,3 +564,9 @@ def effortSharingReductions(ISO):
                 reductions[principle][period] = -(es - hist) / hist * 100
 
     return reductions
+
+if __name__ == "__main__":
+    region = input("Choose a focus country or region: ")
+    print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
+    print(f"NDC Range: {ndcRange(region)}")
+    # app.run(debug=True)
