@@ -23,6 +23,9 @@
 
 	export let data: PageData;
 
+	import type { Region } from '$lib/api';
+	export let info: Region;
+
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
 			const params = new URLSearchParams($page.url.search);
@@ -67,6 +70,18 @@
 			(row) => `${id} in ${row.time} is ${row.mean.toFixed(0)} Mt CO₂e (with default settings)`
 		);
 	}
+
+	const euMemberStates = [
+        "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK",
+        "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "IRL", "ITA",
+        "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT",
+        "ROU", "SVK", "SVN", "ESP", "SWE"
+    ];
+
+    // Function to check if the region is an EU member state
+    function isEuMemberState(region) {
+        return euMemberStates.includes(region);
+    }
 </script>
 
 <div class="flex h-full flex-row gap-4">
@@ -88,31 +103,35 @@
 			<CountryHeader info={data.info} />
 			<section id="key-indicators">
 				<div class="px-12">
-					<!-- <p>
-						<span class="font-bold"> Historical emissions: </span>
-						<span>
-							{(data.indicators.historicalCarbon / 1_000).toFixed()}
-							Gt CO₂e
-						</span>
-					</p> -->
 					<p>
 						<span class="font-bold"> NDC ambition in 2030 relative to 2015: </span>
 						<span>
 							{#if data.indicators.ndcAmbition === null}
             					-
         					{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
-            					{data.indicators.ndcAmbition.min.toFixed(0)}
-        					{:else}
-            					{`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`}
-        					{/if}
+								{#if isEuMemberState(data.info.iso3)}
+									EU member states do not have individual NDCs. The common goal of the EU27 is to reduce GHG
+									emissions by at least 55% by 2030 compared to 1990 levels.
+								{:else}
+									{data.indicators.ndcAmbition.min.toFixed(0)}
+								{/if}
+							{:else}
+								{#if isEuMemberState(data.info.iso3)}
+									EU NDC: {`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`}
+								{:else}
+									{`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`}
+								{/if}
+							{/if}
+							{#if !isEuMemberState(data.info.iso3)}
+								<span>% reduction</span>
+							{/if}
+
 
 							<!-- {data.indicators.ndcAmbition === null
 								? '-'
 								// : data.indicators.ndcAmbition.toFixed(0)}
 								: `${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`} -->
-								<span>
-									% reduction
-							</span>
+
 						</span>
 					</p>
 				</div>
@@ -150,20 +169,22 @@
 							</g>
 						{/if}
 					{/each}
-					{#each Object.entries(data.indicators.ndc) as [year, range]}
-						<NdcRange
-							x={parseInt(year)}
-							y0={range[0]}
-							y1={range[1]}
-							textNdcMin={`Min: ${range[0].toFixed(0)}`}
-							textNdcMax={`Max: ${range[1].toFixed(0)}`}
-							textNdc={`NDC`}
+					{#if !isEuMemberState(data.info.iso3)}
+						{#each Object.entries(data.indicators.ndc) as [year, range]}
+							<NdcRange
+								x={parseInt(year)}
+								y0={range[0]}
+								y1={range[1]}
+								textNdcMin={`Min: ${range[0].toFixed(0)}`}
+								textNdcMax={`Max: ${range[1].toFixed(0)}`}
+								textNdc={`NDC`}
 
 
-							on:mouseover={hoverNdc}
-							on:mouseout={(e) => (evt = e)}
-						/>
-					{/each}
+								on:mouseover={hoverNdc}
+								on:mouseout={(e) => (evt = e)}
+							/>
+						{/each}
+					{/if}
 
 				</Pathway>
 			</section>

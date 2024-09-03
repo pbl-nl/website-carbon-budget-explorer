@@ -416,30 +416,31 @@ def policyPathway(policy, region):
     return df.reset_index().to_dict(orient="records")
 
 
-# def ndcAmbition(region):
-#     ndc2030 = dsGlobal.GHG_ndc.sel(Region=region, Time=2030).mean().values.tolist()
-#     if np.isnan(ndc2030):
-#         return None
-#     hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
-#     return -(ndc2030 - hist1990) / hist1990 * 100
+def isEU(region):
+    # EU member states do not have individual NDCs but are covered by the EU NDC
+    member_states = [
+        "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA",
+        "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "MLT", "NLD",
+        "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE"
+    ]
+    if region in member_states:
+        return "EU"
+    return region
+
 
 def ndcAmbition(region):
-    # ndc2030 = dsGlobal.GHG_ndc.sel(Region=region).mean().values.tolist()
+    region = isEU(region)
+
     ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
     ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
 
     if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
         return None
-    # hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
     hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
-    # return -(ndc2030 - hist1990) / hist1990 * 100
-    # percent_reduction = -(ndc2030 - hist2015) / hist2015 * 100
     return {
-        # "mean": percent_reduction,
         "min": -(ndc2030_max - hist2015) / hist2015 * 100,
         "max": -(ndc2030_min - hist2015) / hist2015 * 100
     }
-    # return -(ndc2030 - hist2015) / hist2015 * 100
 
 
 def historicalCarbonIndicator(region, start, end):
@@ -449,12 +450,9 @@ def historicalCarbonIndicator(region, start, end):
         .values.tolist()
     )
 
-# def ndcRange(region, period=2030):
-#     ds = dsGlobal.GHG_ndc.sel(Region=region, Time=period)
-#     return {period: [ds.min().values.tolist(), ds.max().values.tolist()]}
-
 
 def ndcRange(region):
+    region = isEU(region)
     ds = dsGlobal.GHG_ndc.sel(Region=region)
     return {2030: [ds.min().values.tolist(), ds.max().values.tolist()]}
 
@@ -505,7 +503,7 @@ def effortSharing(ISO, principle):
     if principle == "GDR":
         mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                             Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
-        
+
     mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
 
     agg_dims = [dim for dim in ds.dims if dim != "time"]
@@ -569,4 +567,4 @@ if __name__ == "__main__":
     region = input("Choose a focus country or region: ")
     print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
     print(f"NDC Range: {ndcRange(region)}")
-    # app.run(debug=True)
+
