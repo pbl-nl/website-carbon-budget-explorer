@@ -110,11 +110,8 @@
 								? '-'
 								// : data.indicators.ndcAmbition.toFixed(0)}
 								: `${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`} -->
-								<span
-								class="tooltip cursor-pointer"
-								role="tooltip"
-								data-tip="The NDC data used here is outdated. It will be updated in the next round."
-								>% reduction ⓘ
+								<span>
+									% reduction
 							</span>
 						</span>
 					</p>

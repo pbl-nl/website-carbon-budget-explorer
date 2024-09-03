@@ -50,7 +50,7 @@
 					>
 					projects. For more information you can contact dr.
 					<a
-						href="https://www.uu.nl/medewerkers/MMDekker"
+						href="https://www.pbl.nl/over-het-pbl/medewerkers/mark-dekker"
 						target="_blank"
 						class="text-white"
 						rel="noopener noreferrer">Mark Dekker.</a
@@ -179,7 +179,7 @@
 					and the AR6
 					<a href="https://zenodo.org/records/5886912" target="_blank" rel="noopener noreferrer"
 						>scenario database</a
-					>. For NDC data, we use the Climate Resource NDC factsheets.
+					>. For NDC data, we use the PBL Climate Pledge NDC tool.
 				</QA>
 				<QA question="What are these allocation methods?">
 					Below, we briefly describe the methods one-by-one. For more details, the reader is
@@ -224,22 +224,23 @@
 			<section>
 				<h2 id="other">Other</h2>
 				<QA question="How can I contact you?">
-					All questions, comments and ideas are welcome. Please can dr. <a
-						href="https://www.uu.nl/medewerkers/MMDekker"
+					All questions, comments and ideas are welcome. Please contact dr. <a
+						href="https://www.pbl.nl/over-het-pbl/medewerkers/mark-dekker"
 						target="_blank"
 						rel="noopener noreferrer">Mark Dekker</a
 					> from the Netherlands Environmental Assessment Agency.
 				</QA>
 				<QA question="How can I cite this work?">
-					For general purposes, feel free to refer this work as Dekker, M.M. (2023) The Carbon
+					For general purposes, feel free to refer to this work as Dekker, M.M. (2023) The Carbon
 					Budget Explorer. [Online]. Available: https://www.carbonbudgetexplorer.eu. <br />
-					<br /> For scientific purposes, because the data is still undergoing many developments, we
-					recommend waiting for the preprint of the scientific article (estimated in spring 2024) before
-					citing the research.
+					<br /> For scientific purposes, we recommend waiting for the scientific preprint that will
+					be available in September 2024.
 				</QA>
 				<QA question="Will the data and code be publicly available?">
-					Yes, all data and code (for both this tool and the scientific analysis) will be publicly
-					available. We expect to publish this in spring 2024.
+					All data can be downloaded <a href="https://doi.org/10.5281/zenodo.12188104" target="_blank">from Zenodo</a>,
+					including more recent developments. The Python code for the computations can be found on
+					<a href="https://doi.org/10.5281/zenodo.13640303" target="_blank">Zenodo</a> or
+					<a href="https://github.com/imagepbl/EffortSharing/tree/v1.0.0" target="_blank">GitHub</a>.
 				</QA>
 				<QA question="What future updates are expected?">
 					The Explorer is constantly in development, by updating NDC or other data, but also in

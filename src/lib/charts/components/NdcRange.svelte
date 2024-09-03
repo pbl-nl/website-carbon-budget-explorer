@@ -56,32 +56,32 @@
 		on:mouseout={() => dispatch('mouseout')}
 		role="tooltip"
 	/>
-	<text 
-		x={$xScale(x)} 
-		y={$yScale(y0) + 25}
-		fill={color} 
-		text-anchor="middle" 
-		font-size="13px"
+	<text
+		x={$xScale(x)}
+		y={$yScale(y0) + 30}
+		fill={color}
+		text-anchor="middle"
+		font-size="15px"
 		class="text-container"
 	>
 		{textNdcMin}
 	</text>
-	<text 
-		x={$xScale(x)} 
-		y={$yScale(y1) - 15} 
-		fill={color} 
-		text-anchor="middle" 
-		font-size="13px"
+	<text
+		x={$xScale(x)}
+		y={$yScale(y1) - 18}
+		fill={color}
+		text-anchor="middle"
+		font-size="15px"
 		class="text-container"
 	>
 		{textNdcMax}
 	</text>
-	<text 
-		x={$xScale(x) - 60} 
-		y={$yScale(y1) + 8} 
-		fill={color} 
-		text-anchor="middle" 
-		font-size="16px"
+	<text
+		x={$xScale(x) - 60}
+		y={$yScale(y1) + 8}
+		fill={color}
+		text-anchor="middle"
+		font-size="18px"
 		font-weight="bold"
 		class="text-container"
 	>

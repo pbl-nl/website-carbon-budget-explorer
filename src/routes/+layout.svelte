@@ -86,7 +86,7 @@
 				/></svg
 			>
 			<span
-				>This website has been updated with new data in Feb 2024. Please see the About page for more
+				>This website has been updated with new NDC data in September 2024. Please see the About page for more
 				information</span
 			>
 		</div>
