@@ -23,9 +23,6 @@
 
 	export let data: PageData;
 
-	import type { Region } from '$lib/api';
-	export let info: Region;
-
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
 			const params = new URLSearchParams($page.url.search);
@@ -79,7 +76,7 @@
     ];
 
     // Function to check if the region is an EU member state
-    function isEuMemberState(region) {
+    function isEuMemberState(region: string) {
         return euMemberStates.includes(region);
     }
 </script>
@@ -110,7 +107,7 @@
             					-
         					{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
 								{#if isEuMemberState(data.info.iso3)}
-									EU member states do not have individual NDCs. The common goal of the EU27 is to reduce GHG
+									EU Member States do not have individual NDCs. The EU27's joint NDC target is to reduce GHG
 									emissions by at least 55% by 2030 compared to 1990 levels.
 								{:else}
 									{data.indicators.ndcAmbition.min.toFixed(0)}
@@ -125,13 +122,6 @@
 							{#if !isEuMemberState(data.info.iso3)}
 								<span>% reduction</span>
 							{/if}
-
-
-							<!-- {data.indicators.ndcAmbition === null
-								? '-'
-								// : data.indicators.ndcAmbition.toFixed(0)}
-								: `${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`} -->
-
 						</span>
 					</p>
 				</div>

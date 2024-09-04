@@ -220,13 +220,14 @@
 						rel="noopener noreferrer">Responsibility-Capability Index</a
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
-				<QA question="Why are there no NDCs for European member states?">
-					European member states have a common NDC, which is to reduce GHG emissions by at least 55 %
+				<QA question="Why are there no NDCs for European Member States?">
+					European Member States have a joint NDC, which is to reduce GHG emissions by at least 55 %
 					by 2030 compared to 1990 levels. This is a shared goal for the EU27, and therefore no
-					individual NDCs are available for European member states.
+					individual NDCs are available for European Member States.
 					<br />
 					<br />
-					Which country reduces emissions by how much is determined by European regulation. You can find
+					The allocation of emission reductions to each Member State is determined via several Directives (ETS, ESR and others).
+					You can find
 					<a
 						href="https://data.consilium.europa.eu/doc/document/ST-14286-2023-INIT/en/pdf"
 						target="_blank"
