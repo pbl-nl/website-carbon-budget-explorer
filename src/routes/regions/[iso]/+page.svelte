@@ -108,19 +108,25 @@
         					{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
 								{#if isEuMemberState(data.info.iso3)}
 									EU Member States do not have individual NDCs. The EU27's joint NDC target is to reduce GHG
-									emissions by at least 55% by 2030 compared to 1990 levels.
+									emissions by at least 55% by 2030 compared to 1990 levels. This translates to 2085 Mt CO₂e in 2030.
 								{:else}
-									{data.indicators.ndcAmbition.min.toFixed(0)}
+									{#if data.indicators.ndcAmbition.min < 0}
+										{Math.abs(data.indicators.ndcAmbition.min.toFixed(0))} % increase
+									{:else}
+										{data.indicators.ndcAmbition.min.toFixed(0)} % reduction
+									{/if}
 								{/if}
 							{:else}
 								{#if isEuMemberState(data.info.iso3)}
-									EU NDC: {`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`}
+									EU Member States do not have individual NDCs. The EU27's joint NDC target is to reduce GHG
+									emissions by at least 55% by 2030 compared to 1990 levels. This translates to 2085 Mt CO₂e in 2030.
 								{:else}
-									{`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)}`}
+									{#if data.indicators.ndcAmbition.min < 0 && data.indicators.ndcAmbition.max < 0}
+										{`${Math.abs(data.indicators.ndcAmbition.max.toFixed(0))} - ${Math.abs(data.indicators.ndcAmbition.min.toFixed(0))} % increase`}
+									{:else}
+										{`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)} % reduction`}
+									{/if}
 								{/if}
-							{/if}
-							{#if !isEuMemberState(data.info.iso3)}
-								<span>% reduction</span>
 							{/if}
 						</span>
 					</p>
