@@ -220,6 +220,19 @@
 						rel="noopener noreferrer">Responsibility-Capability Index</a
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
+				<QA question="Why are there different absolute NDC values shown in the country graph?">
+					When NDCs area published by countries, they are expressed in relative terms (e.g. 30 % reduction in 2030 compared to 1990).
+					The absolute values are calculations that depend on the historical and baseline emission data used. We show two versions:
+					one based on the data we use for the Carbon Budget Explorer (Jones et al., 2021), and one based on the data used in the
+					<a
+						href="https://themasites.pbl.nl/o/climate-ndc-policies-tool/"
+						target="_blank"
+						rel="noopener noreferrer">PBL NDC tool</a> (PRIMAP historical data).
+					<br />
+					<br />
+					These values are only an indication. When precise NDC data is needed, it is better to refer to the official NDC documents.
+
+				</QA>
 				<QA question="Why are there no NDCs for European Member States?">
 					European Member States have a joint NDC, which is to reduce GHG emissions by at least 55 %
 					by 2030 compared to 1990 levels. This is a shared goal for the EU27, and therefore no
@@ -247,8 +260,10 @@
 				<QA question="How can I cite this work?">
 					For general purposes, feel free to refer to this work as Dekker, M.M. (2023) The Carbon
 					Budget Explorer. [Online]. Available: https://www.carbonbudgetexplorer.eu. <br />
-					<br /> For scientific purposes, we recommend waiting for the scientific preprint that will
-					be available in September 2024.
+					<br /> For scientific purposes, you can refer to the
+					<a href="https://doi.org/10.21203/rs.3.rs-5023350/v1" target="_blank" rel="noopener noreferrer">preprint</a>
+					of this work. It is currently under review.
+
 				</QA>
 				<QA question="Will the data and code be publicly available?">
 					All data can be downloaded <a href="https://doi.org/10.5281/zenodo.12188104" target="_blank">from Zenodo</a>,
