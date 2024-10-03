@@ -139,7 +139,7 @@ jobs:
       - name: zip build
         run: zip -r ${{ env.SITE_NAME }}.zip .
       - name: publish build artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: ${{ env.SITE_NAME }}.zip
           name: ${{ env.SITE_NAME }}
