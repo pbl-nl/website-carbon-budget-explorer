@@ -28,7 +28,7 @@ CORS(app)
 # TODO write tests with dummy data
 
 # DATA_PATH = Path("/data/DataUpdate_NDC_06_2024")
-DATA_PATH = Path("/Data/Data_effortsharing/DataUpdate_08_2024")
+DATA_PATH = Path("/data/DataUpdate_08_2024")
 
 # Global data (xr_dataread.nc)
 dsGlobal = xr.open_dataset(DATA_PATH / "xr_dataread.nc")
