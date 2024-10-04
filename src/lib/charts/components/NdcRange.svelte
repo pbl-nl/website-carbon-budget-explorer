@@ -110,7 +110,7 @@
 
 	.text-container {
 		position: relative; /* or absolute/fixed if needed */
-    	z-index: 9999; /* High value to ensure it is on top */
-    	background: white; /* Optional: to ensure text is readable */
+		z-index: 9999; /* High value to ensure it is on top */
+		background: white; /* Optional: to ensure text is readable */
 	}
 </style>
