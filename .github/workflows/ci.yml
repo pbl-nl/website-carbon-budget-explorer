@@ -11,7 +11,7 @@ on:
           - 'acceptance'
 
 env:
-  SITE_NAME: carbonbudgetexplorer
+  SITE_NAME: acc.carbonbudgetexplorer
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
