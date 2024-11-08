@@ -28,7 +28,7 @@ CORS(app)
 # TODO write tests with dummy data
 
 # DATA_PATH = Path("/data/DataUpdate_NDC_06_2024")
-DATA_PATH = Path("/data/DataUpdate_08_2024")
+DATA_PATH = Path("/data/DataUpdate_10_2024")
 
 # Global data (xr_dataread.nc)
 dsGlobal = xr.open_dataset(DATA_PATH / "xr_dataread.nc")
@@ -432,16 +432,24 @@ def isEU(region):
 def ndcAmbition(region):
     region = isEU(region)
 
-    ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
-    ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
+    ndc2030_min = dsGlobal.GHG_ndc_red.sel(Region=region).min().values.tolist()
+    ndc2030_max = dsGlobal.GHG_ndc_red.sel(Region=region).max().values.tolist()
 
-    if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
-        return None
-    hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
     return {
-        "min": -(ndc2030_max - hist2015) / hist2015 * 100,
-        "max": -(ndc2030_min - hist2015) / hist2015 * 100
+        "min": ndc2030_min * 100,
+        "max": ndc2030_max * 100
     }
+
+    # ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
+    # ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
+
+    # if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
+    #     return None
+    # hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
+    # return {
+    #     "min": -(ndc2030_max - hist2015) / hist2015 * 100,
+    #     "max": -(ndc2030_min - hist2015) / hist2015 * 100
+    # }
 
 
 def historicalCarbonIndicator(region, start, end):
@@ -452,10 +460,20 @@ def historicalCarbonIndicator(region, start, end):
     )
 
 
-def ndcRange(region):
+def ndcRange_inventory(region):
+    # Absolute emissions from the NDC, based on self-reported inventory data
     region = isEU(region)
-    ds = dsGlobal.GHG_ndc.sel(Region=region)
-    return {2030: [ds.min().values.tolist(), ds.max().values.tolist()]}
+
+    ds_ndc_inv = dsGlobal.GHG_ndc_inv.sel(Region=region)
+    return {2030: [ds_ndc_inv.min().values.tolist(), ds_ndc_inv.max().values.tolist()]}
+
+
+def ndcRange_jones(region):
+    # Is using GHGH_ndc_red to get absolute emissions, but then using 2015 Jones data
+    region = isEU(region)
+
+    ds_ndc = dsGlobal.GHG_ndc.sel(Region=region)
+    return {2030: [ds_ndc.min().values.tolist(), ds_ndc.max().values.tolist()]}
 
 
 @app.get("/indicators/<region>")
@@ -465,7 +483,8 @@ def indicators(region):
     data = {
         "ndcAmbition": ndcAmbition(region),
         "historicalCarbon": historicalCarbonIndicator(region, start, end),
-        "ndc": ndcRange(region),
+        "ndc_inventory": ndcRange_inventory(region),
+        "ndc_jones": ndcRange_jones(region)
     }
     return data
 
@@ -565,7 +584,8 @@ def effortSharingReductions(ISO):
     return reductions
 
 if __name__ == "__main__":
-    region = input("Choose a focus country or region: ")
+    # region = input("Choose a focus country or region: ")
+    region = "USA"
     # print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
     # print(f"NDC Range: {ndcRange(region)}")
-    policyPathway("CurPol", region)
+    print(ndcAmbition(region))
