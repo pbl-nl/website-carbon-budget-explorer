@@ -166,7 +166,7 @@
 						{/if}
 					{/each}
 					{#if !isEuMemberState(data.info.iso3)}
-						{#each Object.entries(data.indicators.ndc) as [year, range]}
+						{#each Object.entries(data.indicators.ndc_inventory) as [year, range]}
 							<NdcRange
 								x={parseInt(year)}
 								y0={range[0]}
@@ -174,12 +174,26 @@
 								textNdcMin={`Min: ${range[0].toFixed(0)}`}
 								textNdcMax={`Max: ${range[1].toFixed(0)}`}
 								textNdc={`NDC`}
+								color="black"
 
 
 								on:mouseover={hoverNdc}
 								on:mouseout={(e) => (evt = e)}
 							/>
 						{/each}
+						<!-- {#each Object.entries(data.indicators.ndc_jones) as [year, range]}
+							<NdcRange
+								x={parseInt(year)}
+								y0={range[0]}
+								y1={range[1]}
+								textNdcMin={` `}
+								textNdcMax={` `}
+								textNdc={` `}
+								color="gray"
+								on:mouseover={hoverNdc}
+								on:mouseout={(e) => (evt = e)}
+							/>
+						{/each} -->
 					{/if}
 
 				</Pathway>
