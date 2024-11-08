@@ -410,7 +410,8 @@ def policyPathway(policy, region):
     ).to_pandas()
 
     if region == "EARTH":
-        df /= 1000  # global GHG in Gt CO2e
+        columns_to_divide = ['mean', 'min', 'max']
+        df[columns_to_divide] = df[columns_to_divide] / 1000  # global GHG in Gt CO2e
 
     df.index.rename("time", inplace=True)
     return df.reset_index().to_dict(orient="records")
@@ -565,6 +566,6 @@ def effortSharingReductions(ISO):
 
 if __name__ == "__main__":
     region = input("Choose a focus country or region: ")
-    print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
-    print(f"NDC Range: {ndcRange(region)}")
-
+    # print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
+    # print(f"NDC Range: {ndcRange(region)}")
+    policyPathway("CurPol", region)
