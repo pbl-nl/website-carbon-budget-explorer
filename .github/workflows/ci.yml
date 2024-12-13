@@ -1,17 +1,7 @@
 name: CI
 
 on:
-  workflow_dispatch:
-    inputs:
-      ENVIRONMENT:
-        type: choice
-        description: Please select the environment you want to deploy to.
-        options:
-          - 'production'
-          - 'acceptance'
-
-env:
-  SITE_NAME: carbonbudgetexplorer
+  push:  # Runs on all push events
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -110,72 +100,3 @@ jobs:
         run: npm test
         env:
           CABE_DATA_DIR: __tests__
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
-        with:
-          cache: npm
-          cache-dependency-path: ./package.json
-          node-version: 18
-      - name: 📥 Install deps
-        run: npm ci
-      - name: ⬇️  Install data deps
-        run: npm run download:borders
-      - name: Fake data
-        working-directory: __tests__
-        # During first page the nc files are opened, use dummy files to prevent build failure
-        run: |
-          cp dummy.nc xr_dataread.nc &&
-          cp dummy.nc xr_alloc_2030.nc &&
-          cp dummy.nc xr_policyscen.nc &&
-          cp dummy.nc xr_temps.nc
-      - name: ⚙️  Build
-        run: npm run build
-        env:
-          CABE_DATA_DIR: __tests__
-      - name: zip build
-        run: zip -r ${{ env.SITE_NAME }}.zip .
-      - name: publish build artifact
-        uses: actions/upload-artifact@v2
-        with:
-          path: ${{ env.SITE_NAME }}.zip
-          name: ${{ env.SITE_NAME }}
-  deploy-frontend:
-    runs-on: [self-hosted, linux]
-    environment: ${{ github.event.inputs.ENVIRONMENT }}
-    needs:
-      - build-frontend
-    steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_SP }}
-      - name: download build artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ env.SITE_NAME }}
-          path: ${{ github.workspace }}/zip
-      - name: deploy ${{ env.SITE_NAME }}
-        uses: Azure/webapps-deploy@v2
-        with:
-          app-name: ${{ secrets.APP_SERVICE_NAME_FE }}
-          package: ${{ github.workspace }}/zip/${{ env.SITE_NAME }}.zip
-  deploy-backend:
-    runs-on: [self-hosted, linux]
-    environment: ${{ github.event.inputs.ENVIRONMENT }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_SP }}
-      - name: zip build
-        run: zip -r build.zip ws.py requirements.txt
-      - name: Deploy Carbon Budget Explorer Api
-        uses: Azure/webapps-deploy@v2
-        with:
-          app-name: ${{ secrets.APP_SERVICE_NAME_BE }}
-          package: ${{ github.workspace }}/build.zip
