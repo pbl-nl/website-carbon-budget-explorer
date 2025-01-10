@@ -108,3 +108,13 @@ node build/index.js
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 If the Python webservice is not running on `http://127.0.0.1:5000` then set `CABE_API_URL` environment variable to right URL.
+
+## Cache
+
+The Python webservice caches all requests for 10 hours in the `./cache` directory. The cache can be cleared with
+
+```bash
+# stop webservice
+rm -rf cache/*
+# start webservice
+```
