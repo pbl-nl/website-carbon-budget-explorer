@@ -69,16 +69,39 @@
 	}
 
 	const euMemberStates = [
-        "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK",
-        "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "IRL", "ITA",
-        "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT",
-        "ROU", "SVK", "SVN", "ESP", "SWE"
-    ];
+		'AUT',
+		'BEL',
+		'BGR',
+		'HRV',
+		'CYP',
+		'CZE',
+		'DNK',
+		'EST',
+		'FIN',
+		'FRA',
+		'DEU',
+		'GRC',
+		'HUN',
+		'IRL',
+		'ITA',
+		'LVA',
+		'LTU',
+		'LUX',
+		'MLT',
+		'NLD',
+		'POL',
+		'PRT',
+		'ROU',
+		'SVK',
+		'SVN',
+		'ESP',
+		'SWE'
+	];
 
-    // Function to check if the region is an EU member state
-    function isEuMemberState(region: string) {
-        return euMemberStates.includes(region);
-    }
+	// Function to check if the region is an EU member state
+	function isEuMemberState(region: string) {
+		return euMemberStates.includes(region);
+	}
 </script>
 
 <div class="flex h-full flex-row gap-4">
@@ -104,29 +127,29 @@
 						<span class="font-bold"> NDC ambition in 2030 relative to 2015: </span>
 						<span>
 							{#if data.indicators.ndcAmbition === null}
-            					-
-        					{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
+								-
+							{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
 								{#if isEuMemberState(data.info.iso3)}
-									EU Member States do not have individual NDCs. The EU27's joint NDC target is to reduce GHG
-									emissions by at least 55% by 2030 compared to 1990 levels. This translates to 2085 Mt CO₂e in 2030.
+									EU Member States do not have individual NDCs. The EU27's joint NDC target is to
+									reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
+									translates to 2085 Mt CO₂e in 2030.
+								{:else if data.indicators.ndcAmbition.min < 0}
+									{Math.abs(data.indicators.ndcAmbition.min.toFixed(0))} % increase
 								{:else}
-									{#if data.indicators.ndcAmbition.min < 0}
-										{Math.abs(data.indicators.ndcAmbition.min.toFixed(0))} % increase
-									{:else}
-										{data.indicators.ndcAmbition.min.toFixed(0)} % reduction
-									{/if}
+									{data.indicators.ndcAmbition.min.toFixed(0)} % reduction
 								{/if}
+							{:else if isEuMemberState(data.info.iso3)}
+								EU Member States do not have individual NDCs. The EU27's joint NDC target is to
+								reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
+								translates to 2085 Mt CO₂e in 2030.
+							{:else if data.indicators.ndcAmbition.min < 0 && data.indicators.ndcAmbition.max < 0}
+								{`${Math.abs(data.indicators.ndcAmbition.max.toFixed(0))} - ${Math.abs(
+									data.indicators.ndcAmbition.min.toFixed(0)
+								)} % increase`}
 							{:else}
-								{#if isEuMemberState(data.info.iso3)}
-									EU Member States do not have individual NDCs. The EU27's joint NDC target is to reduce GHG
-									emissions by at least 55% by 2030 compared to 1990 levels. This translates to 2085 Mt CO₂e in 2030.
-								{:else}
-									{#if data.indicators.ndcAmbition.min < 0 && data.indicators.ndcAmbition.max < 0}
-										{`${Math.abs(data.indicators.ndcAmbition.max.toFixed(0))} - ${Math.abs(data.indicators.ndcAmbition.min.toFixed(0))} % increase`}
-									{:else}
-										{`${data.indicators.ndcAmbition.min.toFixed(0)} - ${data.indicators.ndcAmbition.max.toFixed(0)} % reduction`}
-									{/if}
-								{/if}
+								{`${data.indicators.ndcAmbition.min.toFixed(
+									0
+								)} - ${data.indicators.ndcAmbition.max.toFixed(0)} % reduction`}
 							{/if}
 						</span>
 					</p>
@@ -175,8 +198,6 @@
 								textNdcMax={`Max: ${range[1].toFixed(0)}`}
 								textNdc={`NDC`}
 								color="black"
-
-
 								on:mouseover={hoverNdc}
 								on:mouseout={(e) => (evt = e)}
 							/>
@@ -195,7 +216,6 @@
 							/>
 						{/each} -->
 					{/if}
-
 				</Pathway>
 			</section>
 		</div>
