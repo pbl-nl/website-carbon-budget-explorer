@@ -134,7 +134,7 @@
 									reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
 									translates to 2085 Mt CO₂e in 2030.
 								{:else if data.indicators.ndcAmbition.min < 0}
-									{Math.abs(data.indicators.ndcAmbition.min.toFixed(0))} % increase
+									{Math.abs(data.indicators.ndcAmbition.min).toFixed(0)} % increase
 								{:else}
 									{data.indicators.ndcAmbition.min.toFixed(0)} % reduction
 								{/if}
@@ -143,9 +143,9 @@
 								reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
 								translates to 2085 Mt CO₂e in 2030.
 							{:else if data.indicators.ndcAmbition.min < 0 && data.indicators.ndcAmbition.max < 0}
-								{`${Math.abs(data.indicators.ndcAmbition.max.toFixed(0))} - ${Math.abs(
-									data.indicators.ndcAmbition.min.toFixed(0)
-								)} % increase`}
+								{`${Math.abs(data.indicators.ndcAmbition.max).toFixed(0)} - ${Math.abs(
+									data.indicators.ndcAmbition.min).toFixed(0)
+								} % increase`}
 							{:else}
 								{`${data.indicators.ndcAmbition.min.toFixed(
 									0
