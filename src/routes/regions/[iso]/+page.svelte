@@ -144,8 +144,8 @@
 								translates to 2085 Mt CO₂e in 2030.
 							{:else if data.indicators.ndcAmbition.min < 0 && data.indicators.ndcAmbition.max < 0}
 								{`${Math.abs(data.indicators.ndcAmbition.max).toFixed(0)} - ${Math.abs(
-									data.indicators.ndcAmbition.min).toFixed(0)
-								} % increase`}
+									data.indicators.ndcAmbition.min
+								).toFixed(0)} % increase`}
 							{:else}
 								{`${data.indicators.ndcAmbition.min.toFixed(
 									0
