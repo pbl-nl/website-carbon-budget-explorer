@@ -283,9 +283,7 @@ def historicalCarbon(region="EARTH"):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df.index.rename("time", inplace=True)
-    df = df.reset_index()
-    df["value"] = df.pop(0)
+    df = df.reset_index().rename(columns={'Time': 'time', 'GHG_hist': "value"})
     return df.to_dict(orient="records")
 
 
