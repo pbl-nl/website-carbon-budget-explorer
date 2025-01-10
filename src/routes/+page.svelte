@@ -1,6 +1,5 @@
 <script lang="ts">
 	import logo from '$lib/logo.svg';
-	export const prerender = true;
 </script>
 
 <main class="container mx-auto flex h-full w-4/5 flex-col items-stretch justify-around">
