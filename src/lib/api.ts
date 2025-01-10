@@ -90,15 +90,12 @@ async function getJSON(path: string, myfetch = fetch) {
 	if (browser) {
 		url = `/api${path}`;
 	}
-	console.time(url);
 	const response = await myfetch(url);
 	if (!response.ok) {
 		console.error(url);
-		console.timeEnd(url);
 		throw new Error(response.statusText);
 	}
 	const data = await response.json();
-	console.timeEnd(url);
 	return data;
 }
 
