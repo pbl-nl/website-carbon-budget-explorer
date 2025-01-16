@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs?client';
+	// import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs?client';
 	// import {CRS} from 'leaflet?client'
 	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
@@ -36,9 +36,6 @@
 	};
 
 	let tileLayer = $state();
-
-	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const tweenedDomain = tweened(metrics.domain, tweenOptions);
 
 	const interpolator = interpolateYlGnBu;
 
@@ -87,6 +84,9 @@
 		hoveredFeature = $bindable()
 	}: Props = $props();
 
+	const tweenOptions = { duration: 1000, easing: cubicOut };
+	const tweenedDomain = tweened(metrics.domain, tweenOptions);
+
 	function onClick(e: any) {
 		clickedFeature = e.detail.sourceTarget.feature;
 		// <GeoJSON> dts says e is a LeafletMouseEvent but it is not
@@ -101,8 +101,6 @@
 		hoveredFeature = undefined;
 	}
 
-	let leafletMap: LeafletMap = $state();
-
 	// @types/svelte-leafletjs is missing GeoJSON.data property
 	// use any to avoid type errors,
 	// see https://github.com/sveltejs/language-tools/issues/1026#issuecomment-1002839154
@@ -115,17 +113,17 @@
 
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
-		<LeafletMap bind:this={leafletMap} options={mapOptions}>
+		<!-- <LeafletMap options={mapOptions}>
 			<TileLayer bind:this={tileLayer} url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON
 				{...notypecheck({ data: borders })}
 				options={geoJsonOptions}
 				events={['click', 'mouseover', 'mouseout']}
-				on:click={onClick}
-				on:mouseover={onMouseOver}
-				on:mouseout={onmouseout}
+				click={onClick}
+				mouseover={onMouseOver}
+				mouseout={onmouseout}
 			/>
-		</LeafletMap>
+		</LeafletMap> -->
 		<ColorLegend
 			title={'Emissions allocation per capita (t CO2e/pc)'}
 			{...notypecheck({ scale: scale })}

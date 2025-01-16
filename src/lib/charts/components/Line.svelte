@@ -4,7 +4,7 @@
  -->
 <script lang="ts">
 	import { bisector, type ScaleLinear } from 'd3';
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
 
 	const { xScale, yScale } = getContext<{
@@ -18,14 +18,18 @@
 		data: Record<string, number>[];
 		x?: string;
 		y?: string;
-		color?: String;
+		color?: string;
+		mouseout?: (e?: any) => void;
+		mouseover?: (e: any) => void;
 	}
 
 	let {
 		data,
 		x = 'x',
 		y = 'y',
-		color = '#ab00d6'
+		color = '#ab00d6',
+		mouseout = () => {},
+		mouseover = () => {},
 	}: Props = $props();
 
 	let path =
@@ -36,7 +40,6 @@
 			})
 			.join('L'));
 
-	const dispatch = createEventDispatcher();
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 </script>
 
@@ -48,11 +51,11 @@
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox
 		const i = finder.center(data, ox);
-		return dispatch('mouseover', { e, row: data[i] });
+		return mouseover({ e, row: data[i] });
 	}}
-	onmouseout={(e) => dispatch('mouseout', { e })}
-	onfocus={(e) => dispatch('mouseover', { e })}
-	onblur={() => dispatch('mouseout')}
+	onmouseout={(e) => mouseout({ e })}
+	onfocus={(e) => mouseover({ e })}
+	onblur={() => mouseout()}
 	role="tooltip"
 />
 

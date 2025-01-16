@@ -5,7 +5,7 @@
 <script lang="ts">
 	import { bisector, type ScaleLinear } from 'd3';
 	import { area, curveLinear } from 'd3-shape';
-	import { createEventDispatcher, getContext, SvelteComponent, type ComponentEvents } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
 
 	const { xScale, yScale } = getContext<{
@@ -20,6 +20,8 @@
 		y0?: string;
 		y1?: string;
 		color?: string;
+		mouseover: (e: any) => void;
+		mouseout: (e: any) => void;
 	}
 
 	let {
@@ -27,7 +29,9 @@
 		x = 'x',
 		y0 = 'y0',
 		y1 = 'y1',
-		color = '#ab00d6'
+		color = '#ab00d6',
+		mouseover,
+		mouseout,
 	}: Props = $props();
 
 	let shade = $derived(area<Row>()
@@ -37,14 +41,13 @@
 		.curve(curveLinear));
 	let path = $derived(shade(data));
 
-	const dispatch = createEventDispatcher();
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 
-	function hover(e: ComponentEvents<SvelteComponent>) {
+	function hover(e: any) {
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox
 		const i = finder.center(data, ox);
-		return dispatch('mouseover', { e, row: data[i] });
+		return mouseover({ e, row: data[i] });
 	}
 </script>
 
@@ -52,11 +55,11 @@
 	class="path-area"
 	d={path}
 	fill={color}
-	onmouseover={hover}
+	onmouseover={(hover)}
 	onmousemove={hover}
-	onfocus={(e) => dispatch('mouseover', { e })}
-	onmouseout={() => dispatch('mouseout')}
-	onblur={() => dispatch('mouseout')}
+	onfocus={(e) => mouseover({ e })}
+	onmouseout={mouseout}
+	onblur={mouseout}
 	role="tooltip"
 />
 

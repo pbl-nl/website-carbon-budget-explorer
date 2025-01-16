@@ -6,7 +6,7 @@
 	import { handlers } from 'svelte/legacy';
 
 	import type { ScaleLinear } from 'd3';
-	import { getContext, SvelteComponent, type ComponentEvents, createEventDispatcher } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
 
 	const { xScale, yScale } = getContext<{
@@ -14,8 +14,6 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-
-	
 	interface Props {
 		x: number;
 		y0: number;
@@ -26,6 +24,8 @@
 		textNdc: string;
 		// TODO use color of ndc series on global page?
 		color?: string;
+		mouseover: (e?: any) => void;
+		mouseout: (e?: any) => void;
 	}
 
 	let {
@@ -36,12 +36,13 @@
 		textNdcMin,
 		textNdcMax,
 		textNdc,
-		color = 'black'
+		color = 'black',
+		mouseover,
+		mouseout,
 	}: Props = $props();
-	const dispatch = createEventDispatcher();
 
-	function hover(e: ComponentEvents<SvelteComponent>) {
-		return dispatch('mouseover', { e, row: { time: x, min: y0, max: y1 } });
+	function hover(e: any) {
+		return mouseover({ e, row: { time: x, min: y0, max: y1 } });
 	}
 </script>
 
@@ -53,9 +54,9 @@
 		y2={$yScale(y0)}
 		stroke={color}
 		onmouseover={hover}
-		onfocus={() => dispatch('mouseover')}
-		onmouseout={handlers(() => dispatch('mouseout'), () => dispatch('mouseout'))}
-		onblur={() => dispatch('mouseout')}
+		onfocus={() => mouseover()}
+		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onblur={() => mouseout()}
 		role="tooltip"
 	/>
 	<circle
@@ -65,9 +66,9 @@
 		stroke={color}
 		fill={color}
 		onmouseover={hover}
-		onfocus={() => dispatch('mouseover')}
-		onmouseout={handlers(() => dispatch('mouseout'), () => dispatch('mouseout'))}
-		onblur={(e) => dispatch('mouseout')}
+		onfocus={() => mouseover()}
+		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onblur={() => mouseout()}
 		role="tooltip"
 	/>
 	<text
@@ -108,9 +109,9 @@
 		stroke={color}
 		fill={color}
 		onmouseover={hover}
-		onfocus={() => dispatch('mouseover')}
-		onmouseout={handlers(() => dispatch('mouseout'), () => dispatch('mouseout'))}
-		onblur={() => dispatch('mouseout')}
+		onfocus={() => mouseover()}
+		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onblur={() => mouseout()}
 		role="tooltip"
 	/>
 </g>

@@ -32,8 +32,11 @@
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
 			const params = new URLSearchParams($page.url.search);
+			if (params.get(name) !== value) {
 			params.set(name, value);
-			goto(`?${params.toString()}`);
+			console.log('goto', `?${params.toString()}`);
+			// goto(`?${params.toString()}`);
+			}
 		}
 	}
 
@@ -177,8 +180,8 @@
 						x={'time'}
 						y={'value'}
 						color="black"
-						on:mouseover={hoverHistoricalCarbon}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverHistoricalCarbon}
+						mouseout={(e) => (evt = e)}
 					/>
 					{#each Object.entries(principles) as [id, { color, label }]}
 						{#if activeEffortSharings[id]}
@@ -190,8 +193,8 @@
 									y0={'min'}
 									y1={'max'}
 									{color}
-									on:mouseover={hoverEffortSharing(label)}
-									on:mouseout={(e) => (evt = e)}
+									mouseover={hoverEffortSharing(label)}
+									mouseout={(e) => (evt = e)}
 								/>
 							</g>
 						{/if}
@@ -206,8 +209,8 @@
 								textNdcMax={`Max: ${range[1].toFixed(0)}`}
 								textNdc={`NDC`}
 								color="black"
-								on:mouseover={hoverNdc}
-								on:mouseout={(e) => (evt = e)}
+								mouseover={hoverNdc}
+								mouseout={(e) => (evt = e)}
 							/>
 						{/each}
 						<!-- {#each Object.entries(data.indicators.ndc_jones) as [year, range]}
@@ -219,8 +222,8 @@
 								textNdcMax={` `}
 								textNdc={` `}
 								color="gray"
-								on:mouseover={hoverNdc}
-								on:mouseout={(e) => (evt = e)}
+								mouseover={hoverNdc}
+								mouseout={(e) => (evt = e)}
 							/>
 						{/each} -->
 					{/if}

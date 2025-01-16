@@ -48,7 +48,8 @@
 			// TODO get called once instead of currently being called twice
 			if (params.get(name) !== value) {
 				params.set(name, value);
-				goto(`?${params.toString()}`);
+				console.log('goto', `?${params.toString()}`);
+				// goto(`?${params.toString()}`);
 			}
 		}
 	}

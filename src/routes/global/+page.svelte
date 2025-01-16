@@ -5,7 +5,7 @@
 
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { tour } from '$lib/shared/stores';
@@ -18,7 +18,7 @@
 	import type { PageData } from '../global/$types';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
-	import { onMount, type ComponentEvents, type SvelteComponent } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import { driver } from 'driver.js';
 	import 'driver.js/dist/driver.css';
@@ -71,11 +71,15 @@
 	const ipcc_blue = '#5bb0c6';
 	const ipcc_purple = '#a67ab8';
 
-	function updateQueryParam(name: string, value: string) {
+	async function updateQueryParam(name: string, value: string) {
 		if (browser) {
-			const params = new URLSearchParams($page.url.search);
-			params.set(name, value);
-			goto(`?${params.toString()}`);
+			const current = page.url.search
+			const params = new URLSearchParams(current);
+			if (params.get(name) !== value) {
+				params.set(name, value);
+				console.log({current, goto: `?${params.toString()}`});
+				await goto(`?${params.toString()}`);
+			}
 		}
 	}
 
@@ -88,7 +92,7 @@
 
 	let evt = $state({});
 	function hoverBuilder(tmpl: (row: any) => string) {
-		return function (e: ComponentEvents<SvelteComponent>) {
+		return function (e: any) {
 			const row = e.detail.row;
 			if (row === undefined) {
 				return;
@@ -239,8 +243,8 @@
 					x={'time'}
 					y={'value'}
 					color="black"
-					on:mouseover={hoverHistoricalCarbon}
-					on:mouseout={(e) => (evt = e)}
+					mouseover={hoverHistoricalCarbon}
+					mouseout={(e) => (evt = e)}
 				/>
 				{#if policyPathwayToggles.current || emissionGapHover}
 					<Line data={data.result.currentPolicy} x={'time'} y={'mean'} color={ipcc_red} />
@@ -250,8 +254,8 @@
 						y0={'min'}
 						y1={'max'}
 						color={ipcc_red}
-						on:mouseover={hoverCurrentPolicy}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverCurrentPolicy}
+						mouseout={(e) => (evt = e)}
 					/>
 				{/if}
 				{#if policyPathwayToggles.ndc || ambitionGapHover}
@@ -262,8 +266,8 @@
 						y0={'min'}
 						y1={'max'}
 						color={ipcc_purple}
-						on:mouseover={hoverNdc}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverNdc}
+						mouseout={(e) => (evt = e)}
 					/>
 				{/if}
 				{#if policyPathwayToggles.netzero}
@@ -274,8 +278,8 @@
 						y0={'min'}
 						y1={'max'}
 						color={ipcc_blue}
-						on:mouseover={hoverNetzero}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverNetzero}
+						mouseout={(e) => (evt = e)}
 					/>
 				{/if}
 
@@ -299,8 +303,8 @@
 					x={'time'}
 					y={'value'}
 					color={ipcc_green}
-					on:mouseover={hoverPathway}
-					on:mouseout={(e) => (evt = e)}
+					mouseover={hoverPathway}
+					mouseout={(e) => (evt = e)}
 				/>
 			</Pathway>
 		</div>
