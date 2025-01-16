@@ -13,7 +13,7 @@
 </script>
 
 <div id="country-header" class="flex flex-row items-center gap-4 pb-2">
-	<a href={`/map${$page.url.search}`} title="Back to map"
+	<a href={`/map${$page.url.search}`} title="Back to map" aria-label="Back to map">
 		><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256"
 			><path
 				fill="currentColor"

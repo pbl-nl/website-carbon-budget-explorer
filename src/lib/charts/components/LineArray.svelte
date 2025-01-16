@@ -18,7 +18,7 @@
 		data: Record<string, number[]>;
 		x?: string;
 		y?: string;
-		color?: String;
+		color?: string;
 	}
 
 	let {

@@ -7,7 +7,6 @@
 	import { page } from '$app/stores';
 	import Pathway from '$lib/charts/Pathway.svelte';
 	import Line from '$lib/charts/components/Line.svelte';
-	import Area from '$lib/charts/components/Area.svelte';
 	import type { CertainTime, UncertainTime } from '$lib/api';
 
 	interface Props {

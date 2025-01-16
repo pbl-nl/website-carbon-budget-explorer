@@ -23,7 +23,7 @@
 	// TODO could only fetch the value when the slider is released
 </script>
 
-<label>
+<div>
 	<div class="flex flex-row gap-2">
 		<input
 			type="range"
@@ -42,4 +42,4 @@
 			<span class={index === valIndex ? 'font-extrabold' : ''}>{option}</span>
 		{/each}
 	</div>
-</label>
+</div>
