@@ -12,20 +12,29 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let data: Record<string, number[]>;
-	export let x = 'x';
-	export let y = 'y';
 
-	/** @type {String} [stroke='#ab00d6'] - The shape's fill color. This is technically optional because it comes with a default value but you'll likely want to replace it with your own color. */
-	export let color = '#ab00d6';
+	
+	interface Props {
+		data: Record<string, number[]>;
+		x?: string;
+		y?: string;
+		color?: String;
+	}
 
-	$: path =
-		'M' +
+	let {
+		data,
+		x = 'x',
+		y = 'y',
+		color = '#ab00d6'
+	}: Props = $props();
+
+	let path =
+		$derived('M' +
 		data[x]
 			.map((d, i) => {
 				return $xScale(d) + ',' + $yScale(data[y][i]);
 			})
-			.join('L');
+			.join('L'));
 </script>
 
 <path class="path-line" d={path} stroke={color} />

@@ -1,8 +1,13 @@
 <script lang="ts">
-	export let value: string;
-	// TODO allow options to have a value or a label and value
-	export let options: number[];
-	export let name: string;
+	
+	interface Props {
+		value: string;
+		// TODO allow options to have a value or a label and value
+		options: number[];
+		name: string;
+	}
+
+	let { value = $bindable(), options, name }: Props = $props();
 
 	type ChangeEvent = Event & {
 		currentTarget: EventTarget & HTMLInputElement;
@@ -12,8 +17,8 @@
 		value = options[event.currentTarget.valueAsNumber].toString();
 	}
 
-	$: len = options.length;
-	$: valIndex = options.indexOf(parseFloat(value));
+	let len = $derived(options.length);
+	let valIndex = $derived(options.indexOf(parseFloat(value)));
 	// when sliding all intermediate values are also fetched
 	// TODO could only fetch the value when the slider is released
 </script>
@@ -28,7 +33,7 @@
 			max={len - 1}
 			step="1"
 			value={valIndex}
-			on:change={updateValue}
+			onchange={updateValue}
 		/>
 	</div>
 	<div class="flex w-full justify-between px-2 text-xs">

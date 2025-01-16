@@ -2,7 +2,11 @@
 	import { page } from '$app/stores';
 	import type { Region } from './api';
 
-	export let regions: Region[];
+	interface Props {
+		regions: Region[];
+	}
+
+	let { regions }: Props = $props();
 </script>
 
 <!-- TODO add filter by name and filter by non-country (aka ISO2===null) -->

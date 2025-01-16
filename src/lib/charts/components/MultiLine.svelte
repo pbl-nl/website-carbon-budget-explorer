@@ -39,12 +39,12 @@
 	}>('LayerCake');
 
 	let curve = curveLinear;
-	$: line = d3line<LineValue>().x($xGet).y($yGet).curve(curve);
-	$: shade = area<LineValue>()
+	let line = $derived(d3line<LineValue>().x($xGet).y($yGet).curve(curve));
+	let shade = $derived(area<LineValue>()
 		.x($xGet)
 		.y1((d) => $yScale(d.ymax))
 		.y0((d) => $yScale(d.ymin))
-		.curve(curve);
+		.curve(curve));
 </script>
 
 <g class="line-group">

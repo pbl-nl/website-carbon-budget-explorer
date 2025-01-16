@@ -6,40 +6,55 @@
 	import { getContext } from 'svelte';
 	const { width, height, xScale, yRange } = getContext('LayerCake');
 
-	/** @type {Boolean} [gridlines=true] - Extend lines from the ticks into the chart space */
-	export let gridlines = true;
+	
 
-	/** @type {Boolean} [tickMarks=false] - Show a vertical mark for each tick. */
-	export let tickMarks = false;
+	
 
-	/** @type {Boolean} [baseline=false] – Show a solid line at the bottom. */
-	export let baseline = false;
+	
 
-	/** @type {Boolean} [snapTicks=false] - Instead of centering the text on the first and the last items, align them to the edges of the chart. */
-	export let snapTicks = false;
+	
 
 	/** @type {Function} [formatTick=d: any => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
-	// @ts-expect-error: copied from https://layercake.graphics/components
-	export let formatTick = (d) => d;
+	
 
-	/** @type {Number|Array<any>|Function|undefined} [ticks] - If this is a number, it passes that along to the [d3Scale.ticks](https://github.com/d3/d3-scale) function. If this is an array, hardcodes the ticks to those values. If it's a function, passes along the default tick values and expects an array of tick values in return. If nothing, it uses the default ticks supplied by the D3 function. */
-	export let ticks = undefined;
+	
 
-	/** @type {Number} [xTick=0] - How far over to position the text marker. */
-	export let xTick = 0;
+	
 
-	/** @type {Number} [yTick=16] - The distance from the baseline to place each tick value. */
-	export let yTick = 16;
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {Boolean} [gridlines]
+	 * @property {Boolean} [tickMarks]
+	 * @property {Boolean} [baseline]
+	 * @property {Boolean} [snapTicks]
+	 * @property {any} [formatTick]
+	 * @property {Number|Array<any>|Function|undefined} [ticks]
+	 * @property {Number} [xTick]
+	 * @property {Number} [yTick]
+	 */
 
-	$: isBandwidth = typeof $xScale.bandwidth === 'function';
+	/** @type {Props} */
+	let {
+		gridlines = true,
+		tickMarks = false,
+		baseline = false,
+		snapTicks = false,
+		formatTick = (d) => d,
+		ticks = undefined,
+		xTick = 0,
+		yTick = 16
+	} = $props();
 
-	$: tickVals = Array.isArray(ticks)
+	let isBandwidth = $derived(typeof $xScale.bandwidth === 'function');
+
+	let tickVals = $derived(Array.isArray(ticks)
 		? ticks
 		: isBandwidth
 		? $xScale.domain()
 		: typeof ticks === 'function'
 		? ticks($xScale.ticks())
-		: $xScale.ticks(ticks);
+		: $xScale.ticks(ticks));
 
 	// @ts-expect-error: copied from https://layercake.graphics/components
 	function textAnchor(i) {

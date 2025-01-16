@@ -6,10 +6,14 @@
 	import MultiLine from './components/MultiLine.svelte';
 	import type { LineData } from './components/MultiLine';
 
-	export let data: LineData[];
+	interface Props {
+		data: LineData[];
+	}
 
-	$: yDomain = [-15_000, 45_000];
-	$: xDomain = [1990, 2100];
+	let { data }: Props = $props();
+
+	let yDomain = $derived([-15_000, 45_000]);
+	let xDomain = $derived([1990, 2100]);
 </script>
 
 <div class="chart-container p-10">

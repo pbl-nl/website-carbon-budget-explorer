@@ -12,20 +12,29 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let data: Record<string, number>[];
-	export let x = 'x';
-	export let y = 'y';
 
-	/** @type {String} [stroke='#ab00d6'] - The shape's fill color. This is technically optional because it comes with a default value but you'll likely want to replace it with your own color. */
-	export let color = '#ab00d6';
+	
+	interface Props {
+		data: Record<string, number>[];
+		x?: string;
+		y?: string;
+		color?: String;
+	}
 
-	$: path =
-		'M' +
+	let {
+		data,
+		x = 'x',
+		y = 'y',
+		color = '#ab00d6'
+	}: Props = $props();
+
+	let path =
+		$derived('M' +
 		data
 			.map((d) => {
 				return $xScale(d[x]) + ',' + $yScale(d[y]);
 			})
-			.join('L');
+			.join('L'));
 
 	const dispatch = createEventDispatcher();
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
@@ -35,15 +44,15 @@
 	class="path-line"
 	d={path}
 	stroke={color}
-	on:mouseover={(e) => {
+	onmouseover={(e) => {
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox
 		const i = finder.center(data, ox);
 		return dispatch('mouseover', { e, row: data[i] });
 	}}
-	on:mouseout={(e) => dispatch('mouseout', { e })}
-	on:focus={(e) => dispatch('mouseover', { e })}
-	on:blur={() => dispatch('mouseout')}
+	onmouseout={(e) => dispatch('mouseout', { e })}
+	onfocus={(e) => dispatch('mouseover', { e })}
+	onblur={() => dispatch('mouseout')}
 	role="tooltip"
 />
 

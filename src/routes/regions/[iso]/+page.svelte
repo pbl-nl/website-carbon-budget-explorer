@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import CountryHeader from '$lib/CountryHeader.svelte';
 
 	import PrincipleStatsTable from '$lib/PrincipleStatsTable.svelte';
@@ -21,7 +23,11 @@
 	import NdcRange from '$lib/charts/components/NdcRange.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
@@ -31,17 +37,19 @@
 		}
 	}
 
-	let activeEffortSharings = Object.fromEntries(
+	let activeEffortSharings = $state(Object.fromEntries(
 		Object.keys(principles).map((id) => [id, id === data.initialEffortSharingName])
-	);
+	));
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedEffortSharing = tweened(data.effortSharing, tweenOptions);
-	$: tweenedEffortSharing.set(data.effortSharing);
+	run(() => {
+		tweenedEffortSharing.set(data.effortSharing);
+	});
 
 	// Hover effort sharing
-	let evt = {};
+	let evt = $state({});
 	function hoverBuilder(tmpl: (row: any) => string) {
 		return function (e: ComponentEvents<SvelteComponent>) {
 			const row = e.detail.row;

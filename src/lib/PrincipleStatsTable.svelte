@@ -1,16 +1,24 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 
 	import { principles } from '$lib/principles';
 
-	export let reductions: Record<string, Record<number, number>>;
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedReductions = tweened(reductions, tweenOptions);
-	$: tweenedReductions.set(reductions);
 
-	export let activeEffortSharings: Record<string, boolean>;
+	interface Props {
+		reductions: Record<string, Record<number, number>>;
+		activeEffortSharings: Record<string, boolean>;
+	}
+
+	let { reductions, activeEffortSharings = $bindable() }: Props = $props();
+	run(() => {
+		tweenedReductions.set(reductions);
+	});
 </script>
 
 <div class="rounded px-12 py-8">

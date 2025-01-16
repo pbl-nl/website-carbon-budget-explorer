@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import clsx from 'clsx';
 
 	import { browser } from '$app/environment';
@@ -17,11 +19,15 @@
 	import RegionList from '$lib/RegionList.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data = $bindable() }: Props = $props();
 
 	let clickedFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined;
+		| undefined = $state();
 	const gotoRegion = (
 		feature?: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 	) => {
@@ -32,7 +38,9 @@
 			}
 		}
 	};
-	$: gotoRegion(clickedFeature);
+	run(() => {
+		gotoRegion(clickedFeature);
+	});
 
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
@@ -54,20 +62,24 @@
 			updateQueryParam('effortSharing', value);
 		}
 	}
-	$: changeEffortSharing(data.effortSharing);
+	run(() => {
+		changeEffortSharing(data.effortSharing);
+	});
 
-	let allocationTime = '2030';
+	let allocationTime = $state('2030');
 	function updateAllocationTime(allocationTime: string) {
 		updateQueryParam('allocTime', allocationTime);
 	}
-	$: updateAllocationTime(allocationTime);
+	run(() => {
+		updateAllocationTime(allocationTime);
+	});
 
 	let hoveredFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined;
-	$: hoveredMetric = hoveredFeature
+		| undefined = $state();
+	let hoveredMetric = $derived(hoveredFeature
 		? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
-		: undefined;
+		: undefined);
 </script>
 
 <div class="flex h-full gap-4">
@@ -141,7 +153,7 @@
 										data.effortSharing === id ? 'btn-neutral' : 'btn-outline bg-base-100'
 									)}
 									disabled={data.effortSharing === id}
-									on:click={() => selectEffortSharing(id)}
+									onclick={() => selectEffortSharing(id)}
 									data-tip={summary}
 								>
 									{label}

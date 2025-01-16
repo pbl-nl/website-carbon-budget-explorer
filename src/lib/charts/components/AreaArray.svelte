@@ -13,18 +13,28 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let data: Record<string, number[]>;
-	export let x = 'x';
-	export let y0 = 'y0';
-	export let y1 = 'y1';
-	export let color = '#ab00d6';
+	interface Props {
+		data: Record<string, number[]>;
+		x?: string;
+		y0?: string;
+		y1?: string;
+		color?: string;
+	}
 
-	$: shade = area<number>()
+	let {
+		data,
+		x = 'x',
+		y0 = 'y0',
+		y1 = 'y1',
+		color = '#ab00d6'
+	}: Props = $props();
+
+	let shade = $derived(area<number>()
 		.x((d) => $xScale(d))
 		.y1((_, i) => $yScale(data[y1][i]))
 		.y0((_, i) => $yScale(data[y0][i]))
-		.curve(curveLinear);
-	$: path = shade(data[x]);
+		.curve(curveLinear));
+	let path = $derived(shade(data[x]));
 </script>
 
 <path class="path-area" d={path} fill={color} />

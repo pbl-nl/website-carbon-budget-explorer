@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import Sidebar from '$lib/Sidebar.svelte';
 
 	import { tweened } from 'svelte/motion';
@@ -21,7 +23,11 @@
 	import { driver } from 'driver.js';
 	import 'driver.js/dist/driver.css';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	const driverObj = driver({
 		steps: [
 			{
@@ -80,7 +86,7 @@
 		emissionGapHover = !emissionGapHover;
 	}
 
-	let evt = {};
+	let evt = $state({});
 	function hoverBuilder(tmpl: (row: any) => string) {
 		return function (e: ComponentEvents<SvelteComponent>) {
 			const row = e.detail.row;
@@ -110,24 +116,30 @@
 	);
 	// When series overlap the top most series will react to mouse events
 
-	let policyPathwayToggles = {
+	let policyPathwayToggles = $state({
 		current: false,
 		ndc: false,
 		netzero: false
-	};
+	});
 
-	let ambitionGapHover = false;
-	let emissionGapHover = false;
+	let ambitionGapHover = $state(false);
+	let emissionGapHover = $state(false);
 
 	// $: console.log(data.result.currentPolicy); // only nans in input data...
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const pathwayCarbonTweened = tweened(data.result.pathwayCarbon, tweenOptions);
-	$: pathwayCarbonTweened.set(data.result.pathwayCarbon);
+	run(() => {
+		pathwayCarbonTweened.set(data.result.pathwayCarbon);
+	});
 	const emissionGapTweened = tweened(data.result.stats.ghg.gaps.emission, tweenOptions);
-	$: emissionGapTweened.set(data.result.stats.ghg.gaps.emission);
+	run(() => {
+		emissionGapTweened.set(data.result.stats.ghg.gaps.emission);
+	});
 	const ambitionGapTweened = tweened(data.result.stats.ghg.gaps.ambition, tweenOptions);
-	$: ambitionGapTweened.set(data.result.stats.ghg.gaps.ambition);
+	run(() => {
+		ambitionGapTweened.set(data.result.stats.ghg.gaps.ambition);
+	});
 </script>
 
 <div class="flex h-full gap-4">
@@ -153,8 +165,8 @@
 						<span
 							class="tooltip cursor-pointer"
 							role="tooltip"
-							on:mouseenter={toggleEmissionGap}
-							on:mouseleave={toggleEmissionGap}
+							onmouseenter={toggleEmissionGap}
+							onmouseleave={toggleEmissionGap}
 							data-tip="The implementation gap is the difference between your scenario and current policy projections."
 							>implementation ⓘ</span
 						>

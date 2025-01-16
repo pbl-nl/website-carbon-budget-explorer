@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
@@ -8,18 +10,24 @@
 	import Area from '$lib/charts/components/Area.svelte';
 	import type { CertainTime, UncertainTime } from '$lib/api';
 
-	export let global: {
+	interface Props {
+		global: {
 		pathwayCarbon: UncertainTime[];
 		historicalCarbon: CertainTime[];
 		currentPolicy: UncertainTime[];
 	};
+	}
+
+	let { global }: Props = $props();
 
 	const ipcc_green = '#A9C810';
 	const ipcc_red = '#c82f10';
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const pathwayCarbonTweened = tweened(global.pathwayCarbon, tweenOptions);
-	$: pathwayCarbonTweened.set(global.pathwayCarbon);
+	run(() => {
+		pathwayCarbonTweened.set(global.pathwayCarbon);
+	});
 
 	// TODO add tooltips for each area
 </script>

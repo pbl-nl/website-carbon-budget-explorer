@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs?client';
 	// import {CRS} from 'leaflet?client'
 	import type { BordersCollection } from '$lib/server/db/borders';
@@ -11,8 +13,6 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
-	export let borders: BordersCollection;
-	export let metrics: BudgetSpatial<SpatialMetric>;
 
 	const mapOptions: MapOptions = {
 		center: [30, 5],
@@ -35,14 +35,12 @@
 		subdomains: 'abcd'
 	};
 
-	let tileLayer;
+	let tileLayer = $state();
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedDomain = tweened(metrics.domain, tweenOptions);
-	$: tweenedDomain.set(metrics.domain);
 
 	const interpolator = interpolateYlGnBu;
-	$: scale = scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator);
 
 	function getColor(d: number) {
 		return scale(d);
@@ -71,12 +69,23 @@
 		}
 	};
 
-	export let clickedFeature:
+	interface Props {
+		borders: BordersCollection;
+		metrics: BudgetSpatial<SpatialMetric>;
+		clickedFeature: 
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 		| undefined;
-	export let hoveredFeature:
+		hoveredFeature: 
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 		| undefined;
+	}
+
+	let {
+		borders,
+		metrics,
+		clickedFeature = $bindable(),
+		hoveredFeature = $bindable()
+	}: Props = $props();
 
 	function onClick(e: any) {
 		clickedFeature = e.detail.sourceTarget.feature;
@@ -92,12 +101,16 @@
 		hoveredFeature = undefined;
 	}
 
-	let leafletMap: LeafletMap;
+	let leafletMap: LeafletMap = $state();
 
 	// @types/svelte-leafletjs is missing GeoJSON.data property
 	// use any to avoid type errors,
 	// see https://github.com/sveltejs/language-tools/issues/1026#issuecomment-1002839154
 	const notypecheck = (x: any) => x;
+	run(() => {
+		tweenedDomain.set(metrics.domain);
+	});
+	let scale = $derived(scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator));
 </script>
 
 <div class="h-full w-full" id="leaflet-wrapper">

@@ -2,7 +2,11 @@
 	import RegionList from '$lib/RegionList.svelte';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 </script>
 
 <h1 class="text-3xl font-bold">Pick a region</h1>

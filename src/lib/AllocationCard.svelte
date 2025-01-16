@@ -3,8 +3,13 @@
 
 	import { page } from '$app/stores';
 
-	// Enable binding to allocationTime
-	export let allocationTime = '2030';
+	
+	interface Props {
+		// Enable binding to allocationTime
+		allocationTime?: string;
+	}
+
+	let { allocationTime = $bindable('2030') }: Props = $props();
 	const allocOptions = ['2030', '2040']; // 2050
 	function updateAlloc(option: string) {
 		allocationTime = option;
@@ -19,7 +24,7 @@
 				{#each allocOptions as option}
 					<button
 						class={clsx('btn flex-1', option === allocationTime && 'btn-primary')}
-						on:click={() => updateAlloc(option)}>{option}</button
+						onclick={() => updateAlloc(option)}>{option}</button
 					>
 				{/each}
 			</div>

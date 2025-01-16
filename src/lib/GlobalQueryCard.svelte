@@ -1,11 +1,17 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import CustomRange from '$lib/CustomRange.svelte';
 	import type { PathWayQuery } from '$lib/api';
 	import CategoryPicker from './CategoryPicker.svelte';
 
-	export let query: PathWayQuery;
-	export let choices: Record<keyof PathWayQuery, string[]>;
-	export let onChange: (name: string, value: string) => void;
+	interface Props {
+		query: PathWayQuery;
+		choices: Record<keyof PathWayQuery, string[]>;
+		onChange: (name: string, value: string) => void;
+	}
+
+	let { query, choices, onChange }: Props = $props();
 
 	let defaults = {
 		temperature: '2.0',
@@ -15,17 +21,27 @@
 		nonCO2red: '0.5'
 	};
 
-	let temperature: string = query.temperature || defaults.temperature;
-	let exceedanceRisk: string = query.exceedanceRisk || defaults.exceedanceRisk;
-	let negativeEmissions: string = query.negativeEmissions || defaults.negativeEmissions;
-	let timing: string = query.timing || defaults.timing;
-	let nonCO2red: string = query.nonCO2red || defaults.nonCO2red;
+	let temperature: string = $state(query.temperature || defaults.temperature);
+	let exceedanceRisk: string = $state(query.exceedanceRisk || defaults.exceedanceRisk);
+	let negativeEmissions: string = $state(query.negativeEmissions || defaults.negativeEmissions);
+	let timing: string = $state(query.timing || defaults.timing);
+	let nonCO2red: string = $state(query.nonCO2red || defaults.nonCO2red);
 
-	$: onChange('temperature', temperature);
-	$: onChange('exceedanceRisk', exceedanceRisk);
-	$: onChange('negativeEmissions', negativeEmissions);
-	$: onChange('timing', timing);
-	$: onChange('nonCO2red', nonCO2red);
+	run(() => {
+		onChange('temperature', temperature);
+	});
+	run(() => {
+		onChange('exceedanceRisk', exceedanceRisk);
+	});
+	run(() => {
+		onChange('negativeEmissions', negativeEmissions);
+	});
+	run(() => {
+		onChange('timing', timing);
+	});
+	run(() => {
+		onChange('nonCO2red', nonCO2red);
+	});
 </script>
 
 <div class="card-compact card prose min-w-full bg-base-100 shadow-xl">

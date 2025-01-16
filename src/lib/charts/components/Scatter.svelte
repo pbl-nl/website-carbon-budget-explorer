@@ -1,5 +1,5 @@
 <!-- { filename: './components/Scatter.svelte' } -->
-<script>
+<script lang="ts">
 	// Import the getContext function from svelte
 	import { getContext } from 'svelte';
 
@@ -7,8 +7,12 @@
 	// Grab some helpful functions
 	const { data, x, xScale, y, yScale } = getContext('LayerCake');
 
-	export let fill = '#000';
-	export let r = 5;
+	interface Props {
+		fill?: string;
+		r?: number;
+	}
+
+	let { fill = '#000', r = 5 }: Props = $props();
 </script>
 
 <g>

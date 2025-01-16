@@ -14,18 +14,28 @@
 	}>('LayerCake');
 
 	type Row = Record<string, number>;
-	export let data: Row[];
-	export let x = 'x';
-	export let y0 = 'y0';
-	export let y1 = 'y1';
-	export let color = '#ab00d6';
+	interface Props {
+		data: Row[];
+		x?: string;
+		y0?: string;
+		y1?: string;
+		color?: string;
+	}
 
-	$: shade = area<Row>()
+	let {
+		data,
+		x = 'x',
+		y0 = 'y0',
+		y1 = 'y1',
+		color = '#ab00d6'
+	}: Props = $props();
+
+	let shade = $derived(area<Row>()
 		.x((d) => $xScale(d[x]))
 		.y1((d) => $yScale(d[y1]))
 		.y0((d) => $yScale(d[y0]))
-		.curve(curveLinear);
-	$: path = shade(data);
+		.curve(curveLinear));
+	let path = $derived(shade(data));
 
 	const dispatch = createEventDispatcher();
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
@@ -42,11 +52,11 @@
 	class="path-area"
 	d={path}
 	fill={color}
-	on:mouseover={hover}
-	on:mousemove={hover}
-	on:focus={(e) => dispatch('mouseover', { e })}
-	on:mouseout={() => dispatch('mouseout')}
-	on:blur={() => dispatch('mouseout')}
+	onmouseover={hover}
+	onmousemove={hover}
+	onfocus={(e) => dispatch('mouseover', { e })}
+	onmouseout={() => dispatch('mouseout')}
+	onblur={() => dispatch('mouseout')}
 	role="tooltip"
 />
 

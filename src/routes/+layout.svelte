@@ -3,6 +3,11 @@
 	import { page } from '$app/stores';
 	import logo from '$lib/logo.svg';
 	import clsx from 'clsx';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 </script>
 
 <svelte:head>
@@ -56,7 +61,7 @@
 			height="0"
 			width="0"
 			style="display:none;visibility:hidden"
-		/></noscript
+		></iframe></noscript
 	>
 </svelte:head>
 
@@ -95,6 +100,6 @@
 		</div>
 	</div>
 	<div class={clsx($page.url.pathname === '/', 'flex-1 bg-base-100 p-4')}>
-		<slot />
+		{@render children?.()}
 	</div>
 </div>

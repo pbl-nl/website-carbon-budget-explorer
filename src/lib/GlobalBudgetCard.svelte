@@ -1,15 +1,25 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
-	export let remaining: number;
-	export let relative: number;
+	interface Props {
+		remaining: number;
+		relative: number;
+	}
+
+	let { remaining, relative }: Props = $props();
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const remainingBudgetCounter = tweened(remaining, tweenOptions);
-	$: remainingBudgetCounter.set(remaining);
+	run(() => {
+		remainingBudgetCounter.set(remaining);
+	});
 	const relativeBudgetCounter = tweened(relative, tweenOptions);
-	$: relativeBudgetCounter.set(relative);
+	run(() => {
+		relativeBudgetCounter.set(relative);
+	});
 </script>
 
 <div class="grid min-w-full grid-cols-2 place-items-center rounded bg-base-100 p-2 shadow-xl">

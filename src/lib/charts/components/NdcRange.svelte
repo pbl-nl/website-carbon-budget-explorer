@@ -3,6 +3,8 @@
   Generates an SVG area shape using the `area` function from [d3-shape](https://github.com/d3/d3-shape).
  -->
 <script lang="ts">
+	import { handlers } from 'svelte/legacy';
+
 	import type { ScaleLinear } from 'd3';
 	import { getContext, SvelteComponent, type ComponentEvents, createEventDispatcher } from 'svelte';
 	import type { Readable } from 'svelte/store';
@@ -12,16 +14,30 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let x: number;
-	export let y0: number;
-	export let y1: number;
-	export let width = 2;
-	export let textNdcMin: string;
-	export let textNdcMax: string;
-	export let textNdc: string;
 
-	// TODO use color of ndc series on global page?
-	export let color = 'black';
+	
+	interface Props {
+		x: number;
+		y0: number;
+		y1: number;
+		width?: number;
+		textNdcMin: string;
+		textNdcMax: string;
+		textNdc: string;
+		// TODO use color of ndc series on global page?
+		color?: string;
+	}
+
+	let {
+		x,
+		y0,
+		y1,
+		width = 2,
+		textNdcMin,
+		textNdcMax,
+		textNdc,
+		color = 'black'
+	}: Props = $props();
 	const dispatch = createEventDispatcher();
 
 	function hover(e: ComponentEvents<SvelteComponent>) {
@@ -36,11 +52,10 @@
 		y1={$yScale(y1)}
 		y2={$yScale(y0)}
 		stroke={color}
-		on:mouseover={hover}
-		on:focus={() => dispatch('mouseover')}
-		on:mouseout={() => dispatch('mouseout')}
-		on:blur={() => dispatch('mouseout')}
-		on:mouseout={() => dispatch('mouseout')}
+		onmouseover={hover}
+		onfocus={() => dispatch('mouseover')}
+		onmouseout={handlers(() => dispatch('mouseout'), () => dispatch('mouseout'))}
+		onblur={() => dispatch('mouseout')}
 		role="tooltip"
 	/>
 	<circle
@@ -49,11 +64,10 @@
 		cy={$yScale(y0)}
 		stroke={color}
 		fill={color}
-		on:mouseover={hover}
-		on:focus={() => dispatch('mouseover')}
-		on:mouseout={() => dispatch('mouseout')}
-		on:blur={(e) => dispatch('mouseout')}
-		on:mouseout={() => dispatch('mouseout')}
+		onmouseover={hover}
+		onfocus={() => dispatch('mouseover')}
+		onmouseout={handlers(() => dispatch('mouseout'), () => dispatch('mouseout'))}
+		onblur={(e) => dispatch('mouseout')}
 		role="tooltip"
 	/>
 	<text
@@ -93,11 +107,10 @@
 		cy={$yScale(y1)}
 		stroke={color}
 		fill={color}
-		on:mouseover={hover}
-		on:focus={() => dispatch('mouseover')}
-		on:mouseout={() => dispatch('mouseout')}
-		on:blur={() => dispatch('mouseout')}
-		on:mouseout={() => dispatch('mouseout')}
+		onmouseover={hover}
+		onfocus={() => dispatch('mouseover')}
+		onmouseout={handlers(() => dispatch('mouseout'), () => dispatch('mouseout'))}
+		onblur={() => dispatch('mouseout')}
 		role="tooltip"
 	/>
 </g>

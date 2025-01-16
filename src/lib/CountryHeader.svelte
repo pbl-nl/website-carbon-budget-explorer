@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import type { Region } from './api';
-	export let info: Region;
+	interface Props {
+		info: Region;
+	}
+
+	let { info }: Props = $props();
 
 	const blankFlag =
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"%3E%3C/svg%3E';
-	let regionFlag = `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg`;
+	let regionFlag = $state(`https://flagcdn.com/${info.iso2?.toLowerCase()}.svg`);
 </script>
 
 <div id="country-header" class="flex flex-row items-center gap-4 pb-2">
@@ -21,7 +25,7 @@
 		src={regionFlag}
 		class="h-8"
 		alt={info.name}
-		on:error={() => {
+		onerror={() => {
 			regionFlag = blankFlag;
 		}}
 	/>

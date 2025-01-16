@@ -4,13 +4,17 @@
 	import type { PieData } from './components/Pie';
 	import Pie from './components/Pie.svelte';
 
-	export let used: number;
-	export let remaining: number;
+	interface Props {
+		used: number;
+		remaining: number;
+	}
 
-	$: data = [
+	let { used, remaining }: Props = $props();
+
+	let data = $derived([
 		['used', used],
 		['remaining', remaining]
-	] as PieData[];
+	] as PieData[]);
 
 	const seriesColors = ['red', 'green'];
 </script>

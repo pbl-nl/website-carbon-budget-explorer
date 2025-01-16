@@ -8,8 +8,13 @@
 	import type { ComponentEvents } from 'svelte';
 	import type { SvelteComponent } from 'svelte';
 
-	export let evt: ComponentEvents<SvelteComponent> = {};
-	export let offset = -5;
+	interface Props {
+		evt?: ComponentEvents<SvelteComponent>;
+		offset?: any;
+		children?: import('svelte').Snippet;
+	}
+
+	let { evt = {}, offset = -5, children }: Props = $props();
 </script>
 
 {#if evt.detail}
@@ -20,7 +25,7 @@
       left:{evt.detail.e.layerX}px;
     "
 	>
-		<slot />
+		{@render children?.()}
 	</div>
 {/if}
 

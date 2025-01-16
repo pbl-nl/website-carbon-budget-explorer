@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import type { PieArcDatum, ScaleOrdinal } from 'd3';
 	import { arc as d3arc } from 'd3-shape';
 	import { pie as d3pie } from 'd3-shape';
@@ -20,7 +22,7 @@
 		height: Readable<number>;
 	}>('LayerCake');
 
-	$: radius = Math.min($width, $height) / 2 - 1;
+	let radius = $derived(Math.min($width, $height) / 2 - 1);
 
 	// Compute the position of each group on the pie:
 	const pie = d3pie<unknown, PieData>()
@@ -29,10 +31,12 @@
 		.value((d) => d[1]);
 
 	const animatedData = tweened<PieData[]>($data, tweenOptions);
-	$: animatedData.set($data);
+	run(() => {
+		animatedData.set($data);
+	});
 
-	$: slices = pie($animatedData);
-	$: arcGenerator = d3arc<unknown, PieArcDatum<PieData>>().innerRadius(0).outerRadius(radius);
+	let slices = $derived(pie($animatedData));
+	let arcGenerator = $derived(d3arc<unknown, PieArcDatum<PieData>>().innerRadius(0).outerRadius(radius));
 </script>
 
 <g transform="translate({$width / 2}, {$height / 2})">
