@@ -11,7 +11,6 @@
 	import ShareTabs from '$lib/ShareTabs.svelte';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import AllocationCard from '$lib/AllocationCard.svelte';
-	import type { GeoJSON } from 'geojson';
 
 	import type { PageData } from './$types';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
@@ -23,7 +22,7 @@
 		data: PageData;
 	}
 
-	let { data = $bindable() }: Props = $props();
+	let { data }: Props = $props();
 
 	let clickedFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
@@ -48,24 +47,15 @@
 			// TODO get called once instead of currently being called twice
 			if (params.get(name) !== value) {
 				params.set(name, value);
-				console.log('goto', `?${params.toString()}`);
-				// goto(`?${params.toString()}`);
+				// console.log('goto', `?${params.toString()}`);
+				goto(`?${params.toString()}`);
 			}
 		}
 	}
 
 	function selectEffortSharing(value: string) {
-		data.effortSharing = value as keyof typeof principles;
+		updateQueryParam('effortSharing', value);
 	}
-
-	function changeEffortSharing(value: keyof typeof principles | undefined) {
-		if (value !== undefined) {
-			updateQueryParam('effortSharing', value);
-		}
-	}
-	run(() => {
-		changeEffortSharing(data.effortSharing);
-	});
 
 	let allocationTime = $state('2030');
 	function updateAllocationTime(allocationTime: string) {
