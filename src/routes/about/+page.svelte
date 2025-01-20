@@ -1,7 +1,7 @@
 <script lang="ts">
 	import QA from '$lib/QA.svelte';
 
-	export const prerender = true;
+	export const prerender = false;
 </script>
 
 <!-- Sidebar -->
