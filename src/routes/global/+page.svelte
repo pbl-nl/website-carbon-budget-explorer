@@ -77,7 +77,6 @@
 			const params = new URLSearchParams(current);
 			if (params.get(name) !== value) {
 				params.set(name, value);
-				console.log({current, goto: `?${params.toString()}`});
 				await goto(`?${params.toString()}`);
 			}
 		}
