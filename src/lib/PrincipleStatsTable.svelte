@@ -5,17 +5,15 @@
 	import { tweened } from 'svelte/motion';
 
 	import { principles } from '$lib/principles';
-
-
-	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const tweenedReductions = tweened(reductions, tweenOptions);
-
+	
 	interface Props {
 		reductions: Record<string, Record<number, number>>;
 		activeEffortSharings: Record<string, boolean>;
 	}
 
 	let { reductions, activeEffortSharings = $bindable() }: Props = $props();
+	const tweenOptions = { duration: 1000, easing: cubicOut };
+	const tweenedReductions = tweened(reductions, tweenOptions);
 	run(() => {
 		tweenedReductions.set(reductions);
 	});
