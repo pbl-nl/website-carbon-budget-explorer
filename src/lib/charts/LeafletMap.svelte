@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	// import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs?client';
+	import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs';
 	// import {CRS} from 'leaflet?client'
 	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
@@ -88,12 +88,14 @@
 	const tweenedDomain = tweened(metrics.domain, tweenOptions);
 
 	function onClick(e: any) {
+		debugger
 		clickedFeature = e.detail.sourceTarget.feature;
 		// <GeoJSON> dts says e is a LeafletMouseEvent but it is not
 		// it is CustomEvent with e.detail being the LeafletMouseEvent
 	}
 
 	function onMouseOver(e: any) {
+		console.log('mouseover', e);
 		hoveredFeature = e.detail.sourceTarget.feature;
 	}
 
@@ -113,17 +115,17 @@
 
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
-		<!-- <LeafletMap options={mapOptions}>
+		<LeafletMap options={mapOptions}>
 			<TileLayer bind:this={tileLayer} url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON
 				{...notypecheck({ data: borders })}
 				options={geoJsonOptions}
 				events={['click', 'mouseover', 'mouseout']}
-				click={onClick}
-				mouseover={onMouseOver}
-				mouseout={onmouseout}
+				onclick={onClick}
+				onmouseover={onMouseOver}
+				onmouseout={onmouseout}
 			/>
-		</LeafletMap> -->
+		</LeafletMap>
 		<ColorLegend
 			title={'Emissions allocation per capita (t CO2e/pc)'}
 			{...notypecheck({ scale: scale })}
