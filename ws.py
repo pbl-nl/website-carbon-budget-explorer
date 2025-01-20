@@ -59,7 +59,7 @@ DEFAULT_CAPABILITY_THRESHOLD = 'Th'
 
 
 @app.get("/pathwayCarbon")
-@cache.cached()
+@cache.cached(query_string=True)
 def pathwayCarbon():
     """Get global carbon pathway for a given selection.
 
@@ -90,7 +90,7 @@ def pathwayCarbon():
 
 
 @app.get("/pathwayChoices")
-@cache.cached()
+@cache.cached(query_string=True)
 def pathwayChoices():
     return {
         "temperature": dsGlobal.Temperature.values.tolist(),
@@ -224,13 +224,13 @@ available_regions = build_regions()
 
 
 @app.get("/regions")
-@cache.cached()
+@cache.cached(query_string=True)
 def regions():
     return available_regions
 
 
 @app.get("/regions/<region>")
-@cache.cached()
+@cache.cached(query_string=True)
 def region(region):
     for r in available_regions:
         if r["iso3"] == region:
@@ -239,7 +239,7 @@ def region(region):
 
 
 @app.get("/pathwayStats")
-@cache.cached()
+@cache.cached(query_string=True)
 def pathwayStats():
     def stats(emission_type):
         if emission_type == 'ghg':
@@ -289,7 +289,7 @@ def pathwayStats():
 
 
 @app.get("/historicalCarbon/<region>")
-@cache.cached()
+@cache.cached(query_string=True)
 def historicalCarbon(region="EARTH"):
     start = request.args.get("start")
     end = request.args.get("end")
@@ -303,7 +303,7 @@ def historicalCarbon(region="EARTH"):
 
 
 @app.get("/populationOverTime/<region>")
-@cache.cached()
+@cache.cached(query_string=True)
 def populationOverTime(region):
     start = request.args.get("start")
     end = request.args.get("end")
@@ -318,7 +318,7 @@ def populationOverTime(region):
 
 
 @app.get("/gdpOverTime/<region>")
-@cache.cached()
+@cache.cached(query_string=True)
 def gdpOverTime(region):
     start = request.args.get("start")
     end = request.args.get("end")
@@ -345,7 +345,7 @@ def population_map(year, scenario="SSP2"):
 
 
 @app.get("/map/<year>/GHG")
-@cache.cached()
+@cache.cached(query_string=True)
 def fullCenturyBudgetSpatial(year):
     """Get map of GHG by year"""
     effortSharing = request.args.get("effortSharing", "PCC")
@@ -404,7 +404,7 @@ ds_policyscen = xr.open_dataset(DATA_PATH / "xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
-@cache.cached()
+@cache.cached(query_string=True)
 def policyPathway(policy, region):
     assert policy in {"CurPol", "NDC", "NetZero"}
     policy_ds = (
@@ -494,7 +494,7 @@ def ndcRange_jones(region):
 
 
 @app.get("/indicators/<region>")
-@cache.cached()
+@cache.cached(query_string=True)
 def indicators(region):
     start = request.args.get("start", 1850)
     end = request.args.get("end", 2100)
@@ -518,7 +518,7 @@ def get_ds(ISO):
 
 
 @app.get("/<ISO>/<principle>")
-@cache.cached()
+@cache.cached(query_string=True)
 def effortSharing(ISO, principle):
     selection = pathwaySelection()
     ds = (get_ds(ISO)[principle]
@@ -559,7 +559,7 @@ principles = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
 
 
 @app.get("/<ISO>/effortSharings")
-@cache.cached()
+@cache.cached(query_string=True)
 def effortSharings(ISO):
     """
     http://127.0.0.1:5000//USA/GF?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 36.94ms
@@ -576,7 +576,7 @@ def effortSharings(ISO):
 
 
 @app.get("/<ISO>/effortSharingReductions")
-@cache.cached()
+@cache.cached(query_string=True)
 def effortSharingReductions(ISO):
     periods = (2030, 2040)
     selection = dict(
