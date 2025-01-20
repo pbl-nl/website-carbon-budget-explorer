@@ -34,8 +34,7 @@
 			const params = new URLSearchParams($page.url.search);
 			if (params.get(name) !== value) {
 			params.set(name, value);
-			console.log('goto', `?${params.toString()}`);
-			// goto(`?${params.toString()}`);
+			goto(`?${params.toString()}`);
 			}
 		}
 	}
