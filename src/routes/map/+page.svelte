@@ -31,13 +31,14 @@
 		feature?: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 	) => {
 		if (browser) {
-			const region = feature?.properties?.ISO_A3_EH;
+			const properties = feature as unknown  as {ISO_A3_EH:string}
+			const region = properties?.ISO_A3_EH;
 			if (region !== undefined && region !== '') {
 				goto(`/regions/${region}${$page.url.search}`);
 			}
 		}
 	};
-	run(() => {
+	$effect(() => {
 		gotoRegion(clickedFeature);
 	});
 

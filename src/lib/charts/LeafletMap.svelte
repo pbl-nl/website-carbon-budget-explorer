@@ -1,18 +1,17 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { LeafletMap, GeoJSON, TileLayer } from 'svelte-leafletjs';
+	import { Map, GeoJSON, TileLayer } from 'sveaflet';
 	// import {CRS} from 'leaflet?client'
 	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
 	import { browser } from '$app/environment';
-	import type { GeoJSONOptions, MapOptions } from 'leaflet';
 	import { interpolateYlGnBu, scaleSequential } from 'd3';
 	import ColorLegend from './components/ColorLegend.svelte';
 	import type { BudgetSpatial, SpatialMetric } from '$lib/api';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-
+	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT } from 'leaflet';
 
 	const mapOptions: MapOptions = {
 		center: [30, 5],
@@ -34,8 +33,6 @@
 		ext: 'png',
 		subdomains: 'abcd'
 	};
-
-	let tileLayer = $state();
 
 	const interpolator = interpolateYlGnBu;
 
@@ -88,15 +85,13 @@
 	const tweenedDomain = tweened(metrics.domain, tweenOptions);
 
 	function onClick(e: any) {
-		debugger
-		clickedFeature = e.detail.sourceTarget.feature;
+		clickedFeature = e.sourceTarget.feature.properties
 		// <GeoJSON> dts says e is a LeafletMouseEvent but it is not
 		// it is CustomEvent with e.detail being the LeafletMouseEvent
 	}
 
 	function onMouseOver(e: any) {
-		console.log('mouseover', e);
-		hoveredFeature = e.detail.sourceTarget.feature;
+		hoveredFeature = e.sourceTarget.feature;
 	}
 
 	function onmouseout() {
@@ -111,21 +106,30 @@
 		tweenedDomain.set(metrics.domain);
 	});
 	let scale = $derived(scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator));
+
+	let geojsonlayer: GeoJSONT | undefined = $state(undefined);
+
+	$effect(() => {
+		if (geojsonlayer) {
+			console.log('adding listeners');
+			geojsonlayer.on('click', onClick);
+			geojsonlayer.on('mouseover', onMouseOver);
+			geojsonlayer.on('mouseout', onmouseout);
+		}
+	})
+
 </script>
 
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
-		<LeafletMap options={mapOptions}>
-			<TileLayer bind:this={tileLayer} url={tileUrl} options={tileLayerOptions} />
-			<GeoJSON
-				{...notypecheck({ data: borders })}
-				options={geoJsonOptions}
-				events={['click', 'mouseover', 'mouseout']}
-				onclick={onClick}
-				onmouseover={onMouseOver}
-				onmouseout={onmouseout}
-			/>
-		</LeafletMap>
+		<Map options={mapOptions}>
+		<TileLayer url={tileUrl} options={tileLayerOptions} />
+		<GeoJSON
+			json={borders}
+			options={geoJsonOptions}
+			bind:instance={geojsonlayer}
+		/>
+	    </Map>
 		<ColorLegend
 			title={'Emissions allocation per capita (t CO2e/pc)'}
 			{...notypecheck({ scale: scale })}
