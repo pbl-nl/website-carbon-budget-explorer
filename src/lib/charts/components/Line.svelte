@@ -35,6 +35,7 @@
 	let path =
 		$derived('M' +
 		data
+			.filter(d => d[x] && d[y])
 			.map((d) => {
 				return $xScale(d[x]) + ',' + $yScale(d[y]);
 			})
