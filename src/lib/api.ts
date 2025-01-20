@@ -197,22 +197,12 @@ export async function indicators(ISO: string): Promise<{
 	return getJSON(`/indicators/${ISO}`);
 }
 
-export async function effortSharing(ISO: string, principle: string, search: string, fetch: any) {
-	return getJSON(`/${ISO}/${principle}${search}`, fetch);
-}
-
 export async function effortSharings(
 	ISO: string,
 	search: string,
 	fetch: any
 ): Promise<Record<string, UncertainTime[]>> {
-	return getJSON(`/${ISO}/effortSharings${search}`);
-	const r: Record<string, any> = {};
-	for (const principle of Object.keys(principles)) {
-		r[principle] = await effortSharing(ISO, principle, search, fetch);
-	}
-
-	return r;
+	return getJSON(`/${ISO}/effortSharings${search}`, fetch);
 }
 
 export async function effortSharingReductions(

@@ -27,6 +27,7 @@ CORS(app)
 
 cache = Cache(config={
     'CACHE_TYPE': 'FileSystemCache', 
+    # 'CACHE_TYPE': 'NullCache', // to disable caching
     'CACHE_DEFAULT_TIMEOUT': 36000, 
     'CACHE_DIR': './cache'
 })
@@ -517,8 +518,6 @@ def get_ds(ISO):
     return xr.open_dataset(fn)
 
 
-@app.get("/<ISO>/<principle>")
-@cache.cached(query_string=True)
 def effortSharing(ISO, principle):
     selection = pathwaySelection()
     ds = (get_ds(ISO)[principle]
