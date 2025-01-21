@@ -1,9 +1,12 @@
-/data
+/data*
+/Data*
 /coverage
 
 # Python
 __pycache__/
 venv/
+.mypy_cache
+/cache
 
 test-results
 node_modules

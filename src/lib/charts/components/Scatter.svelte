@@ -5,7 +5,7 @@
 
 	// Access the context using the 'LayerCake' keyword
 	// Grab some helpful functions
-	const { data, x, xScale, y, yScale } = getContext('LayerCake');
+	const { data, x, xScale, y, yScale } = getContext<any>('LayerCake');
 
 	interface Props {
 		fill?: string;

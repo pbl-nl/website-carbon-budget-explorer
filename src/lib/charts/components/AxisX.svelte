@@ -6,22 +6,6 @@
 	import { getContext } from 'svelte';
 	const { width, height, xScale, yRange } = getContext('LayerCake');
 
-	
-
-	
-
-	
-
-	
-
-	/** @type {Function} [formatTick=d: any => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
-	
-
-	
-
-	
-
-	
 	/**
 	 * @typedef {Object} Props
 	 * @property {Boolean} [gridlines]
@@ -40,7 +24,7 @@
 		tickMarks = false,
 		baseline = false,
 		snapTicks = false,
-		formatTick = (d) => d,
+		formatTick = (/** @type {any} */ d) => d,
 		ticks = undefined,
 		xTick = 0,
 		yTick = 16

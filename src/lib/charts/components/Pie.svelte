@@ -7,10 +7,10 @@
 	import { getContext } from 'svelte';
 	import { cubicInOut } from 'svelte/easing';
 	import type { Readable } from 'svelte/store';
-	import { tweened, type TweenedOptions } from 'svelte/motion';
+	import { tweened } from 'svelte/motion';
 	import type { PieData } from './Pie';
 
-	const tweenOptions: TweenedOptions<PieData[]> = {
+	const tweenOptions = {
 		duration: 1500,
 		easing: cubicInOut
 	};
