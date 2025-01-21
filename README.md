@@ -16,6 +16,8 @@ Should have the following data files:
 1. `data/xr_allow_<2030|2040|FC>.nc` - NetCDF file
 1. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
 
+If your data is else where, you can change `data/` to a symlink. For example `rm data;ln -s /path/to/data data`.
+
 ## API service
 
 The API web service reads the NetCDF file and returns the data as JSON which is used in the web application.
@@ -107,11 +109,10 @@ node build/index.js
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
-If the Python webservice is not running on `http://127.0.0.1:5000` then set `CABE_API_URL` environment variable to right URL.
-
+The web application server expects the Python web service to be running on `http://127.0.0.1:5000`.
 ## Cache
 
-The Python webservice caches all requests for 10 hours in the `./cache` directory. The cache can be cleared with
+The Python webservice caches all requests for forever in the `./cache` directory. The cache can be cleared with
 
 ```bash
 # stop webservice
