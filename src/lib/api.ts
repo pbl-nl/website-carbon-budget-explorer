@@ -1,4 +1,3 @@
-import { principles } from '$lib/principles';
 import { browser } from '$app/environment';
 
 export interface SpatialMetric {
@@ -84,6 +83,8 @@ export function pathwayQueryFromSearchParams(
 
 export const API_URL = 'http://127.0.0.1:5000';
 
+type Fetch = typeof fetch;
+
 async function getJSON(path: string, myfetch = fetch) {
 	let url = `${API_URL}${path}`;
 	if (browser) {
@@ -103,12 +104,12 @@ export async function pathwayChoices(): Promise<Record<keyof PathWayQuery, strin
 	return getJSON(path);
 }
 
-export async function pathwayStats(search: string, fetch?: any): Promise<PathwayStats> {
+export async function pathwayStats(search: string, fetch?: Fetch): Promise<PathwayStats> {
 	const path = `/pathwayStats${search}`;
 	return getJSON(path, fetch);
 }
 
-export async function pathwayCarbon(search: string, fetch?: any): Promise<UncertainTime[]> {
+export async function pathwayCarbon(search: string, fetch?: Fetch): Promise<UncertainTime[]> {
 	// TODO: send data instead of search string?
 	// TODO: update search with default choices
 	return getJSON(`/pathwayCarbon${search}`, fetch);
@@ -196,7 +197,7 @@ export async function indicators(ISO: string): Promise<{
 export async function effortSharings(
 	ISO: string,
 	search: string,
-	fetch: any
+	fetch: Fetch
 ): Promise<Record<string, UncertainTime[]>> {
 	return getJSON(`/${ISO}/effortSharings${search}`, fetch);
 }
@@ -204,7 +205,7 @@ export async function effortSharings(
 export async function effortSharingReductions(
 	ISO: string,
 	search: string,
-	fetch: any
+	fetch: Fetch
 ): Promise<Record<string, Record<number, number>>> {
 	return getJSON(`/${ISO}/effortSharingReductions${search}`, fetch);
 }

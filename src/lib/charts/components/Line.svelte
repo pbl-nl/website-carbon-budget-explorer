@@ -17,7 +17,9 @@
 		x?: string;
 		y?: string;
 		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseout?: (e?: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseover?: (e: any) => void;
 	}
 

@@ -82,15 +82,14 @@
 		}
 	}
 
-	function toggleAmbitionGap() {
-		ambitionGapHover = !ambitionGapHover;
-	}
 	function toggleEmissionGap() {
 		emissionGapHover = !emissionGapHover;
 	}
 
 	let evt = $state({});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return function (e: any) {
 			const row = e.detail.row;
 			if (row === undefined) {

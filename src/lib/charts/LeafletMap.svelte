@@ -11,7 +11,7 @@
 	import type { BudgetSpatial, SpatialMetric } from '$lib/api';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT } from 'leaflet';
+	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT, LeafletMouseEvent } from 'leaflet';
 	import type { Feature, Geometry } from 'geojson';
 
 	const mapOptions: MapOptions = {
@@ -61,13 +61,13 @@
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedDomain = tweened(metrics.domain, tweenOptions);
 
-	function onClick(e: any) {
+	function onClick(e: LeafletMouseEvent) {
 		clickedFeature = e.sourceTarget.feature.properties;
 		// <GeoJSON> dts says e is a LeafletMouseEvent but it is not
 		// it is CustomEvent with e.detail being the LeafletMouseEvent
 	}
 
-	function onMouseOver(e: any) {
+	function onMouseOver(e: LeafletMouseEvent) {
 		hoveredFeature = e.sourceTarget.feature;
 	}
 
@@ -75,10 +75,6 @@
 		hoveredFeature = undefined;
 	}
 
-	// @types/svelte-leafletjs is missing GeoJSON.data property
-	// use any to avoid type errors,
-	// see https://github.com/sveltejs/language-tools/issues/1026#issuecomment-1002839154
-	const notypecheck = (x: any) => x;
 	run(() => {
 		tweenedDomain.set(metrics.domain);
 	});
@@ -87,7 +83,7 @@
 	);
 
 	function styleBuilder(data: Props['metrics']['data']) {
-		return function (geoJsonFeature: Feature<Geometry, any> | undefined) {
+		return function (geoJsonFeature: Feature<Geometry, {ISO_A3_EH:string}> | undefined) {
 			if (geoJsonFeature === undefined) {
 				return {};
 			}
@@ -139,11 +135,7 @@
 			<TileLayer url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
 		</Map>
-		<ColorLegend
-			title={'Emissions allocation per capita (t CO2e/pc)'}
-			{...notypecheck({ scale: scale })}
-			{scale}
-		/>
+		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
 	{/if}
 </div>
 

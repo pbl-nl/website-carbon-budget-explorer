@@ -10,7 +10,7 @@
 
 	interface Props {
 		evt?: ComponentEvents<SvelteComponent>;
-		offset?: any;
+		offset?: number;
 		children?: import('svelte').Snippet;
 	}
 

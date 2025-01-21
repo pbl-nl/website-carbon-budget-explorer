@@ -2,7 +2,7 @@
 import { writable } from 'svelte/store';
 
 // https://stackoverflow.com/a/61300826/2933427
-export const createWritableStore = (key: string, startValue: any): any => {
+export const createWritableStore = <T>(key: string, startValue: T) => {
 	const { subscribe, set } = writable(startValue);
 
 	return {

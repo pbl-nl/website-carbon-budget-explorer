@@ -2,7 +2,6 @@
 	import { run } from 'svelte/legacy';
 
 	import clsx from 'clsx';
-
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -11,12 +10,13 @@
 	import ShareTabs from '$lib/ShareTabs.svelte';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import AllocationCard from '$lib/AllocationCard.svelte';
-
 	import type { PageData } from './$types';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import RegionList from '$lib/RegionList.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	// eslint wants import below, while ts works without
+	import type { GeoJSON } from 'geojson';
 
 	interface Props {
 		data: PageData;

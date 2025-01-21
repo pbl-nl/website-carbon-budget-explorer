@@ -10,8 +10,8 @@
 		yDomain?: [number, number];
 		evt?: ComponentEvents<SvelteComponent>;
 		yAxisTtle?: string;
-		xTicks?: number | Array<any> | undefined;
-		yTicks?: number | Array<any> | undefined;
+		xTicks?: number | Array<number> | undefined;
+		yTicks?: number | Array<number> | undefined;
 		children?: import('svelte').Snippet;
 	}
 

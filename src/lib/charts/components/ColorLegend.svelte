@@ -11,7 +11,7 @@
 
 	let { title, scale }: Props = $props();
 
-	function ramp(color: any, n = 256) {
+	function ramp(color: (d: number) => string, n = 256) {
 		const canvas = document.createElement('canvas');
 		canvas.height = n;
 		canvas.width = 1;

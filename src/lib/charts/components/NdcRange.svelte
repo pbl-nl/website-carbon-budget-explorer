@@ -24,7 +24,9 @@
 		textNdc: string;
 		// TODO use color of ndc series on global page?
 		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseover: (e?: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseout: (e?: any) => void;
 	}
 
@@ -41,6 +43,7 @@
 		mouseout
 	}: Props = $props();
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hover(e: any) {
 		return mouseover({ e, row: { time: x, min: y0, max: y1 } });
 	}

@@ -20,7 +20,9 @@
 		y0?: string;
 		y1?: string;
 		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseover: (e: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseout: (e: any) => void;
 	}
 
@@ -45,6 +47,7 @@
 
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hover(e: any) {
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox

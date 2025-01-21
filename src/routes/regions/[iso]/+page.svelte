@@ -54,6 +54,7 @@
 
 	// Hover effort sharing
 	let evt = $state({});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
 		return function (e: ComponentEvents<SvelteComponent>) {
 			const row = e.detail.row;
