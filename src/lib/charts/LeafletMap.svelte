@@ -12,6 +12,7 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT } from 'leaflet';
+	import type { Feature, Geometry } from 'geojson';
 
 	const mapOptions: MapOptions = {
 		center: [30, 5],
@@ -36,10 +37,7 @@
 
 	const interpolator = interpolateYlGnBu;
 
-	function getColor(d: number) {
-		return scale(d);
-	}
-	// TODO Deal with nans?
+	
 
 	function getMetric(
 		feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>,
@@ -47,21 +45,6 @@
 	) {
 		return metrics.find((m) => m.ISO === feature.properties!.ISO_A3_EH);
 	}
-
-	const geoJsonOptions: GeoJSONOptions = {
-		style: function (geoJsonFeature) {
-			if (geoJsonFeature === undefined) {
-				return {};
-			}
-			const value = getMetric(geoJsonFeature, metrics.data)?.value;
-			const defaultOptions = { fillColor: 'grey', color: 'darkgrey', weight: 1 };
-			if (value === undefined) {
-				return defaultOptions;
-			} else {
-				return { ...defaultOptions, fillColor: getColor(value), fillOpacity: 0.8 };
-			}
-		}
-	};
 
 	interface Props {
 		borders: BordersCollection;
@@ -107,17 +90,51 @@
 	});
 	let scale = $derived(scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator));
 
+	function styleBuilder(data: Props['metrics']['data']) {
+		return function (geoJsonFeature: Feature<Geometry, any> | undefined) {
+			if (geoJsonFeature === undefined) {
+				return {};
+			}
+			const value = getMetric(geoJsonFeature, data)?.value;
+			// TODO Deal with nans?
+			const defaultOptions = { fillColor: 'grey', color: 'darkgrey', weight: 1 };
+			if (geoJsonFeature.properties?.ISO_A3_EH === 'USA') {
+				console.log({value, geoJsonFeature});
+			}
+			if (value === undefined) {
+				return defaultOptions;
+			} else {
+				return { ...defaultOptions, fillColor: scale(value), fillOpacity: 0.8 };
+			}
+		}
+	}
+
+	const geoJsonOptions: GeoJSONOptions = {
+		style: styleBuilder(metrics.data)
+	};
+
 	let geojsonlayer: GeoJSONT | undefined = $state(undefined);
 
 	$effect(() => {
 		if (geojsonlayer) {
-			console.log('adding listeners');
 			geojsonlayer.on('click', onClick);
 			geojsonlayer.on('mouseover', onMouseOver);
 			geojsonlayer.on('mouseout', onmouseout);
 		}
+		return () => {
+			if (geojsonlayer) {
+				geojsonlayer.off('click', onClick);
+				geojsonlayer.off('mouseover', onMouseOver);
+				geojsonlayer.off('mouseout', onmouseout);
+			}
+		}
 	})
 
+	$effect(() => {
+		if (geojsonlayer) {
+			geojsonlayer.setStyle(styleBuilder(metrics.data));
+		}
+	})
 </script>
 
 <div class="h-full w-full" id="leaflet-wrapper">
