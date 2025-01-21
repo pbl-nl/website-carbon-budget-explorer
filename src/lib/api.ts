@@ -82,8 +82,7 @@ export function pathwayQueryFromSearchParams(
 	};
 }
 
-// export const API_URL = process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for production
-export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for development
+export const API_URL = 'http://127.0.0.1:5000';
 
 async function getJSON(path: string, myfetch = fetch) {
 	let url = `${API_URL}${path}`;
