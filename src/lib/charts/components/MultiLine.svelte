@@ -40,11 +40,13 @@
 
 	let curve = curveLinear;
 	let line = $derived(d3line<LineValue>().x($xGet).y($yGet).curve(curve));
-	let shade = $derived(area<LineValue>()
-		.x($xGet)
-		.y1((d) => $yScale(d.ymax))
-		.y0((d) => $yScale(d.ymin))
-		.curve(curve));
+	let shade = $derived(
+		area<LineValue>()
+			.x($xGet)
+			.y1((d) => $yScale(d.ymax))
+			.y0((d) => $yScale(d.ymin))
+			.curve(curve)
+	);
 </script>
 
 <g class="line-group">

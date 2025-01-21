@@ -36,7 +36,9 @@
 	});
 
 	let slices = $derived(pie($animatedData));
-	let arcGenerator = $derived(d3arc<unknown, PieArcDatum<PieData>>().innerRadius(0).outerRadius(radius));
+	let arcGenerator = $derived(
+		d3arc<unknown, PieArcDatum<PieData>>().innerRadius(0).outerRadius(radius)
+	);
 </script>
 
 <g transform="translate({$width / 2}, {$height / 2})">

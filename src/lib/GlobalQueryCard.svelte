@@ -27,37 +27,37 @@
 
 	$effect(() => {
 		if (query.temperature === temperature) {
-			return
+			return;
 		}
 		onChange('temperature', temperature);
 	});
 	$effect(() => {
 		if (query.exceedanceRisk === exceedanceRisk) {
-			return
+			return;
 		}
 		onChange('exceedanceRisk', exceedanceRisk);
 	});
 	$effect(() => {
 		if (query.negativeEmissions === negativeEmissions) {
-			return
+			return;
 		}
 		onChange('negativeEmissions', negativeEmissions);
 	});
 	$effect(() => {
 		if (query.timing === timing) {
-			return
+			return;
 		}
 		onChange('timing', timing);
 	});
 	$effect(() => {
 		if (query.nonCO2red === nonCO2red) {
-			return
+			return;
 		}
 		onChange('nonCO2red', nonCO2red);
 	});
 </script>
 
-<div class="card-compact card prose min-w-full bg-base-100 shadow-xl">
+<div class="card prose card-compact min-w-full bg-base-100 shadow-xl">
 	<div class="card-body">
 		<div>
 			<h2 class="not-prose card-title">Global budget</h2>

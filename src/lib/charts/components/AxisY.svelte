@@ -36,13 +36,15 @@
 
 	let isBandwidth = $derived(typeof $yScale.bandwidth === 'function');
 
-	let tickVals = $derived(Array.isArray(ticks)
-		? ticks
-		: isBandwidth
-		? $yScale.domain()
-		: typeof ticks === 'function'
-		? ticks($yScale.ticks())
-		: $yScale.ticks(ticks));
+	let tickVals = $derived(
+		Array.isArray(ticks)
+			? ticks
+			: isBandwidth
+				? $yScale.domain()
+				: typeof ticks === 'function'
+					? ticks($yScale.ticks())
+					: $yScale.ticks(ticks)
+	);
 </script>
 
 <g class="axis y-axis" transform="translate({-$padding.left}, 0)">

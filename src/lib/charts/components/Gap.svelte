@@ -12,7 +12,6 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-
 	interface Props {
 		x: number;
 		y0: number;
@@ -21,13 +20,7 @@
 		color?: string;
 	}
 
-	let {
-		x,
-		y0,
-		y1,
-		width = 20,
-		color = '#888888'
-	}: Props = $props();
+	let { x, y0, y1, width = 20, color = '#888888' }: Props = $props();
 </script>
 
 <g>

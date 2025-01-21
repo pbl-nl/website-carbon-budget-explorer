@@ -1,5 +1,4 @@
 <script lang="ts">
-	
 	interface Props {
 		value: string;
 		// TODO allow options to have a value or a label and value

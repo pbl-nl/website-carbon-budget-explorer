@@ -5,7 +5,7 @@
 	import { tweened } from 'svelte/motion';
 
 	import { principles } from '$lib/principles';
-	
+
 	interface Props {
 		reductions: Record<string, Record<number, number>>;
 		activeEffortSharings: Record<string, boolean>;

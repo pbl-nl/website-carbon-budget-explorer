@@ -37,8 +37,6 @@
 
 	const interpolator = interpolateYlGnBu;
 
-	
-
 	function getMetric(
 		feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>,
 		metrics: SpatialMetric[]
@@ -49,12 +47,8 @@
 	interface Props {
 		borders: BordersCollection;
 		metrics: BudgetSpatial<SpatialMetric>;
-		clickedFeature: 
-		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined;
-		hoveredFeature: 
-		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined;
+		clickedFeature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties> | undefined;
+		hoveredFeature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties> | undefined;
 	}
 
 	let {
@@ -68,7 +62,7 @@
 	const tweenedDomain = tweened(metrics.domain, tweenOptions);
 
 	function onClick(e: any) {
-		clickedFeature = e.sourceTarget.feature.properties
+		clickedFeature = e.sourceTarget.feature.properties;
 		// <GeoJSON> dts says e is a LeafletMouseEvent but it is not
 		// it is CustomEvent with e.detail being the LeafletMouseEvent
 	}
@@ -88,7 +82,9 @@
 	run(() => {
 		tweenedDomain.set(metrics.domain);
 	});
-	let scale = $derived(scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator));
+	let scale = $derived(
+		scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator)
+	);
 
 	function styleBuilder(data: Props['metrics']['data']) {
 		return function (geoJsonFeature: Feature<Geometry, any> | undefined) {
@@ -99,14 +95,14 @@
 			// TODO Deal with nans?
 			const defaultOptions = { fillColor: 'grey', color: 'darkgrey', weight: 1 };
 			if (geoJsonFeature.properties?.ISO_A3_EH === 'USA') {
-				console.log({value, geoJsonFeature});
+				console.log({ value, geoJsonFeature });
 			}
 			if (value === undefined) {
 				return defaultOptions;
 			} else {
 				return { ...defaultOptions, fillColor: scale(value), fillOpacity: 0.8 };
 			}
-		}
+		};
 	}
 
 	const geoJsonOptions: GeoJSONOptions = {
@@ -127,26 +123,22 @@
 				geojsonlayer.off('mouseover', onMouseOver);
 				geojsonlayer.off('mouseout', onmouseout);
 			}
-		}
-	})
+		};
+	});
 
 	$effect(() => {
 		if (geojsonlayer) {
 			geojsonlayer.setStyle(styleBuilder(metrics.data));
 		}
-	})
+	});
 </script>
 
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
 		<Map options={mapOptions}>
-		<TileLayer url={tileUrl} options={tileLayerOptions} />
-		<GeoJSON
-			json={borders}
-			options={geoJsonOptions}
-			bind:instance={geojsonlayer}
-		/>
-	    </Map>
+			<TileLayer url={tileUrl} options={tileLayerOptions} />
+			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
+		</Map>
 		<ColorLegend
 			title={'Emissions allocation per capita (t CO2e/pc)'}
 			{...notypecheck({ scale: scale })}

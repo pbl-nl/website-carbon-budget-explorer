@@ -17,7 +17,10 @@ export async function open_borders(fn: string) {
 export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties>;
 
 export class Borders {
-	constructor(public geojson: BordersCollection, public lastModified: Date) {
+	constructor(
+		public geojson: BordersCollection,
+		public lastModified: Date
+	) {
 		for (const feature of geojson.features) {
 			const iso = feature.properties.ISO_A3_EH;
 			const label = feature.properties.NAME;

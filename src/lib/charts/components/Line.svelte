@@ -12,8 +12,6 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-
-	
 	interface Props {
 		data: Record<string, number>[];
 		x?: string;
@@ -29,17 +27,18 @@
 		y = 'y',
 		color = '#ab00d6',
 		mouseout = () => {},
-		mouseover = () => {},
+		mouseover = () => {}
 	}: Props = $props();
 
-	let path =
-		$derived('M' +
-		data
-			.filter(d => d[x] && d[y])
-			.map((d) => {
-				return $xScale(d[x]) + ',' + $yScale(d[y]);
-			})
-			.join('L'));
+	let path = $derived(
+		'M' +
+			data
+				.filter((d) => d[x] && d[y])
+				.map((d) => {
+					return $xScale(d[x]) + ',' + $yScale(d[y]);
+				})
+				.join('L')
+	);
 
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 </script>

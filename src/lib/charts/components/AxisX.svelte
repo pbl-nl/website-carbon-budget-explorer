@@ -32,13 +32,15 @@
 
 	let isBandwidth = $derived(typeof $xScale.bandwidth === 'function');
 
-	let tickVals = $derived(Array.isArray(ticks)
-		? ticks
-		: isBandwidth
-		? $xScale.domain()
-		: typeof ticks === 'function'
-		? ticks($xScale.ticks())
-		: $xScale.ticks(ticks));
+	let tickVals = $derived(
+		Array.isArray(ticks)
+			? ticks
+			: isBandwidth
+				? $xScale.domain()
+				: typeof ticks === 'function'
+					? ticks($xScale.ticks())
+					: $xScale.ticks(ticks)
+	);
 
 	// @ts-expect-error: copied from https://layercake.graphics/components
 	function textAnchor(i) {

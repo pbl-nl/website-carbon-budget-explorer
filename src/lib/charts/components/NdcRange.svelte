@@ -38,7 +38,7 @@
 		textNdc,
 		color = 'black',
 		mouseover,
-		mouseout,
+		mouseout
 	}: Props = $props();
 
 	function hover(e: any) {
@@ -55,7 +55,10 @@
 		stroke={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onmouseout={handlers(
+			() => mouseout(),
+			() => mouseout()
+		)}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>
@@ -67,7 +70,10 @@
 		fill={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onmouseout={handlers(
+			() => mouseout(),
+			() => mouseout()
+		)}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>
@@ -110,7 +116,10 @@
 		fill={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onmouseout={handlers(
+			() => mouseout(),
+			() => mouseout()
+		)}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>

@@ -12,8 +12,6 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-
-	
 	interface Props {
 		data: Record<string, number[]>;
 		x?: string;
@@ -21,20 +19,16 @@
 		color?: string;
 	}
 
-	let {
-		data,
-		x = 'x',
-		y = 'y',
-		color = '#ab00d6'
-	}: Props = $props();
+	let { data, x = 'x', y = 'y', color = '#ab00d6' }: Props = $props();
 
-	let path =
-		$derived('M' +
-		data[x]
-			.map((d, i) => {
-				return $xScale(d) + ',' + $yScale(data[y][i]);
-			})
-			.join('L'));
+	let path = $derived(
+		'M' +
+			data[x]
+				.map((d, i) => {
+					return $xScale(d) + ',' + $yScale(data[y][i]);
+				})
+				.join('L')
+	);
 </script>
 
 <path class="path-line" d={path} stroke={color} />

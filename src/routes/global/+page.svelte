@@ -73,7 +73,7 @@
 
 	async function updateQueryParam(name: string, value: string) {
 		if (browser) {
-			const current = page.url.search
+			const current = page.url.search;
 			const params = new URLSearchParams(current);
 			if (params.get(name) !== value) {
 				params.set(name, value);
@@ -159,7 +159,7 @@
 			/>
 		</div>
 		<div id="references">
-			<div class="card-compact card min-w-full bg-base-100 shadow-xl">
+			<div class="card card-compact min-w-full bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="card-title">Reference pathways</h2>
 					<p>

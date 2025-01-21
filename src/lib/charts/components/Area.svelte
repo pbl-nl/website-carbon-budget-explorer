@@ -31,14 +31,16 @@
 		y1 = 'y1',
 		color = '#ab00d6',
 		mouseover,
-		mouseout,
+		mouseout
 	}: Props = $props();
 
-	let shade = $derived(area<Row>()
-		.x((d) => $xScale(d[x]))
-		.y1((d) => $yScale(d[y1]))
-		.y0((d) => $yScale(d[y0]))
-		.curve(curveLinear));
+	let shade = $derived(
+		area<Row>()
+			.x((d) => $xScale(d[x]))
+			.y1((d) => $yScale(d[y1]))
+			.y0((d) => $yScale(d[y0]))
+			.curve(curveLinear)
+	);
 	let path = $derived(shade(data));
 
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
@@ -55,7 +57,7 @@
 	class="path-area"
 	d={path}
 	fill={color}
-	onmouseover={(hover)}
+	onmouseover={hover}
 	onmousemove={hover}
 	onfocus={(e) => mouseover({ e })}
 	onmouseout={mouseout}
