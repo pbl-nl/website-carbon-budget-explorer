@@ -37,9 +37,6 @@ cache.init_app(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
-# DATA_PATH = Path("/data/DataUpdate_NDC_06_2024")
-# DATA_PATH = Path("/data/DataUpdate_10_2024")
-
 CABE_DATA_DIR = Path("data")
 
 # Global data (xr_dataread.nc)
