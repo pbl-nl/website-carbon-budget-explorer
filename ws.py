@@ -28,7 +28,7 @@ CORS(app)
 cache = Cache(config={
     'CACHE_TYPE': 'FileSystemCache', 
     # 'CACHE_TYPE': 'NullCache', # to disable caching
-    'CACHE_DEFAULT_TIMEOUT': 36000, 
+    'CACHE_DEFAULT_TIMEOUT': 0, # cache never expires
     'CACHE_DIR': './cache'
 })
 cache.init_app(app)

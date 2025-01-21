@@ -113,7 +113,7 @@ The web application server expects the Python web service to be running on `http
 
 ## Cache
 
-The Python webservice caches all requests for 10 hours in the `./cache` directory. The cache can be cleared with
+The Python webservice caches all requests for forever in the `./cache` directory. The cache can be cleared with
 
 ```bash
 # stop webservice
