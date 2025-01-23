@@ -26,7 +26,6 @@ CORS(app)
 # TODO improve endpoint names
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
-# TODO make /data/ configurable
 
 # CABE_DATA_DIR = Path("data")
 CABE_DATA_DIR = Path("/data/DataUpdate_02_2024")
