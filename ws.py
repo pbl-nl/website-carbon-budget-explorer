@@ -454,7 +454,7 @@ def indicators(region):
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = CABE_DATA_DIR / "xr_alloc_{ISO}.nc"
+    fn = CABE_DATA_DIR / f"xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
