@@ -67,20 +67,12 @@ export function pathwayQueryFromSearchParams(
 	choices: Record<keyof PathWayQuery, string[]>
 ): PathWayQuery {
 	// TODO check each searchParam is in respective choices array
-	const temperature =
-		searchParams.get('temperature') ??
-		choices.temperature[5];//Math.floor(choices.temperature.length / 2)];
-	const exceedanceRisk =
-		searchParams.get('exceedanceRisk') ??
-		choices.exceedanceRisk[2];//[Math.floor(choices.exceedanceRisk.length / 2)];
+	const temperature = searchParams.get('temperature') ?? choices.temperature[5]; //Math.floor(choices.temperature.length / 2)];
+	const exceedanceRisk = searchParams.get('exceedanceRisk') ?? choices.exceedanceRisk[2]; //[Math.floor(choices.exceedanceRisk.length / 2)];
 	// TODO when more choices are available use Medium==1 as default
-	const negativeEmissions =
-		searchParams.get('negativeEmissions') ??
-		choices.negativeEmissions[3];//[Math.floor(choices.negativeEmissions.length / 2)];
-	const timing =
-		searchParams.get('timing') ?? choices.timing[1];//[Math.floor(choices.timing.length / 2)];
-	const nonCO2red =
-		searchParams.get('nonCO2red') ?? choices.nonCO2red[2];//[Math.floor(choices.nonCO2red.length / 2)];
+	const negativeEmissions = searchParams.get('negativeEmissions') ?? choices.negativeEmissions[3]; //[Math.floor(choices.negativeEmissions.length / 2)];
+	const timing = searchParams.get('timing') ?? choices.timing[1]; //[Math.floor(choices.timing.length / 2)];
+	const nonCO2red = searchParams.get('nonCO2red') ?? choices.nonCO2red[2]; //[Math.floor(choices.nonCO2red.length / 2)];
 	return {
 		temperature,
 		exceedanceRisk,
@@ -90,8 +82,7 @@ export function pathwayQueryFromSearchParams(
 	};
 }
 
-export const API_URL = process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for production
-// export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for development
+export const API_URL = 'http://127.0.0.1:5000';
 
 async function getJSON(path: string, myfetch = fetch) {
 	let url = `${API_URL}${path}`;
