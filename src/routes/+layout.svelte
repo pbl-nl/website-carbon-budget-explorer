@@ -86,8 +86,8 @@
 				/></svg
 			>
 			<span
-				>This website has been updated with new data in Feb 2024. Please see the About
-				page for more information</span
+				>This website has been updated with new data in September 2024. Please see the About page
+				for more information</span
 			>
 		</div>
 		<div class="flex-none">

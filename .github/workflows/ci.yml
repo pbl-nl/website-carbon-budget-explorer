@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  push:  # Runs on all push events
+  push: # Runs on all push events
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
