@@ -60,10 +60,11 @@ DEFAULT_RCI_WEIGHT = 'Half'
 # GDR capability threshold
 DEFAULT_CAPABILITY_THRESHOLD = 'Th'
 
-
-@app.get("/pathwayCarbon")
-def pathwayCarbon():
-    """Get global carbon pathway for a given selection.
+# TODO beware of conflicts
+@app.get("/timeseries/<region>/emissions/pathway")
+@app.get("/timeseries/global/emissions/pathway")
+def globalPathway():
+    """Get global emission pathway for a given selection.
 
     To test:
     production server:
@@ -91,8 +92,8 @@ def pathwayCarbon():
     return df.to_dict(orient="records")
 
 
-@app.get("/pathwayChoices")
-def pathwayChoices():
+@app.get("/globalPathwayOptions")
+def globalPathwayOptions():
     return {
         "temperature": dsGlobal.Temperature.values.tolist(),
         "exceedanceRisk": dsGlobal.Risk.values.tolist(),
@@ -102,8 +103,8 @@ def pathwayChoices():
     }
 
 
-def pathwaySelection():
-    choices = pathwayChoices()
+def globalPathwayChoices():
+    # TODO fix slider settings
     # this specifies the defaults that are shown in the global graph, but not the default slider settings!
     defaults = {'temperature': 2.0,
                 'exceedanceRisk': 0.5,
@@ -237,6 +238,7 @@ def region(region):
     raise ValueError(f"Region {region} not found")
 
 
+# TODO split this function and/or use precalculated data; not all is needed
 @app.get("/pathwayStats")
 def pathwayStats():
     def stats(emission_type):
@@ -286,8 +288,8 @@ def pathwayStats():
     }
 
 
-@app.get("/historicalCarbon/<region>")
-def historicalCarbon(region="EARTH"):
+@app.get("/timeseries/<region>/emissions/historical")
+def historicalEmissions(region="EARTH"):
     start = request.args.get("start")
     end = request.args.get("end")
     df = dsGlobal.GHG_hist.sel(Region=region, Time=slice(start, end)).to_pandas()
@@ -299,8 +301,9 @@ def historicalCarbon(region="EARTH"):
     return df.to_dict(orient="records")
 
 
-@app.get("/populationOverTime/<region>")
-def populationOverTime(region):
+# TODO maybe remove; currently not used
+@app.get("/timeseries/<region>/population")
+def population(region):
     start = request.args.get("start")
     end = request.args.get("end")
     scenario = "SSP2"
@@ -313,14 +316,17 @@ def populationOverTime(region):
     return df.to_dict(orient="records")
 
 
-@app.get("/gdpOverTime/<region>")
-def gdpOverTime(region):
+# TODO maybe remove; currently not used
+@app.get("/timeseries/<region>/gdp")
+def gdp(region):
     start = request.args.get("start")
     end = request.args.get("end")
     scenario = "SSP2"
-    df = dsGlobal.Population.sel(
-        Scenario=scenario, Region=region, Time=slice(start, end)
-    ).to_pandas()
+    df = (
+        dsGlobal["GDP"]
+        .sel(Scenario=scenario, Region=region, Time=slice(start, end))
+        .to_pandas()
+    )
     df.index.rename("time", inplace=True)
     df = df.dropna().reset_index()  # Note the missing data!
     df["value"] = df.pop(0)
@@ -330,8 +336,10 @@ def gdpOverTime(region):
 # Map data (xr_alloc_2030.nc etc)
 ds_alloc_2030 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2030.nc")
 ds_alloc_2040 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_FC.nc")
+
+# TODO Should not be needed anymore
+# ds_alloc_2050 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2050.nc")
+# ds_alloc_FC = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -339,10 +347,9 @@ def population_map(year, scenario="SSP2"):
     return dsGlobal.Population.sel(Time=year, Scenario=scenario)
 
 
-@app.get("/map/<year>/GHG")
-def fullCenturyBudgetSpatial(year):
+@app.get("/map/<year>/<effortSharing>")
+def fullCenturyBudgetSpatial(year, effortSharing):
     """Get map of GHG by year"""
-    effortSharing = request.args.get("effortSharing", "PCC")
     selection = pathwaySelection()
     if effortSharing in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
@@ -356,11 +363,12 @@ def fullCenturyBudgetSpatial(year):
         selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                          Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
 
+    # TODO: precalculate per capita data instead of division below?
     file_by_year = {
         "2030": ds_alloc_2030,
         "2040": ds_alloc_2040,
-        "2050": ds_alloc_2050,
-        "2021-2100": ds_alloc_FC,
+        # "2050": ds_alloc_2050,
+        # "2021-2100": ds_alloc_FC,
     }
 
     df = (
@@ -397,7 +405,7 @@ def fullCenturyBudgetSpatial(year):
 ds_policyscen = xr.open_dataset(CABE_DATA_DIR / "xr_policyscen.nc")
 
 
-@app.get("/policyPathway/<policy>/<region>")
+@app.get("/timeseries/<region>/policies/<policy>")
 def policyPathway(policy, region):
     assert policy in {"CurPol", "NDC", "NetZero"}
     policy_ds = (
@@ -439,7 +447,7 @@ def isEU(region):
     return region
 
 
-def ndcAmbition(region):
+def ndcReduction(region):
     region = isEU(region)
 
     ndc2030_min = dsGlobal.GHG_ndc_red.sel(Region=region).min().values.tolist()
@@ -486,15 +494,18 @@ def ndcRange_jones(region):
     return {2030: [ds_ndc.min().values.tolist(), ds_ndc.max().values.tolist()]}
 
 
-@app.get("/indicators/<region>")
+# TODO: split into plotData (inventory & jones) and tableData
+# TODO: remove historical carbon
+@app.get("/statistics/ncdProjections/<region>")  # inventory & jones
+@app.get("/statistics/ndcReductions/<region>")  # ndcAmbition
 def indicators(region):
-    start = request.args.get("start", 1850)
-    end = request.args.get("end", 2100)
+    # start = request.args.get("start", 1850)
+    # end = request.args.get("end", 2100)
     data = {
-        "ndcAmbition": ndcAmbition(region),
-        "historicalCarbon": historicalCarbonIndicator(region, start, end),
+        "ndcAmbition": ndcReduction(region),
+        # "historicalCarbon": historicalCarbonIndicator(region, start, end),
         "ndc_inventory": ndcRange_inventory(region),
-        "ndc_jones": ndcRange_jones(region)
+        "ndc_jones": ndcRange_jones(region),
     }
     return data
 
@@ -508,14 +519,11 @@ def get_ds(ISO):
     fn = CABE_DATA_DIR / f"xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
-
-@app.get("/<ISO>/<principle>")
-def effortSharing(ISO, principle):
+# TODO: not used as endpoint
+# @app.get("/timeseries/<region>/<principle>")
+def effortSharing(region, principle):
     selection = pathwaySelection()
-    ds = (get_ds(ISO)[principle]
-          .sel(**selection)
-          .rename(Time="time")
-    )
+    ds = get_ds(region)[principle].sel(**selection).rename(Time="time")
     # set time as the first dimension
     dim_order = ["time"] + [dim for dim in ds.dims if dim != "time"]
     ds = ds.transpose(*dim_order)
@@ -548,9 +556,8 @@ def effortSharing(ISO, principle):
 
 principles = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
 
-
-@app.get("/<ISO>/effortSharings")
-def effortSharings(ISO):
+@app.get("/timeseries/<region>/principles")
+def effortSharings(region):
     """
     http://127.0.0.1:5000//USA/GF?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 36.94ms
     http://127.0.0.1:5000//USA/PC?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 38.556ms
@@ -562,18 +569,18 @@ def effortSharings(ISO):
 
     http://127.0.0.1:5000//USA/effortSharings?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 221.552ms
     """
-    return {k: effortSharing(ISO, k) for k in principles}
+    return {k: effortSharing(region, k) for k in principles}
 
 
-@app.get("/<ISO>/effortSharingReductions")
-def effortSharingReductions(ISO):
+@app.get("/stats/<region>/reductions")
+def effortSharingReductions(region):
     periods = (2030, 2040)
     selection = dict(
         **pathwaySelection(),
         Time=periods,
     )
 
-    hist = dsGlobal.GHG_hist.sel(Region=ISO, Time=1990).values + 0
+    hist = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values + 0
 
     reductions = {}
     for principle in principles:
@@ -585,7 +592,7 @@ def effortSharingReductions(ISO):
         reductions[principle] = {}
         for period in periods:
             pselection.update(Time=period)
-            es = get_ds(ISO)[principle].sel(**pselection).mean().values + 0
+            es = get_ds(region)[principle].sel(**pselection).mean().values + 0
             if np.isnan(es):
                 reductions[principle][period] = None
             else:
@@ -598,4 +605,4 @@ if __name__ == "__main__":
     region = "USA"
     # print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
     # print(f"NDC Range: {ndcRange(region)}")
-    print(ndcAmbition(region))
+    print(ndcReduction(region))
