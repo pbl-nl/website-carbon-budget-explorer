@@ -28,6 +28,7 @@ CORS(app)
 # TODO write tests with dummy data
 
 CABE_DATA_DIR = Path("data")
+# CABE_DATA_DIR = Path("/data/DataUpdate_02_2024")
 
 # Global data (xr_dataread.nc)
 dsGlobal = xr.open_dataset(CABE_DATA_DIR / "xr_dataread.nc")
