@@ -1,5 +1,5 @@
 import { principles } from '$lib/principles';
-import { browser } from '$app/environment';
+import { browser, dev } from '$app/environment';
 
 export interface SpatialMetric {
 	ISO: string;
@@ -82,8 +82,9 @@ export function pathwayQueryFromSearchParams(
 	};
 }
 
-export const API_URL = process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for production
-// export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for development
+export const API_URL = dev
+       ? import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'
+       : process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'
 
 async function getJSON(path: string, myfetch = fetch) {
 	let url = `${API_URL}${path}`;
@@ -189,9 +190,10 @@ export async function netzero(Region = 'EARTH'): Promise<UncertainTime[]> {
 }
 
 export async function indicators(ISO: string): Promise<{
-	ndcAmbition: number | null;
+	ndcAmbition: { min: number; max: number } | null;
 	historicalCarbon: number;
-	ndc: Record<number, [number, number]>;
+	ndc_inventory: Record<number, [number, number]>;
+	ndc_jones: Record<number, [number, number]>;
 }> {
 	return getJSON(`/indicators/${ISO}`);
 }
