@@ -39,10 +39,11 @@ CORS(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
-DATA_PATH = Path("/data/DataUpdate_02_2024")
+CABE_DATA_DIR = Path("data")
+# CABE_DATA_DIR = Path("/data/DataUpdate_02_2024")
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset(DATA_PATH / "xr_dataread.nc")
+dsGlobal = xr.open_dataset(CABE_DATA_DIR / "xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -122,8 +123,8 @@ def pathwaySelection():
 
 available_region_files = set(
     [
-        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc")
-        for p in glob(str(DATA_PATH / "xr_alloc_*.nc"))
+        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc") 
+        for p in glob(str(CABE_DATA_DIR / "xr_alloc_*.nc"))
     ]
 )
 
@@ -131,7 +132,7 @@ available_region_files = set(
 def build_regions():
     countries_geojson = {}
     for g in loads(
-        Path(DATA_PATH, "ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
+        (CABE_DATA_DIR / "ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
     )["features"]:
         ps = g["properties"]
         countries_geojson[ps["ISO_A3_EH"]] = {
@@ -294,9 +295,7 @@ def historicalCarbon(region="EARTH"):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df.index.rename("time", inplace=True)
-    df = df.reset_index()
-    df["value"] = df.pop(0)
+    df = df.reset_index().rename(columns={'Time': 'time', 'GHG_hist': "value"})
     return df.to_dict(orient="records")
 
 
@@ -329,10 +328,10 @@ def gdpOverTime(region):
 
 
 # Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset(DATA_PATH / "xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset(DATA_PATH / "xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset(DATA_PATH / "xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset(DATA_PATH / "xr_alloc_FC.nc")
+ds_alloc_2030 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2030.nc")
+ds_alloc_2040 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2040.nc")
+ds_alloc_2050 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2050.nc")
+ds_alloc_FC = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_FC.nc")
 
 
 def population_map(year, scenario="SSP2"):
@@ -395,7 +394,7 @@ def fullCenturyBudgetSpatial(year):
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset(DATA_PATH / "xr_policyscen.nc")
+ds_policyscen = xr.open_dataset(CABE_DATA_DIR / "xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -421,18 +420,46 @@ def policyPathway(policy, region):
     ).to_pandas()
 
     if region == "EARTH":
-        df /= 1000  # global GHG in Gt CO2e
+        columns_to_divide = ['mean', 'min', 'max']
+        df[columns_to_divide] = df[columns_to_divide] / 1000  # global GHG in Gt CO2e
 
     df.index.rename("time", inplace=True)
     return df.reset_index().to_dict(orient="records")
 
 
+def isEU(region):
+    # EU member states do not have individual NDCs but are covered by the EU NDC
+    member_states = [
+        "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA",
+        "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "MLT", "NLD",
+        "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE"
+    ]
+    if region in member_states:
+        return "EU"
+    return region
+
+
 def ndcAmbition(region):
-    ndc2030 = dsGlobal.GHG_ndc.sel(Region=region, Time=2030).mean().values.tolist()
-    if np.isnan(ndc2030):
-        return None
-    hist1990 = dsGlobal.GHG_hist.sel(Region=region, Time=1990).values.tolist()
-    return -(ndc2030 - hist1990) / hist1990 * 100
+    region = isEU(region)
+
+    ndc2030_min = dsGlobal.GHG_ndc_red.sel(Region=region).min().values.tolist()
+    ndc2030_max = dsGlobal.GHG_ndc_red.sel(Region=region).max().values.tolist()
+
+    return {
+        "min": ndc2030_min * 100,
+        "max": ndc2030_max * 100
+    }
+
+    # ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
+    # ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
+
+    # if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
+    #     return None
+    # hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
+    # return {
+    #     "min": -(ndc2030_max - hist2015) / hist2015 * 100,
+    #     "max": -(ndc2030_min - hist2015) / hist2015 * 100
+    # }
 
 
 def historicalCarbonIndicator(region, start, end):
@@ -443,9 +470,20 @@ def historicalCarbonIndicator(region, start, end):
     )
 
 
-def ndcRange(region, period=2030):
-    ds = dsGlobal.GHG_ndc.sel(Region=region, Time=period)
-    return {period: [ds.min().values.tolist(), ds.max().values.tolist()]}
+def ndcRange_inventory(region):
+    # Absolute emissions from the NDC, based on self-reported inventory data
+    region = isEU(region)
+
+    ds_ndc_inv = dsGlobal.GHG_ndc_inv.sel(Region=region)
+    return {2030: [ds_ndc_inv.min().values.tolist(), ds_ndc_inv.max().values.tolist()]}
+
+
+def ndcRange_jones(region):
+    # Is using GHGH_ndc_red to get absolute emissions, but then using 2015 Jones data
+    region = isEU(region)
+
+    ds_ndc = dsGlobal.GHG_ndc.sel(Region=region)
+    return {2030: [ds_ndc.min().values.tolist(), ds_ndc.max().values.tolist()]}
 
 
 @app.get("/indicators/<region>")
@@ -455,7 +493,8 @@ def indicators(region):
     data = {
         "ndcAmbition": ndcAmbition(region),
         "historicalCarbon": historicalCarbonIndicator(region, start, end),
-        "ndc": ndcRange(region),
+        "ndc_inventory": ndcRange_inventory(region),
+        "ndc_jones": ndcRange_jones(region)
     }
     return data
 
@@ -466,7 +505,7 @@ def indicators(region):
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = DATA_PATH / f"xr_alloc_{ISO}.nc"
+    fn = CABE_DATA_DIR / f"xr_alloc_{ISO}.nc"
     return xr.open_dataset(fn)
 
 
@@ -494,7 +533,7 @@ def effortSharing(ISO, principle):
     if principle == "GDR":
         mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                             Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
-        
+
     mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
 
     agg_dims = [dim for dim in ds.dims if dim != "time"]
@@ -553,3 +592,10 @@ def effortSharingReductions(ISO):
                 reductions[principle][period] = -(es - hist) / hist * 100
 
     return reductions
+
+if __name__ == "__main__":
+    # region = input("Choose a focus country or region: ")
+    region = "USA"
+    # print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
+    # print(f"NDC Range: {ndcRange(region)}")
+    print(ndcAmbition(region))

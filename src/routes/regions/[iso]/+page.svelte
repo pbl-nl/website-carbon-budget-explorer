@@ -57,7 +57,7 @@
 	);
 	const hoverNdc = hoverBuilder(
 		(row) =>
-			`Nationally determined contribution at ${row.time} ranges from ${row.max.toFixed(
+			`Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
 				0
 			)} to ${row.min.toFixed(0)} Mt CO₂e`
 	);
@@ -66,6 +66,41 @@
 		return hoverBuilder(
 			(row) => `${id} in ${row.time} is ${row.mean.toFixed(0)} Mt CO₂e (with default settings)`
 		);
+	}
+
+	const euMemberStates = [
+		'AUT',
+		'BEL',
+		'BGR',
+		'HRV',
+		'CYP',
+		'CZE',
+		'DNK',
+		'EST',
+		'FIN',
+		'FRA',
+		'DEU',
+		'GRC',
+		'HUN',
+		'IRL',
+		'ITA',
+		'LVA',
+		'LTU',
+		'LUX',
+		'MLT',
+		'NLD',
+		'POL',
+		'PRT',
+		'ROU',
+		'SVK',
+		'SVN',
+		'ESP',
+		'SWE'
+	];
+
+	// Function to check if the region is an EU member state
+	function isEuMemberState(region: string) {
+		return euMemberStates.includes(region);
 	}
 </script>
 
@@ -89,22 +124,33 @@
 			<section id="key-indicators">
 				<div class="px-12">
 					<p>
-						<span class="font-bold"> Historical emissions: </span>
+						<span class="font-bold"> NDC ambition in 2030 relative to 2015: </span>
 						<span>
-							{(data.indicators.historicalCarbon / 1_000).toFixed()}
-							Gt CO₂e
-						</span>
-					</p>
-					<p>
-						<span class="font-bold"> NDC ambition in 2030 relative to 1990: </span><span
-							>{data.indicators.ndcAmbition === null
-								? '-'
-								: data.indicators.ndcAmbition.toFixed(0)}<span
-								class="tooltip cursor-pointer"
-								role="tooltip"
-								data-tip="The NDC data used here is outdated. It will be updated in the next round."
-								>% reduction ⓘ</span
-							>
+							{#if data.indicators.ndcAmbition === null}
+								-
+							{:else if data.indicators.ndcAmbition.min === data.indicators.ndcAmbition.max}
+								{#if isEuMemberState(data.info.iso3)}
+									EU Member States do not have individual NDCs. The EU27's joint NDC target is to
+									reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
+									translates to 2085 Mt CO₂e in 2030.
+								{:else if data.indicators.ndcAmbition.min < 0}
+									{Math.abs(data.indicators.ndcAmbition.min).toFixed(0)} % increase
+								{:else}
+									{data.indicators.ndcAmbition.min.toFixed(0)} % reduction
+								{/if}
+							{:else if isEuMemberState(data.info.iso3)}
+								EU Member States do not have individual NDCs. The EU27's joint NDC target is to
+								reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
+								translates to 2085 Mt CO₂e in 2030.
+							{:else if data.indicators.ndcAmbition.min < 0 && data.indicators.ndcAmbition.max < 0}
+								{`${Math.abs(data.indicators.ndcAmbition.max).toFixed(0)} - ${Math.abs(
+									data.indicators.ndcAmbition.min
+								).toFixed(0)} % increase`}
+							{:else}
+								{`${data.indicators.ndcAmbition.min.toFixed(
+									0
+								)} - ${data.indicators.ndcAmbition.max.toFixed(0)} % reduction`}
+							{/if}
 						</span>
 					</p>
 				</div>
@@ -126,15 +172,6 @@
 						on:mouseover={hoverHistoricalCarbon}
 						on:mouseout={(e) => (evt = e)}
 					/>
-					{#each Object.entries(data.indicators.ndc) as [year, range]}
-						<NdcRange
-							x={parseInt(year)}
-							y0={range[0]}
-							y1={range[1]}
-							on:mouseover={hoverNdc}
-							on:mouseout={(e) => (evt = e)}
-						/>
-					{/each}
 					{#each Object.entries(principles) as [id, { color, label }]}
 						{#if activeEffortSharings[id]}
 							<g name={id}>
@@ -151,6 +188,34 @@
 							</g>
 						{/if}
 					{/each}
+					{#if !isEuMemberState(data.info.iso3)}
+						{#each Object.entries(data.indicators.ndc_inventory) as [year, range]}
+							<NdcRange
+								x={parseInt(year)}
+								y0={range[0]}
+								y1={range[1]}
+								textNdcMin={`Min: ${range[0].toFixed(0)}`}
+								textNdcMax={`Max: ${range[1].toFixed(0)}`}
+								textNdc={`NDC`}
+								color="black"
+								on:mouseover={hoverNdc}
+								on:mouseout={(e) => (evt = e)}
+							/>
+						{/each}
+						<!-- {#each Object.entries(data.indicators.ndc_jones) as [year, range]}
+							<NdcRange
+								x={parseInt(year)}
+								y0={range[0]}
+								y1={range[1]}
+								textNdcMin={` `}
+								textNdcMax={` `}
+								textNdc={` `}
+								color="gray"
+								on:mouseover={hoverNdc}
+								on:mouseout={(e) => (evt = e)}
+							/>
+						{/each} -->
+					{/if}
 				</Pathway>
 			</section>
 		</div>

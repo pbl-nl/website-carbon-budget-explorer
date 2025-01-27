@@ -25,13 +25,13 @@
 		</thead>
 		<tbody>
 			<tr>
-				<th>2030 reductions</th>
+				<th>2030 reductions<br />relative to 2015</th>
 				{#each Object.entries(principles) as [id, { label, color }]}
 					<th>{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%</th>
 				{/each}
 			</tr>
 			<tr>
-				<th>2040 reductions</th>
+				<th>2040 reductions<br />relative to 2015</th>
 				{#each Object.entries(principles) as [id, { label, color }]}
 					<th>{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%</th>
 				{/each}

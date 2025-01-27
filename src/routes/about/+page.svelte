@@ -50,7 +50,7 @@
 					>
 					projects. For more information you can contact dr.
 					<a
-						href="https://www.uu.nl/medewerkers/MMDekker"
+						href="https://www.pbl.nl/over-het-pbl/medewerkers/mark-dekker"
 						target="_blank"
 						class="text-white"
 						rel="noopener noreferrer">Mark Dekker.</a
@@ -179,7 +179,7 @@
 					and the AR6
 					<a href="https://zenodo.org/records/5886912" target="_blank" rel="noopener noreferrer"
 						>scenario database</a
-					>. For NDC data, we use the Climate Resource NDC factsheets.
+					>. For NDC data, we use the PBL Climate Pledge NDC tool.
 				</QA>
 				<QA question="What are these allocation methods?">
 					Below, we briefly describe the methods one-by-one. For more details, the reader is
@@ -220,26 +220,67 @@
 						rel="noopener noreferrer">Responsibility-Capability Index</a
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
+				<QA question="Why are there different absolute NDC values shown in the country graph?">
+					When NDCs area published by countries, they are expressed in relative terms (e.g. 30 %
+					reduction in 2030 compared to 1990). The absolute values are calculations that depend on
+					the historical and baseline emission data used. We show two versions: one based on the
+					data we use for the Carbon Budget Explorer (Jones et al., 2021), and one based on the data
+					used in the
+					<a
+						href="https://themasites.pbl.nl/o/climate-ndc-policies-tool/"
+						target="_blank"
+						rel="noopener noreferrer">PBL NDC tool</a
+					>
+					(PRIMAP historical data).
+					<br />
+					<br />
+					These values are only an indication. When precise NDC data is needed, it is better to refer
+					to the official NDC documents.
+				</QA>
+				<QA question="Why are there no NDCs for European Member States?">
+					European Member States have a joint NDC, which is to reduce GHG emissions by at least 55 %
+					by 2030 compared to 1990 levels. This is a shared goal for the EU27, and therefore no
+					individual NDCs are available for European Member States.
+					<br />
+					<br />
+					The allocation of emission reductions to each Member State is determined via several Directives
+					(ETS, ESR and others). You can find
+					<a
+						href="https://data.consilium.europa.eu/doc/document/ST-14286-2023-INIT/en/pdf"
+						target="_blank"
+						rel="noopener noreferrer">more information here.</a
+					>
+				</QA>
 			</section>
 			<section>
 				<h2 id="other">Other</h2>
 				<QA question="How can I contact you?">
-					All questions, comments and ideas are welcome. Please can dr. <a
-						href="https://www.uu.nl/medewerkers/MMDekker"
+					All questions, comments and ideas are welcome. Please contact dr. <a
+						href="https://www.pbl.nl/over-het-pbl/medewerkers/mark-dekker"
 						target="_blank"
 						rel="noopener noreferrer">Mark Dekker</a
 					> from the Netherlands Environmental Assessment Agency.
 				</QA>
 				<QA question="How can I cite this work?">
-					For general purposes, feel free to refer this work as Dekker, M.M. (2023) The Carbon
+					For general purposes, feel free to refer to this work as Dekker, M.M. (2023) The Carbon
 					Budget Explorer. [Online]. Available: https://www.carbonbudgetexplorer.eu. <br />
-					<br /> For scientific purposes, because the data is still undergoing many developments, we
-					recommend waiting for the preprint of the scientific article (estimated in spring 2024) before
-					citing the research.
+					<br /> For scientific purposes, you can refer to the
+					<a
+						href="https://doi.org/10.21203/rs.3.rs-5023350/v1"
+						target="_blank"
+						rel="noopener noreferrer">preprint</a
+					>
+					of this work. It is currently under review.
 				</QA>
 				<QA question="Will the data and code be publicly available?">
-					Yes, all data and code (for both this tool and the scientific analysis) will be publicly
-					available. We expect to publish this in spring 2024.
+					All data can be downloaded <a
+						href="https://doi.org/10.5281/zenodo.12188104"
+						target="_blank">from Zenodo</a
+					>, including more recent developments. The Python code for the computations can be found
+					on
+					<a href="https://doi.org/10.5281/zenodo.13640303" target="_blank">Zenodo</a> or
+					<a href="https://github.com/imagepbl/EffortSharing/tree/v1.0.0" target="_blank">GitHub</a
+					>.
 				</QA>
 				<QA question="What future updates are expected?">
 					The Explorer is constantly in development, by updating NDC or other data, but also in

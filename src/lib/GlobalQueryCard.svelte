@@ -1,17 +1,18 @@
 <script lang="ts">
 	import CustomRange from '$lib/CustomRange.svelte';
 	import type { PathWayQuery } from '$lib/api';
+	import CategoryPicker from './CategoryPicker.svelte';
 
 	export let query: PathWayQuery;
 	export let choices: Record<keyof PathWayQuery, string[]>;
 	export let onChange: (name: string, value: string) => void;
 
 	let defaults = {
-		temperature: 2.0,
-		exceedanceRisk: 0.5,
-		negativeEmissions: 0.5,
+		temperature: '2.0',
+		exceedanceRisk: '0.5',
+		negativeEmissions: '0.5',
 		timing: 'Immediate',
-		nonCO2red: 0.5
+		nonCO2red: '0.5'
 	};
 
 	let temperature: string = query.temperature || defaults.temperature;
@@ -98,11 +99,7 @@
 					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5, so identical data will be shown in that case."
 					>ⓘ</span
 				>
-				<CustomRange
-					bind:value={timing}
-					options={choices.timing.map((d) => String(d))}
-					name="timing"
-				/>
+				<CategoryPicker bind:value={timing} options={choices.timing} name="timing" />
 			</p>
 		</div>
 	</div>
