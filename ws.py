@@ -222,7 +222,6 @@ available_regions = build_regions()
 
 @app.get("/regions")
 def regions():
-    division_by_zero = 1 / 0
     return available_regions
 
 
