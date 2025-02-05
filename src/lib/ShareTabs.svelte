@@ -7,7 +7,7 @@
 	<a
 		href={`/global${$page.url.search}`}
 		class={clsx(
-			'tab-lifted tab tab-lg text-xl font-bold text-gray-700',
+			'tab tab-lifted tab-lg text-xl font-bold text-gray-700',
 			$page.url.pathname === '/global' && 'tab-active'
 		)}
 		><svg class="mr-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
@@ -21,7 +21,7 @@
 	<a
 		href={`/map${$page.url.search}`}
 		class={clsx(
-			'tab-lifted tab tab-lg text-xl font-bold text-gray-700',
+			'tab tab-lifted tab-lg text-xl font-bold text-gray-700',
 			$page.url.pathname === '/map' && 'tab-active'
 		)}
 		><svg class="mr-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"

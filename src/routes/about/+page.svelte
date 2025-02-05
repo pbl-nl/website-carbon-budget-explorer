@@ -7,7 +7,7 @@
 <!-- Sidebar -->
 <div class="flex h-full gap-4 rounded bg-primary">
 	<div class="items-between flex h-full w-1/5 flex-col rounded bg-primary">
-		<div class="card-compact card">
+		<div class="card card-compact">
 			<div class="card-body prose">
 				<h2 class="card-title text-white">About</h2>
 				<ul class="not-prose m-2 list-inside list-disc">
@@ -17,7 +17,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="card-compact card mt-auto">
+		<div class="card card-compact mt-auto">
 			<div class="card-body prose">
 				<h2 class="card-title text-white">More information</h2>
 				<p class="text-white">

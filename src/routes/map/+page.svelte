@@ -2,7 +2,6 @@
 	import { run } from 'svelte/legacy';
 
 	import clsx from 'clsx';
-
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -11,12 +10,13 @@
 	import ShareTabs from '$lib/ShareTabs.svelte';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import AllocationCard from '$lib/AllocationCard.svelte';
-
 	import type { PageData } from './$types';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import RegionList from '$lib/RegionList.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	// eslint wants import below, while ts works without
+	import type { GeoJSON } from 'geojson';
 
 	interface Props {
 		data: PageData;
@@ -31,7 +31,7 @@
 		feature?: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 	) => {
 		if (browser) {
-			const properties = feature as unknown  as {ISO_A3_EH:string}
+			const properties = feature as unknown as { ISO_A3_EH: string };
 			const region = properties?.ISO_A3_EH;
 			if (region !== undefined && region !== '') {
 				goto(`/regions/${region}${$page.url.search}`);
@@ -69,9 +69,11 @@
 	let hoveredFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 		| undefined = $state();
-	let hoveredMetric = $derived(hoveredFeature
-		? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
-		: undefined);
+	let hoveredMetric = $derived(
+		hoveredFeature
+			? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
+			: undefined
+	);
 </script>
 
 <div class="flex h-full gap-4">
@@ -108,12 +110,12 @@
 						{:else}
 							<div>Click on a country or</div>
 							<details class="dropdown">
-								<summary class="btn-ghost btn-sm btn w-60 font-normal"
+								<summary class="btn btn-ghost btn-sm w-60 font-normal"
 									>Select country &#9660;</summary
 								>
 								<!-- TODO dont hardcode height and width -->
 								<div
-									class="compact card dropdown-content rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
+									class="card dropdown-content compact rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
 								>
 									<!-- TODO add filter input box to make it easier to find country -->
 									<div class="card-body">

@@ -6,33 +6,12 @@
 	import { getContext } from 'svelte';
 
 	const { padding, xRange, yScale, height } = getContext('LayerCake');
-
-	
-
-	
-
-	/** @type {Function} [formatTick=d => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
-	
-
-	// @ts-expect-error: copied from https://layercake.graphics/components
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
 	/**
 	 * @typedef {Object} Props
 	 * @property {Boolean} [gridlines]
 	 * @property {Boolean} [tickMarks]
 	 * @property {any} [formatTick]
-	 * @property {Number|Array|Function} [ticks]
+	 * @property {Number|Array<Number>|Function} [ticks]
 	 * @property {Number} [xTick]
 	 * @property {Number} [yTick]
 	 * @property {Number} [dxTick]
@@ -45,7 +24,7 @@
 	let {
 		gridlines = true,
 		tickMarks = false,
-		formatTick = (d) => d,
+		formatTick = (/** @type {any} */ d) => d,
 		ticks = 4,
 		xTick = -5,
 		yTick = 0,
@@ -57,13 +36,15 @@
 
 	let isBandwidth = $derived(typeof $yScale.bandwidth === 'function');
 
-	let tickVals = $derived(Array.isArray(ticks)
-		? ticks
-		: isBandwidth
-		? $yScale.domain()
-		: typeof ticks === 'function'
-		? ticks($yScale.ticks())
-		: $yScale.ticks(ticks));
+	let tickVals = $derived(
+		Array.isArray(ticks)
+			? ticks
+			: isBandwidth
+				? $yScale.domain()
+				: typeof ticks === 'function'
+					? ticks($yScale.ticks())
+					: $yScale.ticks(ticks)
+	);
 </script>
 
 <g class="axis y-axis" transform="translate({-$padding.left}, 0)">

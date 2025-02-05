@@ -5,7 +5,7 @@
 	import { tweened } from 'svelte/motion';
 
 	import { principles } from '$lib/principles';
-	
+
 	interface Props {
 		reductions: Record<string, Record<number, number>>;
 		activeEffortSharings: Record<string, boolean>;
@@ -24,7 +24,7 @@
 		<thead>
 			<tr>
 				<th>Allocation method</th>
-				{#each Object.entries(principles) as [id, { label, color }]}
+				{#each Object.values(principles) as { label }}
 					<th>{label}</th>
 				{/each}
 			</tr>
@@ -32,19 +32,19 @@
 		<tbody>
 			<tr>
 				<th>2030 reductions<br />relative to 2015</th>
-				{#each Object.entries(principles) as [id, { label, color }]}
+				{#each Object.keys(principles) as id}
 					<th>{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%</th>
 				{/each}
 			</tr>
 			<tr>
 				<th>2040 reductions<br />relative to 2015</th>
-				{#each Object.entries(principles) as [id, { label, color }]}
+				{#each Object.keys(principles) as id}
 					<th>{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%</th>
 				{/each}
 			</tr>
 			<tr>
 				<th>Display graph</th>
-				{#each Object.entries(principles) as [id, { label, color }]}
+				{#each Object.entries(principles) as [id, { color }]}
 					<th
 						><input
 							type="checkbox"

@@ -27,9 +27,9 @@
 	import { area, line as d3line, curveLinear } from 'd3-shape';
 	import { draw, fade } from 'svelte/transition';
 	import { linear, sineIn } from 'svelte/easing';
-	import type { Readable } from 'svelte/motion';
 	import type { ScaleLinear } from 'd3';
 	import type { LineData, LineValue } from './MultiLine';
+	import type { Readable } from 'svelte/store';
 
 	const { data, xGet, yGet, yScale } = getContext<{
 		data: Readable<LineData[]>;
@@ -40,11 +40,13 @@
 
 	let curve = curveLinear;
 	let line = $derived(d3line<LineValue>().x($xGet).y($yGet).curve(curve));
-	let shade = $derived(area<LineValue>()
-		.x($xGet)
-		.y1((d) => $yScale(d.ymax))
-		.y0((d) => $yScale(d.ymin))
-		.curve(curve));
+	let shade = $derived(
+		area<LineValue>()
+			.x($xGet)
+			.y1((d) => $yScale(d.ymax))
+			.y0((d) => $yScale(d.ymin))
+			.curve(curve)
+	);
 </script>
 
 <g class="line-group">

@@ -33,15 +33,17 @@
 		if (browser) {
 			const params = new URLSearchParams($page.url.search);
 			if (params.get(name) !== value) {
-			params.set(name, value);
-			goto(`?${params.toString()}`);
+				params.set(name, value);
+				goto(`?${params.toString()}`);
 			}
 		}
 	}
 
-	let activeEffortSharings = $state(Object.fromEntries(
-		Object.keys(principles).map((id) => [id, id === data.initialEffortSharingName])
-	));
+	let activeEffortSharings = $state(
+		Object.fromEntries(
+			Object.keys(principles).map((id) => [id, id === data.initialEffortSharingName])
+		)
+	);
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
@@ -52,6 +54,7 @@
 
 	// Hover effort sharing
 	let evt = $state({});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
 		return function (e: ComponentEvents<SvelteComponent>) {
 			const row = e.detail.row;

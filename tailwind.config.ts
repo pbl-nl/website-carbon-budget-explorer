@@ -31,4 +31,4 @@ export default {
 			}
 		]
 	}
-} satisfies Config;;
+} satisfies Config;

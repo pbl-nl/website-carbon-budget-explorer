@@ -5,7 +5,8 @@
 
 	// Access the context using the 'LayerCake' keyword
 	// Grab some helpful functions
-	const { data, x, xScale, y, yScale } = getContext('LayerCake');
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const { data, x, xScale, y, yScale } = getContext<any>('LayerCake');
 
 	interface Props {
 		fill?: string;

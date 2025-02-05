@@ -20,7 +20,9 @@
 		y0?: string;
 		y1?: string;
 		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseover: (e: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseout: (e: any) => void;
 	}
 
@@ -31,18 +33,21 @@
 		y1 = 'y1',
 		color = '#ab00d6',
 		mouseover,
-		mouseout,
+		mouseout
 	}: Props = $props();
 
-	let shade = $derived(area<Row>()
-		.x((d) => $xScale(d[x]))
-		.y1((d) => $yScale(d[y1]))
-		.y0((d) => $yScale(d[y0]))
-		.curve(curveLinear));
+	let shade = $derived(
+		area<Row>()
+			.x((d) => $xScale(d[x]))
+			.y1((d) => $yScale(d[y1]))
+			.y0((d) => $yScale(d[y0]))
+			.curve(curveLinear)
+	);
 	let path = $derived(shade(data));
 
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hover(e: any) {
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox
@@ -55,7 +60,7 @@
 	class="path-area"
 	d={path}
 	fill={color}
-	onmouseover={(hover)}
+	onmouseover={hover}
 	onmousemove={hover}
 	onfocus={(e) => mouseover({ e })}
 	onmouseout={mouseout}

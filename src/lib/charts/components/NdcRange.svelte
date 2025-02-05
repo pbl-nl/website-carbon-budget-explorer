@@ -24,7 +24,9 @@
 		textNdc: string;
 		// TODO use color of ndc series on global page?
 		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseover: (e?: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseout: (e?: any) => void;
 	}
 
@@ -38,9 +40,10 @@
 		textNdc,
 		color = 'black',
 		mouseover,
-		mouseout,
+		mouseout
 	}: Props = $props();
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hover(e: any) {
 		return mouseover({ e, row: { time: x, min: y0, max: y1 } });
 	}
@@ -55,7 +58,10 @@
 		stroke={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onmouseout={handlers(
+			() => mouseout(),
+			() => mouseout()
+		)}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>
@@ -67,7 +73,10 @@
 		fill={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onmouseout={handlers(
+			() => mouseout(),
+			() => mouseout()
+		)}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>
@@ -110,7 +119,10 @@
 		fill={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(() => mouseout(), () => mouseout())}
+		onmouseout={handlers(
+			() => mouseout(),
+			() => mouseout()
+		)}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>

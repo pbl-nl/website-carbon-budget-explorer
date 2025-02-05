@@ -6,22 +6,6 @@
 	import { getContext } from 'svelte';
 	const { width, height, xScale, yRange } = getContext('LayerCake');
 
-	
-
-	
-
-	
-
-	
-
-	/** @type {Function} [formatTick=d: any => d] - A function that passes the current tick value and expects a nicely formatted value in return. */
-	
-
-	
-
-	
-
-	
 	/**
 	 * @typedef {Object} Props
 	 * @property {Boolean} [gridlines]
@@ -40,7 +24,7 @@
 		tickMarks = false,
 		baseline = false,
 		snapTicks = false,
-		formatTick = (d) => d,
+		formatTick = (/** @type {any} */ d) => d,
 		ticks = undefined,
 		xTick = 0,
 		yTick = 16
@@ -48,13 +32,15 @@
 
 	let isBandwidth = $derived(typeof $xScale.bandwidth === 'function');
 
-	let tickVals = $derived(Array.isArray(ticks)
-		? ticks
-		: isBandwidth
-		? $xScale.domain()
-		: typeof ticks === 'function'
-		? ticks($xScale.ticks())
-		: $xScale.ticks(ticks));
+	let tickVals = $derived(
+		Array.isArray(ticks)
+			? ticks
+			: isBandwidth
+				? $xScale.domain()
+				: typeof ticks === 'function'
+					? ticks($xScale.ticks())
+					: $xScale.ticks(ticks)
+	);
 
 	// @ts-expect-error: copied from https://layercake.graphics/components
 	function textAnchor(i) {

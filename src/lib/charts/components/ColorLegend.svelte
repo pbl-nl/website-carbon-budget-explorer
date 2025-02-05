@@ -11,7 +11,7 @@
 
 	let { title, scale }: Props = $props();
 
-	function ramp(color: any, n = 256) {
+	function ramp(color: (d: number) => string, n = 256) {
 		const canvas = document.createElement('canvas');
 		canvas.height = n;
 		canvas.width = 1;
@@ -32,14 +32,13 @@
 	const marginLeft = 5;
 	const ticks = height / 64;
 
-	let y = $derived(Object.assign(
-		scale.copy().interpolator(interpolateRound(marginBottom, height - marginTop)),
-		{
+	let y = $derived(
+		Object.assign(scale.copy().interpolator(interpolateRound(marginBottom, height - marginTop)), {
 			range() {
 				return [marginBottom, height - marginTop];
 			}
-		}
-	));
+		})
+	);
 	let tickValues = $derived(range(ticks + 1).map((i) => quantile(scale.domain(), i / ticks)));
 	const tickFormat = format('.4');
 </script>

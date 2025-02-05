@@ -21,19 +21,15 @@
 		color?: string;
 	}
 
-	let {
-		data,
-		x = 'x',
-		y0 = 'y0',
-		y1 = 'y1',
-		color = '#ab00d6'
-	}: Props = $props();
+	let { data, x = 'x', y0 = 'y0', y1 = 'y1', color = '#ab00d6' }: Props = $props();
 
-	let shade = $derived(area<number>()
-		.x((d) => $xScale(d))
-		.y1((_, i) => $yScale(data[y1][i]))
-		.y0((_, i) => $yScale(data[y0][i]))
-		.curve(curveLinear));
+	let shade = $derived(
+		area<number>()
+			.x((d) => $xScale(d))
+			.y1((_, i) => $yScale(data[y1][i]))
+			.y0((_, i) => $yScale(data[y0][i]))
+			.curve(curveLinear)
+	);
 	let path = $derived(shade(data[x]));
 </script>
 

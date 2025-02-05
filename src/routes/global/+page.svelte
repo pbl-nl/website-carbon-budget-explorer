@@ -73,7 +73,7 @@
 
 	async function updateQueryParam(name: string, value: string) {
 		if (browser) {
-			const current = page.url.search
+			const current = page.url.search;
 			const params = new URLSearchParams(current);
 			if (params.get(name) !== value) {
 				params.set(name, value);
@@ -82,15 +82,14 @@
 		}
 	}
 
-	function toggleAmbitionGap() {
-		ambitionGapHover = !ambitionGapHover;
-	}
 	function toggleEmissionGap() {
 		emissionGapHover = !emissionGapHover;
 	}
 
 	let evt = $state({});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return function (e: any) {
 			const row = e.detail.row;
 			if (row === undefined) {
@@ -159,7 +158,7 @@
 			/>
 		</div>
 		<div id="references">
-			<div class="card-compact card min-w-full bg-base-100 shadow-xl">
+			<div class="card card-compact min-w-full bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="card-title">Reference pathways</h2>
 					<p>
