@@ -91,9 +91,6 @@
 			const value = getMetric(geoJsonFeature, data)?.value;
 			// TODO Deal with nans?
 			const defaultOptions = { fillColor: 'grey', color: 'darkgrey', weight: 1 };
-			if (geoJsonFeature.properties?.ISO_A3_EH === 'USA') {
-				console.log({ value, geoJsonFeature });
-			}
 			if (value === undefined) {
 				return defaultOptions;
 			} else {
