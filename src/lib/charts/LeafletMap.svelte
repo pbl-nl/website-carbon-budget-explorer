@@ -2,7 +2,9 @@
 	import { run } from 'svelte/legacy';
 
 	import { Map, GeoJSON, TileLayer } from 'sveaflet';
-	// import {CRS} from 'leaflet?client'
+	import * as L from "leaflet";
+	// Load proj4leaflet plugin so L.Proj.CRS is available
+	import "proj4leaflet";
 	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
 	import { browser } from '$app/environment';
@@ -14,11 +16,19 @@
 	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT, LeafletMouseEvent } from 'leaflet';
 	import type { Feature, Geometry } from 'geojson';
 
+	const robinson = new L.Proj.CRS(
+		"ESRI:54030","+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs",
+		{
+			resolutions: [ 131072, 65536, 32768, 16384, 8192, 4096, 2048]
+		}
+	)
+
 	const mapOptions: MapOptions = {
-		center: [30, 5],
+		center: [10, -5],
 		zoom: 3,
 		minZoom: 2,
-		zoomControl: false
+		zoomControl: false,
+		crs: robinson
 	};
 	if (browser) {
 		// mapOptions.crs = CRS.EPSG4326
