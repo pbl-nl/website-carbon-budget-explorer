@@ -82,8 +82,8 @@ export function pathwayQueryFromSearchParams(
 }
 
 export const API_URL = dev
-	? import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'
-	: process.env.CABE_API_URL ?? 'http://127.0.0.1:5000';
+	? (import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000')
+	: (process.env.CABE_API_URL ?? 'http://127.0.0.1:5000');
 
 type Fetch = typeof fetch;
 

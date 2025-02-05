@@ -83,7 +83,7 @@
 	);
 
 	function styleBuilder(data: Props['metrics']['data']) {
-		return function (geoJsonFeature: Feature<Geometry, {ISO_A3_EH:string}> | undefined) {
+		return function (geoJsonFeature: Feature<Geometry, { ISO_A3_EH: string }> | undefined) {
 			if (geoJsonFeature === undefined) {
 				return {};
 			}
