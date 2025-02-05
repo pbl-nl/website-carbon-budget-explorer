@@ -23,13 +23,8 @@ import sentry_sdk
 
 sentry_sdk.init(
     dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for tracing.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
+    traces_sample_rate=0.0,
+    profiles_sample_rate=0.0,
 )
 
 app = Flask(__name__)
@@ -226,6 +221,7 @@ available_regions = build_regions()
 
 @app.get("/regions")
 def regions():
+    division_by_zero = 1 / 0
     return available_regions
 
 
