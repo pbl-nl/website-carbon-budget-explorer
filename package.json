@@ -15,7 +15,7 @@
 		"download:borders": "mkdir -p data && curl https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson -o data/ne_110m_admin_0_countries.geojson"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.2.3",
+		"@eslint/compat": "^1.2.6",
 		"@eslint/js": "^9.17.0",
 		"@playwright/test": "^1.45.3",
 		"@sveltejs/adapter-node": "^5.2.9",
@@ -27,7 +27,7 @@
 		"@vitest/coverage-v8": "^2.1.8",
 		"autoprefixer": "^10.4.14",
 		"daisyui": "^3.9.3",
-		"eslint": "^9.7.0",
+		"eslint": "^9.10.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0",
 		"prettier": "^3.1.0",
@@ -46,6 +46,7 @@
 	"dependencies": {
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
+		"@sentry/sveltekit": "^8.51.0",
 		"clsx": "^2.0.0",
 		"d3": "^7.8.5",
 		"d3-geo": "^3.1.0",

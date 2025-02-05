@@ -20,6 +20,13 @@ from flask_cors import CORS
 import numpy as np
 import xarray as xr
 import pandas as pd
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
+    traces_sample_rate=0.0,
+    profiles_sample_rate=0.0,
+)
 
 app = Flask(__name__)
 CORS(app)
@@ -28,7 +35,8 @@ CORS(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
-CABE_DATA_DIR = Path("data")
+# CABE_DATA_DIR = Path("data")
+CABE_DATA_DIR = Path("/data/DataUpdate_10_2024")
 
 # Global data (xr_dataread.nc)
 dsGlobal = xr.open_dataset(CABE_DATA_DIR / "xr_dataread.nc")
@@ -214,6 +222,7 @@ available_regions = build_regions()
 
 @app.get("/regions")
 def regions():
+    division_by_zero = 1 / 0
     return available_regions
 
 
