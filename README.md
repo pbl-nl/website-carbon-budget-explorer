@@ -110,13 +110,3 @@ node build/index.js
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 The web application server expects the Python web service to be running on `http://127.0.0.1:5000`.
-
-## Cache
-
-The Python webservice caches all requests for 10 hours in the `./cache` directory. The cache can be cleared with
-
-```bash
-# stop webservice
-rm -rf cache/*
-# start webservice
-```
