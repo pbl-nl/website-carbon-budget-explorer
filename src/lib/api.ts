@@ -1,4 +1,6 @@
 import { browser } from '$app/environment';
+import { LRUCache } from 'lru-cache';
+import sizeof from 'object-sizeof';
 import { API_URL } from './config';
 
 export interface SpatialMetric {
@@ -91,10 +93,37 @@ export function pathwayQueryFromSearchParams(
 
 type Fetch = typeof fetch;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cache: LRUCache<string, any> | undefined = undefined;
+if (!browser) {
+	cache = new LRUCache({
+		maxSize: 1 * 1024 * 1024 * 1024, // 1Gb
+		sizeCalculation: sizeof
+	});
+}
+
 async function getJSON(path: string, myfetch = fetch) {
-	let url = `${API_URL}${path}`;
 	if (browser) {
-		url = `/api${path}`;
+		return getJSONOnBrowser(path, myfetch);
+	}
+	return getJSONOnServer(path, myfetch);
+}
+
+async function getJSONOnBrowser(path: string, myfetch = fetch) {
+	const url = `/api/${path}`;
+	const response = await myfetch(url);
+	if (!response.ok) {
+		console.error(url);
+		throw new Error(response.statusText);
+	}
+	return await response.json();
+}
+
+async function getJSONOnServer(path: string, myfetch = fetch) {
+	const url = `${API_URL}${path}`;
+	const cached = cache?.get(url);
+	if (cached !== undefined) {
+		return cached;
 	}
 	const response = await myfetch(url);
 	if (!response.ok) {
@@ -102,6 +131,7 @@ async function getJSON(path: string, myfetch = fetch) {
 		throw new Error(response.statusText);
 	}
 	const data = await response.json();
+	cache?.set(url, data);
 	return data;
 }
 
