@@ -6,17 +6,25 @@ Web application to explore carbon budgets
 
 The web application is written with [SveltKit](https://kit.svelte.dev/).
 
-## Data requirements
+## Data requirements and configuration
 
 Should have the following data files:
 
-1. `data/xr_dataread.nc` - NetCDF file
-1. `data/xr_policyscen.nc` - NetCDF file
-1. `data/xr_allow_<3 letter ISO countr code>.nc` - NetCDF file for each country
-1. `data/xr_allow_<2030|2040|FC>.nc` - NetCDF file
-1. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
+1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders`
+1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ISO_PATH} / "xr_alloc_{ISO}.nc"`
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / 'Aggregated_files' / "xr_alloc_{YEAR}.nc"`
 
-If your data is else where, you can change `data/` to a symlink. For example `rm data;ln -s /path/to/data data`.
+The `CABE_DATA_DIR` variable is the path to the data directory.
+The `CABE_START_YEAR` variable is the start year of the allocation.
+The `CABE_ISO_PATH` variable is the path in which the region specific files are located.
+The `ISO` variable is the 3 letter ISO code of the region.
+The `YEAR` variable is the year of the allocation.
+
+The `CABE_` variables are defined in the `.env` file.
+See [.env.example](.env.example) file for an example.
+To run the application the `.env` file is required.
 
 ## API service
 
