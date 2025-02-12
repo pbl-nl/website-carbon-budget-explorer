@@ -133,10 +133,10 @@
 			<TileLayer url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
 			<ControlAttribution
-			options={{
-				prefix: false
-			}}
-		/>
+				options={{
+					prefix: false
+				}}
+			/>
 		</Map>
 		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
 	{/if}
