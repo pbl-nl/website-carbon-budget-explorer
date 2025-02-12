@@ -10,11 +10,11 @@ The web application is written with [SveltKit](https://kit.svelte.dev/).
 
 Should have the following data files:
 
-1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders`
+1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders` and move downloaded file to CABE_DATA_DIR directory.
 1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ISO_PATH} / "xr_alloc_{ISO}.nc"`
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / 'Aggregated_files' / "xr_alloc_{YEAR}.nc"`
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ISO_PATH} / "xr_alloc_{ISO}.nc"` - Region specific data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / 'Aggregated_files' / "xr_alloc_{YEAR}.nc"` - Aggregated data
 
 The `CABE_DATA_DIR` variable is the path to the data directory.
 The `CABE_START_YEAR` variable is the start year of the allocation.

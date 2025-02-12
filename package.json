@@ -13,7 +13,7 @@
 		"test:unit": "vitest",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"download:borders": "mkdir -p data && curl https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson -o data/ne_110m_admin_0_countries.geojson"
+		"download:borders": "curl https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson -o ne_110m_admin_0_countries.geojson"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
