@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { Map, GeoJSON, TileLayer } from 'sveaflet';
+	import { Map, GeoJSON } from 'sveaflet';
 	import * as L from 'leaflet';
 	// Load proj4leaflet plugin so L.Proj.CRS is available
 	import 'proj4leaflet';
