@@ -9,18 +9,39 @@ Run with
     gunicorn -w 4 'ws:app'
 
 """
-from glob import glob
+from dataclasses import dataclass
 from json import loads
-import os
 from pathlib import Path
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
 import numpy as np
 import xarray as xr
 import pandas as pd
 import sentry_sdk
+from dotenv import dotenv_values
+
+@dataclass(frozen=True)
+class Config:
+    data_dir: Path
+    start_year: str
+    iso_path: str
+
+def load_env() -> Config:
+    config = dotenv_values(".env")
+    if 'CABE_DATA_DIR' not in config or config['CABE_DATA_DIR'] is None:
+        raise ValueError("CABE_DATA_DIR not set in .env file")
+    if 'CABE_START_YEAR' not in config or config['CABE_START_YEAR'] is None:
+        raise ValueError("CABE_START_YEAR not set in .env file")
+    if 'CABE_ISO_PATH' not in config or config['CABE_ISO_PATH'] is None:
+        raise ValueError("CABE_ISO_PATH not set in .env file")
+    return Config(
+        data_dir=Path(config["CABE_DATA_DIR"]),
+        start_year=config['CABE_START_YEAR'],
+        iso_path=config["CABE_ISO_PATH"]
+    )
+
+config = load_env()
 
 sentry_sdk.init(
     dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
@@ -35,11 +56,8 @@ CORS(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
-# CABE_DATA_DIR = Path("data")
-CABE_DATA_DIR = Path("/data/DataUpdate_10_2024")
-
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset(CABE_DATA_DIR / "xr_dataread.nc")
+dsGlobal = xr.open_dataset(config.data_dir / config.start_year / "xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -117,13 +135,16 @@ def pathwaySelection():
     )
 
 
-available_region_files = set(
-    [
-        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc") 
-        for p in glob(str(CABE_DATA_DIR / "xr_alloc_*.nc"))
-    ]
-)
+def find_region_files():
+    region_dir = config.data_dir / config.start_year / config.iso_path
+    available_region_files = {}
+    for f in region_dir.glob("xr_alloc_*.nc"):
+        iso = f.stem.removeprefix("xr_alloc_")
+        available_region_files[iso] = f
+    return available_region_files
 
+
+available_region_files = find_region_files()
 
 def read_geojson(fn: Path):
     """Remove all properties except NAME and ISO_A3_EH"""
@@ -135,7 +156,7 @@ def read_geojson(fn: Path):
         }
     return geojson
 
-country_border_geojson_file = CABE_DATA_DIR / "ne_110m_admin_0_countries.geojson"
+country_border_geojson_file = config.data_dir / "ne_110m_admin_0_countries.geojson"
 country_border_geojson = read_geojson(country_border_geojson_file)
 
 @app.get("/borders")
@@ -353,18 +374,21 @@ def gdpOverTime(region):
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
 
-
-# Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_FC.nc")
-
-
 def population_map(year, scenario="SSP2"):
     """Return population map as xarray data-array"""
     return dsGlobal.Population.sel(Time=year, Scenario=scenario)
 
+def open_aggregated_files():
+    root = config.data_dir / config.start_year / 'Aggregated_files'
+    files = {}
+    for f in root.glob('xr_alloc_*.nc'):
+        # TODO once https://github.com/pbl-nl/website-carbon-budget-explorer/issues/38#issuecomment-2653487809
+        # the removesuffix is no longer needed
+        year = f.stem.removeprefix('xr_alloc_').removesuffix('_GHG_incl')
+        files[year] = xr.open_dataset(f)
+    return files
+
+file_by_year = open_aggregated_files()
 
 @app.get("/map/<year>/GHG")
 def fullCenturyBudgetSpatial(year):
@@ -382,13 +406,6 @@ def fullCenturyBudgetSpatial(year):
     if effortSharing == "GDR":
         selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                          Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
-
-    file_by_year = {
-        "2030": ds_alloc_2030,
-        "2040": ds_alloc_2040,
-        "2050": ds_alloc_2050,
-        "2021-2100": ds_alloc_FC,
-    }
 
     df = (
         (
@@ -421,7 +438,7 @@ def fullCenturyBudgetSpatial(year):
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset(CABE_DATA_DIR / "xr_policyscen.nc")
+ds_policyscen = xr.open_dataset(config.data_dir / "xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -526,13 +543,10 @@ def indicators(region):
     return data
 
 
-# Country-specific data (xr_alloc_<ISO>.nc)
-
-
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = CABE_DATA_DIR / f"xr_alloc_{ISO}.nc"
+    fn = available_region_files[ISO]
     return xr.open_dataset(fn)
 
 
@@ -555,7 +569,9 @@ def effortSharing(ISO, principle):
     if principle in ["ECPC", "GDR"]:
         mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
     if principle == "ECPC":
-        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
+        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR,
+                            Convergence_year=DEFAULT_CONVERGENCE_YEAR,
+                            )
     if principle == "GDR":
         mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                             Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
