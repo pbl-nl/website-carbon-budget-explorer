@@ -3,12 +3,11 @@
 
 	import { Map, GeoJSON, TileLayer } from 'sveaflet';
 	// import {CRS} from 'leaflet?client'
-	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
 	import { browser } from '$app/environment';
 	import { interpolateYlGnBu, scaleSequential } from 'd3';
 	import ColorLegend from './components/ColorLegend.svelte';
-	import type { BudgetSpatial, SpatialMetric } from '$lib/api';
+	import type { BordersCollection, BudgetSpatial, SpatialMetric } from '$lib/api';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT, LeafletMouseEvent } from 'leaflet';

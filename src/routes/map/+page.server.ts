@@ -1,8 +1,8 @@
-import { borders as bordersDb } from '$lib/server/db/data';
 import { searchParam } from '$lib/searchparam';
 import {
 	currentPolicy,
 	fullCenturyBudgetSpatial,
+	borders,
 	historicalCarbon,
 	listRegions,
 	pathwayCarbon,
@@ -49,12 +49,13 @@ export async function load({ url }: { url: URL }) {
 		pathwayCarbon: await pathwayCarbon(url.search),
 		currentPolicy: await currentPolicy()
 	};
+	const borders_as_geojson = await borders();
 
 	const data = {
 		pathway,
 		effortSharing: selectedEffortSharing,
 		metrics,
-		borders: bordersDb.geojson,
+		borders: borders_as_geojson,
 		regions,
 		global
 	};

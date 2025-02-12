@@ -61,6 +61,13 @@ export type CertainTime = {
 	value: number;
 };
 
+export interface BorderProperties {
+	ISO_A3_EH: string;
+	NAME: string;
+}
+
+export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties>;
+
 export function pathwayQueryFromSearchParams(
 	searchParams: URLSearchParams,
 	choices: Record<keyof PathWayQuery, string[]>
@@ -210,4 +217,8 @@ export async function effortSharingReductions(
 	fetch: Fetch
 ): Promise<Record<string, Record<number, number>>> {
 	return getJSON(`/${ISO}/effortSharingReductions${search}`, fetch);
+}
+
+export async function borders(fetch?: Fetch): Promise<BordersCollection> {
+	return getJSON('/borders', fetch);
 }
