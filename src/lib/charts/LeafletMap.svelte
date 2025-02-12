@@ -31,20 +31,6 @@
 		zoomControl: false,
 		crs: robinson
 	};
-	if (browser) {
-		// mapOptions.crs = CRS.EPSG4326
-	}
-
-	const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.{ext}';
-	const tileLayerOptions = {
-		minZoom: 4,
-		maxZoom: 20,
-		maxNativeZoom: 19,
-		attribution:
-			'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-		ext: 'png',
-		subdomains: 'abcd'
-	};
 
 	const interpolator = interpolateYlGnBu;
 
@@ -140,7 +126,6 @@
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
 		<Map options={mapOptions}>
-			<TileLayer url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
 		</Map>
 		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
