@@ -107,12 +107,10 @@ To create a production version of your app:
 npm run build
 ```
 
-You can the production build with
+You can run the production build with
 
 ```bash
-node build/index.js
+node --env-file=.env build/index.js
 ```
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 The web application server expects the Python web service to be running on `http://127.0.0.1:5000`.

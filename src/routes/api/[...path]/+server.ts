@@ -1,4 +1,4 @@
-import { API_URL } from '$lib/api';
+import { API_URL } from '$lib/config';
 import type { RequestHandler } from './$types';
 
 // Poormans reverse proxy for /api/* to Python ws

@@ -1,4 +1,5 @@
-import { browser, dev } from '$app/environment';
+import { browser } from '$app/environment';
+import { API_URL } from './config';
 
 export interface SpatialMetric {
 	ISO: string;
@@ -87,10 +88,6 @@ export function pathwayQueryFromSearchParams(
 		nonCO2red
 	};
 }
-
-export const API_URL = dev
-	? (import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000')
-	: (process.env.CABE_API_URL ?? 'http://127.0.0.1:5000');
 
 type Fetch = typeof fetch;
 
