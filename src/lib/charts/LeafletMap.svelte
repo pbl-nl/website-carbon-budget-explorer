@@ -25,7 +25,7 @@
 	);
 
 	const mapOptions: MapOptions = {
-		center: [10, -5],
+		center: [10, 20],
 		zoom: 3,
 		minZoom: 2,
 		zoomControl: false,
