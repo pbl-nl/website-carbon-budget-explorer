@@ -93,6 +93,12 @@ For coverage, run
 npm run test:unit -- run --coverage
 ```
 
+The end-to-end test can be run with
+
+```bash
+npm run test
+```
+
 ## Building
 
 To create a production version of your app:
