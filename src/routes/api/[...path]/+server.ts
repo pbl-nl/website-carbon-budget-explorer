@@ -20,6 +20,9 @@ export const GET: RequestHandler = async ({ params, url }) => {
 		});
 	}
 	const response = await fetch(localUrl);
+	if (!response.ok) {
+		return response;
+	}
 	const content = await response.bytes();
 	cache.set(localUrl, content);
 	// Cannot reuse response as it's already consumed, so make new response
