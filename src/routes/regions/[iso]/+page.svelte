@@ -72,8 +72,13 @@
 		(row) =>
 			`Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
 				0
-			)} to ${row.min.toFixed(0)} Mt CO₂e`
+			)} to ${row.min.toFixed(0)} Mt CO₂e.`
 	);
+
+	const hoverTextNdc = function (e: ComponentEvents<SvelteComponent>) {
+		    const myevt = {e, msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry.'};
+			evt = myevt;
+		};
 
 	function hoverEffortSharing(id: string) {
 		return hoverBuilder(
@@ -216,9 +221,10 @@
 								y1={range[1]}
 								textNdcMin={`Min: ${range[0].toFixed(0)}`}
 								textNdcMax={`Max: ${range[1].toFixed(0)}`}
-								textNdc={`NDC`}
+								textNdc="NDC"
 								color="black"
 								mouseover={hoverNdc}
+								mousetextover={hoverTextNdc}
 								mouseout={(e) => (evt = e)}
 							/>
 						{/each}
