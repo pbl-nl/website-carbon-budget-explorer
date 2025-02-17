@@ -25,7 +25,7 @@ from dotenv import dotenv_values
 class Config:
     data_dir: Path
     start_year: str
-    iso_path: str
+    assumption_set: str
 
 def load_env() -> Config:
     config = dotenv_values(".env")
@@ -33,12 +33,12 @@ def load_env() -> Config:
         raise ValueError("CABE_DATA_DIR not set in .env file")
     if 'CABE_START_YEAR' not in config or config['CABE_START_YEAR'] is None:
         raise ValueError("CABE_START_YEAR not set in .env file")
-    if 'CABE_ISO_PATH' not in config or config['CABE_ISO_PATH'] is None:
-        raise ValueError("CABE_ISO_PATH not set in .env file")
+    if "CABE_ASSUMPTIONSET" not in config or config["CABE_ASSUMPTIONSET"] is None:
+        raise ValueError("CABE_ASSUMPTIONSET not set in .env file")
     return Config(
         data_dir=Path(config["CABE_DATA_DIR"]),
-        start_year=config['CABE_START_YEAR'],
-        iso_path=config["CABE_ISO_PATH"]
+        start_year=config["CABE_START_YEAR"],
+        assumption_set=config["CABE_ASSUMPTIONSET"],
     )
 
 config = load_env()
@@ -136,7 +136,9 @@ def pathwaySelection():
 
 
 def find_region_files():
-    region_dir = config.data_dir / config.start_year / config.iso_path
+    region_dir = (
+        config.data_dir / config.start_year / config.assumption_set / "Allocations"
+    )
     available_region_files = {}
     for f in region_dir.glob("xr_alloc_*.nc"):
         iso = f.stem.removeprefix("xr_alloc_")
@@ -382,12 +384,14 @@ def population_map(year, scenario="SSP2"):
     return dsGlobal.Population.sel(Time=year, Scenario=scenario)
 
 def open_aggregated_files():
-    root = config.data_dir / config.start_year / 'Aggregated_files'
+    root = (
+        config.data_dir / config.start_year / config.assumption_set / "Aggregated_files"
+    )
     files = {}
-    for f in root.glob('xr_alloc_*_GHG_incl.nc'):
+    for f in root.glob("xr_alloc_*.nc"):
         # TODO once https://github.com/pbl-nl/website-carbon-budget-explorer/issues/38#issuecomment-2653487809
         # the removesuffix is no longer needed
-        year = f.stem.removeprefix('xr_alloc_').removesuffix('_GHG_incl')
+        year = f.stem.removeprefix("xr_alloc_")
         files[year] = xr.open_dataset(f)
     return files
 
