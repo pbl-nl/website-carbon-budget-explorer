@@ -66,10 +66,17 @@
 
 	function onMouseOver(e: LeafletMouseEvent) {
 		hoveredFeature = e.sourceTarget.feature;
+
+		e.sourceTarget.setStyle({
+			weight: 1,
+			color: 'black'
+		});
+		e.sourceTarget.bringToFront();
 	}
 
-	function onmouseout() {
+	function onmouseout(e: LeafletMouseEvent) {
 		hoveredFeature = undefined;
+		geojsonlayer?.resetStyle(e.sourceTarget);
 	}
 
 	run(() => {

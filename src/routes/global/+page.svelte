@@ -91,11 +91,11 @@
 	function hoverBuilder(tmpl: (row: any) => string) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return function (e: any) {
-			const row = e.detail.row;
+			const row = e.row;
 			if (row === undefined) {
 				return;
 			}
-			e.detail.msg = tmpl(row);
+			e.msg = tmpl(row);
 			evt = e;
 		};
 	}

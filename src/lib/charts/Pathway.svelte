@@ -34,9 +34,9 @@
 			{@render children?.()}
 		</Svg>
 		<Html pointerEvents={false}>
-			{#if evt?.detail?.msg}
+			{#if evt?.msg}
 				<Tooltip {evt}>
-					{evt.detail.msg}
+					{evt.msg}
 				</Tooltip>
 			{/if}
 		</Html>
