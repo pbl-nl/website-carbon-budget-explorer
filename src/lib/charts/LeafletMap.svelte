@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { Map, GeoJSON, TileLayer } from 'sveaflet';
+	import { Map, GeoJSON, TileLayer, ControlAttribution } from 'sveaflet';
 	// import {CRS} from 'leaflet?client'
 	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
@@ -18,7 +18,8 @@
 		center: [30, 5],
 		zoom: 3,
 		minZoom: 2,
-		zoomControl: false
+		zoomControl: false,
+		attributionControl: false
 	};
 	if (browser) {
 		// mapOptions.crs = CRS.EPSG4326
@@ -131,6 +132,11 @@
 		<Map options={mapOptions}>
 			<TileLayer url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
+			<ControlAttribution
+				options={{
+					prefix: false
+				}}
+			/>
 		</Map>
 		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
 	{/if}
