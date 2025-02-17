@@ -147,11 +147,12 @@ def find_region_files():
 available_region_files = find_region_files()
 
 def read_geojson(fn: Path):
-    """Remove all properties except NAME and ISO_A3_EH"""
+    """Remove all properties except NAME, ISO_A2_EH and ISO_A3_EH"""
     geojson = loads(fn.read_text(encoding="utf8"))
     for feature in geojson["features"]:
         feature["properties"] = {
             "NAME": feature["properties"]["NAME"],
+            "ISO_A2_EH": feature["properties"]["ISO_A2_EH"],
             "ISO_A3_EH": feature["properties"]["ISO_A3_EH"],
         }
     return geojson
@@ -190,73 +191,75 @@ def build_regions():
         ps = g["properties"]
         countries_from_geojson[ps["ISO_A3_EH"]] = {
             "name": ps["NAME"],
+            "iso2": ps["ISO_A2_EH"],
             "iso3": ps["ISO_A3_EH"],
         }
 
     # TODO store this in nc file
     additional_regions = {
-        "MDV": {"iso3": "MDV", "name": "Maldives"},
-        "MLT": {"iso3": "MLT", "name": "Malta"},
-        "STP": {"iso3": "STP", "name": "São Tomé and Príncipe"},
-        "MUS": {"iso3": "MUS", "name": "Mauritius"},
-        "PLW": {"iso3": "PLW", "name": "Palau"},
-        "ATG": {"iso3": "ATG", "name": "Antigua and Barbuda"},
-        "BRB": {"iso3": "BRB", "name": "Barbados"},
+        "MLT": {"iso2": "MT", "iso3": "MLT", "name": "Malta"},
+        "STP": {"iso2": "ST", "iso3": "STP", "name": "São Tomé and Príncipe"},
+        "MUS": {"iso2": "MU", "iso3": "MUS", "name": "Mauritius"},
+        "PLW": {"iso2": "PW", "iso3": "PLW", "name": "Palau"},
+        "ATG": {"iso2": "AG", "iso3": "ATG", "name": "Antigua and Barbuda"},
+        "BRB": {"iso2": "BB", "iso3": "BRB", "name": "Barbados"},
         "Northern America": {
+            "iso2": None,
             "iso3": "Northern America",
             "name": "Northern America",
         },
         "VCT": {
+            "iso2": "VC",
             "iso3": "VCT",
             "name": "Saint Vincent and the Grenadines",
         },
-        "EU": {"iso3": "EU", "name": "European Union"},
-        "CPV": {"iso3": "CPV", "name": "Cape Verde"},
-        "BHR": {"iso3": "BHR", "name": "Bahrain"},
+        "EU": {"iso2": "EU", "iso3": "EU", "name": "European Union"},
+        "CPV": {"iso2": "CV", "iso3": "CPV", "name": "Cape Verde"},
+        "BHR": {"iso2": "BH", "iso3": "BHR", "name": "Bahrain"},
         "SIDS": {
             "iso3": "SIDS",
             "name": "Small Island Developing States",
         },
-        "KNA": {"iso3": "KNA", "name": "Saint Kitts and Nevis"},
-        "MCO": {"iso3": "MCO", "name": "Monaco"},
-        "TON": {"iso3": "TON", "name": "Tonga"},
-        "Umbrella": { "iso3": "Umbrella", "name": "Umbrella"},
-        "COM": {"iso3": "COM", "name": "Comoros"},
-        "KIR": {"iso3": "KIR", "name": "Kiribati"},
-        "GRD": {"iso3": "GRD", "name": "Grenada"},
-        "EARTH": { "iso3": "EARTH", "name": "Earth"},
-        "SYC": {"iso3": "SYC", "name": "Seychelles"},
-        "NRU": {"iso3": "NRU", "name": "Nauru"},
-        "WSM": {"iso3": "WSM", "name": "Samoa"},
-        "AND": {"iso3": "AND", "name": "Andorra"},
+        "KNA": {"iso2": "KN", "iso3": "KNA", "name": "Saint Kitts and Nevis"},
+        "MCO": {"iso2": "MC", "iso3": "MCO", "name": "Monaco"},
+        "TON": {"iso2": "TO", "iso3": "TON", "name": "Tonga"},
+        "Umbrella": {"iso2": None, "iso3": "Umbrella", "name": "Umbrella"},
+        "COM": {"iso2": "KM", "iso3": "COM", "name": "Comoros"},
+        "KIR": {"iso2": "KI", "iso3": "KIR", "name": "Kiribati"},
+        "GRD": {"iso2": "GD", "iso3": "GRD", "name": "Grenada"},
+        "EARTH": {"iso2": None, "iso3": "EARTH", "name": "Earth"},
+        "SYC": {"iso2": "SC", "iso3": "SYC", "name": "Seychelles"},
+        "NRU": {"iso2": "NR", "iso3": "NRU", "name": "Nauru"},
+        "WSM": {"iso2": "WS", "iso3": "WSM", "name": "Samoa"},
+        "AND": {"iso2": "AD", "iso3": "AND", "name": "Andorra"},
         "Australasia": {
-            
+            "iso2": None,
             "iso3": "Australasia",
             "name": "Australasia",
         },
-        "DMA": {"iso3": "DMA", "name": "Dominica"},
-        "SGP": {"iso3": "SGP", "name": "Singapore"},
-        "TUV": {"iso3": "TUV", "name": "Tuvalu"},
-        "LIE": {"iso3": "LIE", "name": "Liechtenstein"},
-        "SMR": {"iso3": "SMR", "name": "San Marino"},
-        "LCA": {"iso3": "LCA", "name": "Saint Lucia"},
-        "MHL": {"iso3": "MHL", "name": "Marshall Islands"},
-        "G7": { "iso3": "G7", "name": "Group of Seven (G7)"},
-        "VAT": {"iso3": "VAT", "name": "Vatican City"},
+        "DMA": {"iso2": "DM", "iso3": "DMA", "name": "Dominica"},
+        "SGP": {"iso2": "SG", "iso3": "SGP", "name": "Singapore"},
+        "TUV": {"iso2": "TV", "iso3": "TUV", "name": "Tuvalu"},
+        "LIE": {"iso2": "LI", "iso3": "LIE", "name": "Liechtenstein"},
+        "SMR": {"iso2": "SM", "iso3": "SMR", "name": "San Marino"},
+        "LCA": {"iso2": "LC", "iso3": "LCA", "name": "Saint Lucia"},
+        "MHL": {"iso2": "MH", "iso3": "MHL", "name": "Marshall Islands"},
+        "G7": {"iso2": None, "iso3": "G7", "name": "Group of Seven (G7)"},
+        "VAT": {"iso2": "VA", "iso3": "VAT", "name": "Vatican City"},
         "African Group": {
-            
+            "iso2": None,
             "iso3": "African Group",
             "name": "African Group",
         },
-        "FSM": {"iso3": "FSM", "name": "Micronesia"},
-        "G20": { "iso3": "G20", "name": "Group of 20 (G20)"},
+        "FSM": {"iso2": "FM", "iso3": "FSM", "name": "Micronesia"},
+        "G20": {"iso2": None, "iso3": "G20", "name": "Group of 20 (G20)"},
         "LDC": {
-            
+            "iso2": None,
             "iso3": "LDC",
             "name": "Least developed countries",
         },
-        "NIU": {"iso3": "NIU", "name": "Niue"},
-        "COK": {"iso3": "COK", "name": "Cook Islands"},
+        "NIU": {"iso2": "NU", "iso3": "NIU", "name": "Niue"},
+        "COK": {"iso2": "CK", "iso3": "COK", "name": "Cook Islands"},
     }
 
     global_regions = set(dsGlobal.Region.values.tolist())

@@ -63,6 +63,7 @@ export type CertainTime = {
 };
 
 export interface BorderProperties {
+	ISO_A2_EH: string;
 	ISO_A3_EH: string;
 	NAME: string;
 }
