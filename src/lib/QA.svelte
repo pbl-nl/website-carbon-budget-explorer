@@ -1,8 +1,13 @@
 <script lang="ts">
 	import clsx from 'clsx';
 
-	let active = false;
-	export let question = 'question';
+	let active = $state(false);
+	interface Props {
+		question?: string;
+		children?: import('svelte').Snippet;
+	}
+
+	let { question = 'question', children }: Props = $props();
 </script>
 
 <div class="transition-all">
@@ -14,6 +19,6 @@
 		</h3></label
 	>
 	<div class={clsx('prose px-2', !active && 'hidden')}>
-		<slot><p>Answer</p></slot>
+		{#if children}{@render children()}{:else}<p>Answer</p>{/if}
 	</div>
 </div>

@@ -6,17 +6,25 @@ Web application to explore carbon budgets
 
 The web application is written with [SveltKit](https://kit.svelte.dev/).
 
-## Data requirements
+## Data requirements and configuration
 
 Should have the following data files:
 
-1. `data/xr_dataread.nc` - NetCDF file
-1. `data/xr_policyscen.nc` - NetCDF file
-1. `data/xr_allow_<3 letter ISO countr code>.nc` - NetCDF file for each country
-1. `data/xr_allow_<2030|2040|FC>.nc` - NetCDF file
-1. `data/ne_110m_admin_0_countries.geojson` - can be downloaded with `npm run download:borders`
+1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders` and move downloaded file to CABE_DATA_DIR directory.
+1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{ISO}.nc"` - Region specific data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Aggregated_files" / "xr_alloc_{YEAR}.nc"` - Aggregated data
 
-If your data is else where, you can change `data/` to a symlink. For example `rm data;ln -s /path/to/data data`.
+The `CABE_DATA_DIR` variable is the path to the data directory.
+The `CABE_START_YEAR` variable is the start year of the allocation.
+The `CABE_ASSUMPTIONSET` variable encodes assumptions on which gases are included (GHG or CO2_only) and land use (included/excluded).
+The `ISO` variable is the 3 letter ISO code of the region.
+The `YEAR` variable is the year of the allocation.
+
+The `CABE_` variables are defined in the `.env` file.
+See [.env.example](.env.example) file for an example.
+To run the application the `.env` file is required.
 
 ## API service
 
@@ -49,8 +57,8 @@ waitress-serve --listen=127.0.0.1:5000 ws:app
 
 ## Developing
 
-You'll need [node.js](https://nodejs.org/en) to run a local development server.
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+You'll need [node.js](https://nodejs.org/en) (v22 or greater) to run a local development server.
+Once you've created a project and installed dependencies with `npm install`, start a development server:
 
 ```bash
 npm run dev
@@ -93,6 +101,12 @@ For coverage, run
 npm run test:unit -- run --coverage
 ```
 
+The end-to-end test can be run with
+
+```bash
+npm run test
+```
+
 ## Building
 
 To create a production version of your app:
@@ -101,12 +115,18 @@ To create a production version of your app:
 npm run build
 ```
 
-You can the production build with
+You can run the production build with
 
 ```bash
-node build/index.js
+node --env-file=.env build/index.js
 ```
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
 The web application server expects the Python web service to be running on `http://127.0.0.1:5000`.
+
+## Caching
+
+The web application (aka the backend for the frontend aka SvelteKit server) caches the web service requests aggressively.
+It will use up to **1GB of memory** for caching api requests made directly by browser
+and **another 1Gb of memory** for caching api requests made by the backend for the frontend.
+
+If you changed the data then the web service and the web application server must be restarted.

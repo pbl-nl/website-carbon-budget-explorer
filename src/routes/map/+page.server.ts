@@ -1,10 +1,8 @@
-import { borders as bordersDb } from '$lib/server/db/data';
 import { searchParam } from '$lib/searchparam';
 import {
 	currentPolicy,
 	fullCenturyBudgetSpatial,
 	historicalCarbon,
-	listRegions,
 	pathwayCarbon,
 	pathwayChoices,
 	pathwayQueryFromSearchParams,
@@ -12,8 +10,9 @@ import {
 } from '$lib/api';
 import type { BudgetSpatial } from '$lib/api';
 import type { principles } from '$lib/principles';
+import type { PageLoad } from './$types';
 
-export async function load({ url }: { url: URL }) {
+export const load: PageLoad = async ({ url }: { url: URL }) => {
 	const choices = await pathwayChoices();
 	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, choices);
 	const pathway = {
@@ -38,7 +37,6 @@ export async function load({ url }: { url: URL }) {
 		rawMetrics = await fullCenturyBudgetSpatial(selectedAllocationTime, url.search);
 	}
 
-	const regions = await listRegions();
 	const metrics = {
 		data: rawMetrics.data,
 		domain: rawMetrics.domain
@@ -54,9 +52,7 @@ export async function load({ url }: { url: URL }) {
 		pathway,
 		effortSharing: selectedEffortSharing,
 		metrics,
-		borders: bordersDb.geojson,
-		regions,
 		global
 	};
 	return data;
-}
+};

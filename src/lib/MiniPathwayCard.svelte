@@ -1,30 +1,37 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
 	import { page } from '$app/stores';
 	import Pathway from '$lib/charts/Pathway.svelte';
 	import Line from '$lib/charts/components/Line.svelte';
-	import Area from '$lib/charts/components/Area.svelte';
 	import type { CertainTime, UncertainTime } from '$lib/api';
 
-	export let global: {
-		pathwayCarbon: UncertainTime[];
-		historicalCarbon: CertainTime[];
-		currentPolicy: UncertainTime[];
-	};
+	interface Props {
+		global: {
+			pathwayCarbon: UncertainTime[];
+			historicalCarbon: CertainTime[];
+			currentPolicy: UncertainTime[];
+		};
+	}
+
+	let { global }: Props = $props();
 
 	const ipcc_green = '#A9C810';
 	const ipcc_red = '#c82f10';
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const pathwayCarbonTweened = tweened(global.pathwayCarbon, tweenOptions);
-	$: pathwayCarbonTweened.set(global.pathwayCarbon);
+	run(() => {
+		pathwayCarbonTweened.set(global.pathwayCarbon);
+	});
 
 	// TODO add tooltips for each area
 </script>
 
-<div class="card-compact card flex-1 bg-base-100 shadow-xl">
+<div class="card card-compact flex-1 bg-base-100 shadow-xl">
 	<div class="card-body">
 		<a class="block h-full w-full" href={`/global${$page.url.search}`}>
 			<!-- TODO on x-axis have less or no ticks, now they are overlapping and unreadable -->

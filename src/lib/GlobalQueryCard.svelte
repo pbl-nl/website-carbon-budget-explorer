@@ -3,9 +3,13 @@
 	import type { PathWayQuery } from '$lib/api';
 	import CategoryPicker from './CategoryPicker.svelte';
 
-	export let query: PathWayQuery;
-	export let choices: Record<keyof PathWayQuery, string[]>;
-	export let onChange: (name: string, value: string) => void;
+	interface Props {
+		query: PathWayQuery;
+		choices: Record<keyof PathWayQuery, string[]>;
+		onChange: (name: string, value: string) => void;
+	}
+
+	let { query, choices, onChange }: Props = $props();
 
 	let defaults = {
 		temperature: '2.0',
@@ -15,25 +19,50 @@
 		nonCO2red: '0.5'
 	};
 
-	let temperature: string = query.temperature || defaults.temperature;
-	let exceedanceRisk: string = query.exceedanceRisk || defaults.exceedanceRisk;
-	let negativeEmissions: string = query.negativeEmissions || defaults.negativeEmissions;
-	let timing: string = query.timing || defaults.timing;
-	let nonCO2red: string = query.nonCO2red || defaults.nonCO2red;
+	let temperature: string = $state(query.temperature || defaults.temperature);
+	let exceedanceRisk: string = $state(query.exceedanceRisk || defaults.exceedanceRisk);
+	let negativeEmissions: string = $state(query.negativeEmissions || defaults.negativeEmissions);
+	let timing: string = $state(query.timing || defaults.timing);
+	let nonCO2red: string = $state(query.nonCO2red || defaults.nonCO2red);
 
-	$: onChange('temperature', temperature);
-	$: onChange('exceedanceRisk', exceedanceRisk);
-	$: onChange('negativeEmissions', negativeEmissions);
-	$: onChange('timing', timing);
-	$: onChange('nonCO2red', nonCO2red);
+	$effect(() => {
+		if (query.temperature === temperature) {
+			return;
+		}
+		onChange('temperature', temperature);
+	});
+	$effect(() => {
+		if (query.exceedanceRisk === exceedanceRisk) {
+			return;
+		}
+		onChange('exceedanceRisk', exceedanceRisk);
+	});
+	$effect(() => {
+		if (query.negativeEmissions === negativeEmissions) {
+			return;
+		}
+		onChange('negativeEmissions', negativeEmissions);
+	});
+	$effect(() => {
+		if (query.timing === timing) {
+			return;
+		}
+		onChange('timing', timing);
+	});
+	$effect(() => {
+		if (query.nonCO2red === nonCO2red) {
+			return;
+		}
+		onChange('nonCO2red', nonCO2red);
+	});
 </script>
 
-<div class="card-compact card prose min-w-full bg-base-100 shadow-xl">
+<div class="card prose card-compact min-w-full bg-base-100 shadow-xl">
 	<div class="card-body">
 		<div>
 			<h2 class="not-prose card-title">Global budget</h2>
 			<p class="italic">How much do we have left?</p>
-			<p>
+			<div class="block">
 				Limit global warming to (&deg;C)
 				<span
 					class="tooltip text-lg"
@@ -46,8 +75,8 @@
 					options={choices.temperature.map((d) => Number(d))}
 					name="temperature"
 				/>
-			</p>
-			<p>
+			</div>
+			<div class="block">
 				Acceptable risk of exceeding global warming limit
 				<span
 					class="tooltip z-[750] text-lg"
@@ -60,8 +89,8 @@
 					options={choices.exceedanceRisk.map((d) => Number(d))}
 					name="risk"
 				/>
-			</p>
-			<p>
+			</div>
+			<div class="block">
 				Reduction of non-CO<sub>2</sub> emissions
 				<span
 					class="tooltip z-[750] text-lg"
@@ -75,10 +104,10 @@
 					options={choices.nonCO2red.map((d) => Number(d))}
 					name="nonCO2red"
 				/>
-			</p>
+			</div>
 			<h2 class="not-prose card-title">Global pathway</h2>
 			<p><i>How do we spend these emissions over time?</i></p>
-			<p>
+			<div class="block">
 				End-of-century negative emissions
 				<span
 					class="tooltip text-lg"
@@ -91,8 +120,8 @@
 					options={choices.negativeEmissions.map((d) => Number(d))}
 					name="negEmis"
 				/>
-			</p>
-			<p>
+			</div>
+			<div>
 				The timing of early-century mitigation
 				<span
 					class="tooltip text-lg"
@@ -100,7 +129,7 @@
 					>ⓘ</span
 				>
 				<CategoryPicker bind:value={timing} options={choices.timing} name="timing" />
-			</p>
+			</div>
 		</div>
 	</div>
 </div>

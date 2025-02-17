@@ -1,6 +1,7 @@
 <script lang="ts">
-	import clsx from 'clsx';
+	import { run } from 'svelte/legacy';
 
+	import clsx from 'clsx';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -9,30 +10,37 @@
 	import ShareTabs from '$lib/ShareTabs.svelte';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import AllocationCard from '$lib/AllocationCard.svelte';
-	import type { GeoJSON } from 'geojson';
-
 	import type { PageData } from './$types';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import RegionList from '$lib/RegionList.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	// eslint wants import below, while ts works without
+	import type { GeoJSON } from 'geojson';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	let clickedFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined;
+		| undefined = $state();
 	const gotoRegion = (
 		feature?: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
 	) => {
 		if (browser) {
-			const region = feature?.properties?.ISO_A3_EH;
+			const properties = feature as unknown as { ISO_A3_EH: string };
+			const region = properties?.ISO_A3_EH;
 			if (region !== undefined && region !== '') {
 				goto(`/regions/${region}${$page.url.search}`);
 			}
 		}
 	};
-	$: gotoRegion(clickedFeature);
+	$effect(() => {
+		gotoRegion(clickedFeature);
+	});
 
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
@@ -40,34 +48,32 @@
 			// TODO get called once instead of currently being called twice
 			if (params.get(name) !== value) {
 				params.set(name, value);
+				// console.log('goto', `?${params.toString()}`);
 				goto(`?${params.toString()}`);
 			}
 		}
 	}
 
 	function selectEffortSharing(value: string) {
-		data.effortSharing = value as keyof typeof principles;
+		updateQueryParam('effortSharing', value);
 	}
 
-	function changeEffortSharing(value: keyof typeof principles | undefined) {
-		if (value !== undefined) {
-			updateQueryParam('effortSharing', value);
-		}
-	}
-	$: changeEffortSharing(data.effortSharing);
-
-	let allocationTime = '2030';
+	let allocationTime = $state('2030');
 	function updateAllocationTime(allocationTime: string) {
 		updateQueryParam('allocTime', allocationTime);
 	}
-	$: updateAllocationTime(allocationTime);
+	run(() => {
+		updateAllocationTime(allocationTime);
+	});
 
 	let hoveredFeature:
 		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined;
-	$: hoveredMetric = hoveredFeature
-		? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
-		: undefined;
+		| undefined = $state();
+	let hoveredMetric = $derived(
+		hoveredFeature
+			? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
+			: undefined
+	);
 </script>
 
 <div class="flex h-full gap-4">
@@ -104,12 +110,12 @@
 						{:else}
 							<div>Click on a country or</div>
 							<details class="dropdown">
-								<summary class="btn-ghost btn-sm btn w-60 font-normal"
+								<summary class="btn btn-ghost btn-sm w-60 font-normal"
 									>Select country &#9660;</summary
 								>
 								<!-- TODO dont hardcode height and width -->
 								<div
-									class="compact card dropdown-content rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
+									class="card dropdown-content compact rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
 								>
 									<!-- TODO add filter input box to make it easier to find country -->
 									<div class="card-body">
@@ -141,7 +147,7 @@
 										data.effortSharing === id ? 'btn-neutral' : 'btn-outline bg-base-100'
 									)}
 									disabled={data.effortSharing === id}
-									on:click={() => selectEffortSharing(id)}
+									onclick={() => selectEffortSharing(id)}
 									data-tip={summary}
 								>
 									{label}

@@ -9,9 +9,8 @@ Run with
     gunicorn -w 4 'ws:app'
 
 """
-from glob import glob
+from dataclasses import dataclass
 from json import loads
-import os
 from pathlib import Path
 
 from flask import Flask, jsonify, request
@@ -20,6 +19,29 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 import sentry_sdk
+from dotenv import dotenv_values
+
+@dataclass(frozen=True)
+class Config:
+    data_dir: Path
+    start_year: str
+    assumption_set: str
+
+def load_env() -> Config:
+    config = dotenv_values(".env")
+    if 'CABE_DATA_DIR' not in config or config['CABE_DATA_DIR'] is None:
+        raise ValueError("CABE_DATA_DIR not set in .env file")
+    if 'CABE_START_YEAR' not in config or config['CABE_START_YEAR'] is None:
+        raise ValueError("CABE_START_YEAR not set in .env file")
+    if "CABE_ASSUMPTIONSET" not in config or config["CABE_ASSUMPTIONSET"] is None:
+        raise ValueError("CABE_ASSUMPTIONSET not set in .env file")
+    return Config(
+        data_dir=Path(config["CABE_DATA_DIR"]),
+        start_year=config["CABE_START_YEAR"],
+        assumption_set=config["CABE_ASSUMPTIONSET"],
+    )
+
+config = load_env()
 
 sentry_sdk.init(
     dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
@@ -34,11 +56,8 @@ CORS(app)
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
-# CABE_DATA_DIR = Path("data")
-CABE_DATA_DIR = Path("/data/DataUpdate_10_2024")
-
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset(CABE_DATA_DIR / "xr_dataread.nc")
+dsGlobal = xr.open_dataset(config.data_dir / config.start_year / "xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -116,21 +135,63 @@ def pathwaySelection():
     )
 
 
-available_region_files = set(
-    [
-        str(os.path.basename(p)).removeprefix("xr_alloc_").removesuffix(".nc") 
-        for p in glob(str(CABE_DATA_DIR / "xr_alloc_*.nc"))
-    ]
-)
+def find_region_files():
+    region_dir = (
+        config.data_dir / config.start_year / config.assumption_set / "Allocations"
+    )
+    available_region_files = {}
+    for f in region_dir.glob("xr_alloc_*.nc"):
+        iso = f.stem.removeprefix("xr_alloc_")
+        available_region_files[iso] = f
+    return available_region_files
 
+
+available_region_files = find_region_files()
+
+def read_geojson(fn: Path):
+    """Remove all properties except NAME, ISO_A2_EH and ISO_A3_EH"""
+    geojson = loads(fn.read_text(encoding="utf8"))
+    for feature in geojson["features"]:
+        feature["properties"] = {
+            "NAME": feature["properties"]["NAME"],
+            "ISO_A2_EH": feature["properties"]["ISO_A2_EH"],
+            "ISO_A3_EH": feature["properties"]["ISO_A3_EH"],
+        }
+    return geojson
+
+country_border_geojson_file = config.data_dir / "ne_110m_admin_0_countries.geojson"
+country_border_geojson = read_geojson(country_border_geojson_file)
+
+@app.get("/borders")
+def borders():
+    """/borders should return
+
+    ```geojson
+    {
+    type: 'FeatureCollection',
+    name: 'ne_110m_admin_0_countries',
+    crs: {
+        type: 'name',
+        properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' }
+    },
+    features: [
+        {
+    type: 'Feature',
+    properties: { ISO_A3_EH: 'FJI', NAME: 'Fiji' },
+    bbox: [ -180, -18.28799, 180, -16.020882 ],
+    geometry: { type: 'MultiPolygon', coordinates: [ [Array], [Array], [Array] ] }
+    }],
+    bbox: [ -180, -90, 180, 83.64513 ]
+    }
+    ```
+    """
+    return country_border_geojson
 
 def build_regions():
-    countries_geojson = {}
-    for g in loads(
-        (CABE_DATA_DIR / "ne_110m_admin_0_countries.geojson").read_text(encoding="utf8")
-    )["features"]:
+    countries_from_geojson = {}
+    for g in country_border_geojson["features"]:
         ps = g["properties"]
-        countries_geojson[ps["ISO_A3_EH"]] = {
+        countries_from_geojson[ps["ISO_A3_EH"]] = {
             "name": ps["NAME"],
             "iso2": ps["ISO_A2_EH"],
             "iso3": ps["ISO_A3_EH"],
@@ -138,7 +199,6 @@ def build_regions():
 
     # TODO store this in nc file
     additional_regions = {
-        "MDV": {"iso2": "MV", "iso3": "MDV", "name": "Maldives"},
         "MLT": {"iso2": "MT", "iso3": "MLT", "name": "Malta"},
         "STP": {"iso2": "ST", "iso3": "STP", "name": "São Tomé and Príncipe"},
         "MUS": {"iso2": "MU", "iso3": "MUS", "name": "Mauritius"},
@@ -159,7 +219,6 @@ def build_regions():
         "CPV": {"iso2": "CV", "iso3": "CPV", "name": "Cape Verde"},
         "BHR": {"iso2": "BH", "iso3": "BHR", "name": "Bahrain"},
         "SIDS": {
-            "iso2": None,
             "iso3": "SIDS",
             "name": "Small Island Developing States",
         },
@@ -209,15 +268,14 @@ def build_regions():
     data = []
     for region in global_regions:
         if region in available_region_files and region in global_regions:
-            if region in countries_geojson:
-                data.append(countries_geojson[region])
+            if region in countries_from_geojson:
+                data.append(countries_from_geojson[region])
             else:
                 data.append(additional_regions[region])
     return sorted(data, key=lambda x: x["name"])
 
 
 available_regions = build_regions()
-
 
 @app.get("/regions")
 def regions():
@@ -321,18 +379,23 @@ def gdpOverTime(region):
     df["value"] = df.pop(0)
     return df.to_dict(orient="records")
 
-
-# Map data (xr_alloc_2030.nc etc)
-ds_alloc_2030 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2030.nc")
-ds_alloc_2040 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2040.nc")
-ds_alloc_2050 = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_2050.nc")
-ds_alloc_FC = xr.open_dataset(CABE_DATA_DIR / "xr_alloc_FC.nc")
-
-
 def population_map(year, scenario="SSP2"):
     """Return population map as xarray data-array"""
     return dsGlobal.Population.sel(Time=year, Scenario=scenario)
 
+def open_aggregated_files():
+    root = (
+        config.data_dir / config.start_year / config.assumption_set / "Aggregated_files"
+    )
+    files = {}
+    for f in root.glob("xr_alloc_*.nc"):
+        # TODO once https://github.com/pbl-nl/website-carbon-budget-explorer/issues/38#issuecomment-2653487809
+        # the removesuffix is no longer needed
+        year = f.stem.removeprefix("xr_alloc_")
+        files[year] = xr.open_dataset(f)
+    return files
+
+file_by_year = open_aggregated_files()
 
 @app.get("/map/<year>/GHG")
 def fullCenturyBudgetSpatial(year):
@@ -350,13 +413,6 @@ def fullCenturyBudgetSpatial(year):
     if effortSharing == "GDR":
         selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                          Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
-
-    file_by_year = {
-        "2030": ds_alloc_2030,
-        "2040": ds_alloc_2040,
-        "2050": ds_alloc_2050,
-        "2021-2100": ds_alloc_FC,
-    }
 
     df = (
         (
@@ -389,7 +445,7 @@ def fullCenturyBudgetSpatial(year):
 
 
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset(CABE_DATA_DIR / "xr_policyscen.nc")
+ds_policyscen = xr.open_dataset(config.data_dir / "xr_policyscen.nc")
 
 
 @app.get("/policyPathway/<policy>/<region>")
@@ -494,17 +550,13 @@ def indicators(region):
     return data
 
 
-# Country-specific data (xr_alloc_<ISO>.nc)
-
-
 def get_ds(ISO):
     if ISO not in available_region_files:
         raise ValueError(f"ISO {ISO} not found")
-    fn = CABE_DATA_DIR / f"xr_alloc_{ISO}.nc"
+    fn = available_region_files[ISO]
     return xr.open_dataset(fn)
 
 
-@app.get("/<ISO>/<principle>")
 def effortSharing(ISO, principle):
     selection = pathwaySelection()
     ds = (get_ds(ISO)[principle]
@@ -524,7 +576,9 @@ def effortSharing(ISO, principle):
     if principle in ["ECPC", "GDR"]:
         mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
     if principle == "ECPC":
-        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
+        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR,
+                            Convergence_year=DEFAULT_CONVERGENCE_YEAR,
+                            )
     if principle == "GDR":
         mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
                             Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)

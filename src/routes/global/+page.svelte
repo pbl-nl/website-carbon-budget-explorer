@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import Sidebar from '$lib/Sidebar.svelte';
 
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { tour } from '$lib/shared/stores';
@@ -16,12 +18,16 @@
 	import type { PageData } from '../global/$types';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
-	import { onMount, type ComponentEvents, type SvelteComponent } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import { driver } from 'driver.js';
 	import 'driver.js/dist/driver.css';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 	const driverObj = driver({
 		steps: [
 			{
@@ -65,29 +71,31 @@
 	const ipcc_blue = '#5bb0c6';
 	const ipcc_purple = '#a67ab8';
 
-	function updateQueryParam(name: string, value: string) {
+	async function updateQueryParam(name: string, value: string) {
 		if (browser) {
-			const params = new URLSearchParams($page.url.search);
-			params.set(name, value);
-			goto(`?${params.toString()}`);
+			const current = page.url.search;
+			const params = new URLSearchParams(current);
+			if (params.get(name) !== value) {
+				params.set(name, value);
+				await goto(`?${params.toString()}`);
+			}
 		}
 	}
 
-	function toggleAmbitionGap() {
-		ambitionGapHover = !ambitionGapHover;
-	}
 	function toggleEmissionGap() {
 		emissionGapHover = !emissionGapHover;
 	}
 
-	let evt = {};
+	let evt = $state({});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
-		return function (e: ComponentEvents<SvelteComponent>) {
-			const row = e.detail.row;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return function (e: any) {
+			const row = e.row;
 			if (row === undefined) {
 				return;
 			}
-			e.detail.msg = tmpl(row);
+			e.msg = tmpl(row);
 			evt = e;
 		};
 	}
@@ -110,24 +118,30 @@
 	);
 	// When series overlap the top most series will react to mouse events
 
-	let policyPathwayToggles = {
+	let policyPathwayToggles = $state({
 		current: false,
 		ndc: false,
 		netzero: false
-	};
+	});
 
-	let ambitionGapHover = false;
-	let emissionGapHover = false;
+	let ambitionGapHover = $state(false);
+	let emissionGapHover = $state(false);
 
 	// $: console.log(data.result.currentPolicy); // only nans in input data...
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const pathwayCarbonTweened = tweened(data.result.pathwayCarbon, tweenOptions);
-	$: pathwayCarbonTweened.set(data.result.pathwayCarbon);
+	run(() => {
+		pathwayCarbonTweened.set(data.result.pathwayCarbon);
+	});
 	const emissionGapTweened = tweened(data.result.stats.ghg.gaps.emission, tweenOptions);
-	$: emissionGapTweened.set(data.result.stats.ghg.gaps.emission);
+	run(() => {
+		emissionGapTweened.set(data.result.stats.ghg.gaps.emission);
+	});
 	const ambitionGapTweened = tweened(data.result.stats.ghg.gaps.ambition, tweenOptions);
-	$: ambitionGapTweened.set(data.result.stats.ghg.gaps.ambition);
+	run(() => {
+		ambitionGapTweened.set(data.result.stats.ghg.gaps.ambition);
+	});
 </script>
 
 <div class="flex h-full gap-4">
@@ -144,7 +158,7 @@
 			/>
 		</div>
 		<div id="references">
-			<div class="card-compact card min-w-full bg-base-100 shadow-xl">
+			<div class="card card-compact min-w-full bg-base-100 shadow-xl">
 				<div class="card-body">
 					<h2 class="card-title">Reference pathways</h2>
 					<p>
@@ -153,8 +167,8 @@
 						<span
 							class="tooltip cursor-pointer"
 							role="tooltip"
-							on:mouseenter={toggleEmissionGap}
-							on:mouseleave={toggleEmissionGap}
+							onmouseenter={toggleEmissionGap}
+							onmouseleave={toggleEmissionGap}
 							data-tip="The implementation gap is the difference between your scenario and current policy projections."
 							>implementation ⓘ</span
 						>
@@ -227,8 +241,8 @@
 					x={'time'}
 					y={'value'}
 					color="black"
-					on:mouseover={hoverHistoricalCarbon}
-					on:mouseout={(e) => (evt = e)}
+					mouseover={hoverHistoricalCarbon}
+					mouseout={(e) => (evt = e)}
 				/>
 				{#if policyPathwayToggles.current || emissionGapHover}
 					<Line data={data.result.currentPolicy} x={'time'} y={'mean'} color={ipcc_red} />
@@ -238,8 +252,8 @@
 						y0={'min'}
 						y1={'max'}
 						color={ipcc_red}
-						on:mouseover={hoverCurrentPolicy}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverCurrentPolicy}
+						mouseout={(e) => (evt = e)}
 					/>
 				{/if}
 				{#if policyPathwayToggles.ndc || ambitionGapHover}
@@ -250,8 +264,8 @@
 						y0={'min'}
 						y1={'max'}
 						color={ipcc_purple}
-						on:mouseover={hoverNdc}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverNdc}
+						mouseout={(e) => (evt = e)}
 					/>
 				{/if}
 				{#if policyPathwayToggles.netzero}
@@ -262,8 +276,8 @@
 						y0={'min'}
 						y1={'max'}
 						color={ipcc_blue}
-						on:mouseover={hoverNetzero}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverNetzero}
+						mouseout={(e) => (evt = e)}
 					/>
 				{/if}
 
@@ -287,8 +301,8 @@
 					x={'time'}
 					y={'value'}
 					color={ipcc_green}
-					on:mouseover={hoverPathway}
-					on:mouseout={(e) => (evt = e)}
+					mouseover={hoverPathway}
+					mouseout={(e) => (evt = e)}
 				/>
 			</Pathway>
 		</div>

@@ -4,7 +4,7 @@
  -->
 <script lang="ts">
 	import type { ScaleLinear } from 'd3';
-	import { getContext, SvelteComponent, type ComponentEvents, createEventDispatcher } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
 
 	const { xScale, yScale } = getContext<{
@@ -12,20 +12,38 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let x: number;
-	export let y0: number;
-	export let y1: number;
-	export let width = 2;
-	export let textNdcMin: string;
-	export let textNdcMax: string;
-	export let textNdc: string;
+	interface Props {
+		x: number;
+		y0: number;
+		y1: number;
+		width?: number;
+		textNdcMin: string;
+		textNdcMax: string;
+		textNdc: string;
+		// TODO use color of ndc series on global page?
+		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mouseover: (e?: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mouseout: (e?: any) => void;
+	}
 
-	// TODO use color of ndc series on global page?
-	export let color = 'black';
-	const dispatch = createEventDispatcher();
+	let {
+		x,
+		y0,
+		y1,
+		width = 2,
+		textNdcMin,
+		textNdcMax,
+		textNdc,
+		color = 'black',
+		mouseover,
+		mouseout
+	}: Props = $props();
 
-	function hover(e: ComponentEvents<SvelteComponent>) {
-		return dispatch('mouseover', { e, row: { time: x, min: y0, max: y1 } });
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	function hover(e: any) {
+		return mouseover({ e, row: { time: x, min: y0, max: y1 } });
 	}
 </script>
 
@@ -36,11 +54,10 @@
 		y1={$yScale(y1)}
 		y2={$yScale(y0)}
 		stroke={color}
-		on:mouseover={hover}
-		on:focus={() => dispatch('mouseover')}
-		on:mouseout={() => dispatch('mouseout')}
-		on:blur={() => dispatch('mouseout')}
-		on:mouseout={() => dispatch('mouseout')}
+		onmouseover={hover}
+		onfocus={() => mouseover()}
+		onmouseout={() => mouseout()}
+		onblur={() => mouseout()}
 		role="tooltip"
 	/>
 	<circle
@@ -49,11 +66,10 @@
 		cy={$yScale(y0)}
 		stroke={color}
 		fill={color}
-		on:mouseover={hover}
-		on:focus={() => dispatch('mouseover')}
-		on:mouseout={() => dispatch('mouseout')}
-		on:blur={(e) => dispatch('mouseout')}
-		on:mouseout={() => dispatch('mouseout')}
+		onmouseover={hover}
+		onfocus={() => mouseover()}
+		onmouseout={() => mouseout()}
+		onblur={() => mouseout()}
 		role="tooltip"
 	/>
 	<text
@@ -93,11 +109,10 @@
 		cy={$yScale(y1)}
 		stroke={color}
 		fill={color}
-		on:mouseover={hover}
-		on:focus={() => dispatch('mouseover')}
-		on:mouseout={() => dispatch('mouseout')}
-		on:blur={() => dispatch('mouseout')}
-		on:mouseout={() => dispatch('mouseout')}
+		onmouseover={hover}
+		onfocus={() => mouseover()}
+		onmouseout={() => mouseout()}
+		onblur={() => mouseout()}
 		role="tooltip"
 	/>
 </g>

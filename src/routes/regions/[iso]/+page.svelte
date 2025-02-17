@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import CountryHeader from '$lib/CountryHeader.svelte';
 
 	import PrincipleStatsTable from '$lib/PrincipleStatsTable.svelte';
@@ -21,34 +23,45 @@
 	import NdcRange from '$lib/charts/components/NdcRange.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	function updateQueryParam(name: string, value: string) {
 		if (browser) {
 			const params = new URLSearchParams($page.url.search);
-			params.set(name, value);
-			goto(`?${params.toString()}`);
+			if (params.get(name) !== value) {
+				params.set(name, value);
+				goto(`?${params.toString()}`);
+			}
 		}
 	}
 
-	let activeEffortSharings = Object.fromEntries(
-		Object.keys(principles).map((id) => [id, id === data.initialEffortSharingName])
+	let activeEffortSharings = $state(
+		Object.fromEntries(
+			Object.keys(principles).map((id) => [id, id === data.initialEffortSharingName])
+		)
 	);
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedEffortSharing = tweened(data.effortSharing, tweenOptions);
-	$: tweenedEffortSharing.set(data.effortSharing);
+	run(() => {
+		tweenedEffortSharing.set(data.effortSharing);
+	});
 
 	// Hover effort sharing
-	let evt = {};
+	let evt = $state({});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
 		return function (e: ComponentEvents<SvelteComponent>) {
-			const row = e.detail.row;
+			const row = e.row;
 			if (row === undefined) {
 				return;
 			}
-			e.detail.msg = tmpl(row);
+			e.msg = tmpl(row);
 			evt = e;
 		};
 	}
@@ -169,21 +182,28 @@
 						x={'time'}
 						y={'value'}
 						color="black"
-						on:mouseover={hoverHistoricalCarbon}
-						on:mouseout={(e) => (evt = e)}
+						mouseover={hoverHistoricalCarbon}
+						mouseout={(e) => (evt = e)}
 					/>
 					{#each Object.entries(principles) as [id, { color, label }]}
 						{#if activeEffortSharings[id]}
 							<g name={id}>
-								<Line data={$tweenedEffortSharing[id]} x={'time'} y={'mean'} {color} />
+								<Line
+									data={$tweenedEffortSharing[id]}
+									x={'time'}
+									y={'mean'}
+									{color}
+									mouseover={hoverEffortSharing(label)}
+									mouseout={(e) => (evt = e)}
+								/>
 								<Area
 									data={$tweenedEffortSharing[id]}
 									x={'time'}
 									y0={'min'}
 									y1={'max'}
 									{color}
-									on:mouseover={hoverEffortSharing(label)}
-									on:mouseout={(e) => (evt = e)}
+									mouseover={hoverEffortSharing(label)}
+									mouseout={(e) => (evt = e)}
 								/>
 							</g>
 						{/if}
@@ -198,8 +218,8 @@
 								textNdcMax={`Max: ${range[1].toFixed(0)}`}
 								textNdc={`NDC`}
 								color="black"
-								on:mouseover={hoverNdc}
-								on:mouseout={(e) => (evt = e)}
+								mouseover={hoverNdc}
+								mouseout={(e) => (evt = e)}
 							/>
 						{/each}
 						<!-- {#each Object.entries(data.indicators.ndc_jones) as [year, range]}
@@ -211,8 +231,8 @@
 								textNdcMax={` `}
 								textNdc={` `}
 								color="gray"
-								on:mouseover={hoverNdc}
-								on:mouseout={(e) => (evt = e)}
+								mouseover={hoverNdc}
+								mouseout={(e) => (evt = e)}
 							/>
 						{/each} -->
 					{/if}

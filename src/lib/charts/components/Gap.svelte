@@ -12,12 +12,15 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let x: number;
-	export let y0: number;
-	export let y1: number;
-	export let width = 20;
+	interface Props {
+		x: number;
+		y0: number;
+		y1: number;
+		width?: number;
+		color?: string;
+	}
 
-	export let color = '#888888';
+	let { x, y0, y1, width = 20, color = '#888888' }: Props = $props();
 </script>
 
 <g>

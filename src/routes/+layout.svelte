@@ -1,8 +1,13 @@
-<script lang="js">
+<script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
 	import logo from '$lib/logo.svg';
 	import clsx from 'clsx';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 </script>
 
 <svelte:head>
@@ -56,14 +61,14 @@
 			height="0"
 			width="0"
 			style="display:none;visibility:hidden"
-		/></noscript
+		></iframe></noscript
 	>
 </svelte:head>
 
 <div class=" flex h-screen flex-col overflow-auto" data-theme="mytheme">
 	<div class="navbar bg-primary text-neutral-content">
 		<div class="flex-1">
-			<a href={`/${$page.url.search}`} class="btn-ghost btn text-xl normal-case"
+			<a href={`/${$page.url.search}`} class="btn btn-ghost text-xl normal-case"
 				><img
 					style="filter: invert(1);"
 					src={logo}
@@ -91,10 +96,10 @@
 			>
 		</div>
 		<div class="flex-none">
-			<a href="/about" class="btn-ghost btn-square btn px-10">About</a>
+			<a href="/about" class="btn btn-square btn-ghost px-10">About</a>
 		</div>
 	</div>
 	<div class={clsx($page.url.pathname === '/', 'flex-1 bg-base-100 p-4')}>
-		<slot />
+		{@render children?.()}
 	</div>
 </div>

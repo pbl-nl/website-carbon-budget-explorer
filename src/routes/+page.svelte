@@ -1,6 +1,5 @@
 <script lang="ts">
 	import logo from '$lib/logo.svg';
-	export const prerender = true;
 </script>
 
 <main class="container mx-auto flex h-full w-4/5 flex-col items-stretch justify-around">
@@ -77,7 +76,7 @@
 		</p>
 	</div>
 
-	<a class="btn-primary btn-lg btn w-4/5 self-center" href="/global"> Start exploring &raquo; </a>
+	<a class="btn btn-primary btn-lg w-4/5 self-center" href="/global"> Start exploring &raquo; </a>
 </main>
 
 <style>

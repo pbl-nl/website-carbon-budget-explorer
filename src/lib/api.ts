@@ -1,5 +1,7 @@
-import { principles } from '$lib/principles';
-import { browser, dev } from '$app/environment';
+import { browser } from '$app/environment';
+import { LRUCache } from 'lru-cache';
+import sizeof from 'object-sizeof';
+import { API_URL } from './config';
 
 export interface SpatialMetric {
 	ISO: string;
@@ -62,6 +64,14 @@ export type CertainTime = {
 	value: number;
 };
 
+export interface BorderProperties {
+	ISO_A2_EH: string;
+	ISO_A3_EH: string;
+	NAME: string;
+}
+
+export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties>;
+
 export function pathwayQueryFromSearchParams(
 	searchParams: URLSearchParams,
 	choices: Record<keyof PathWayQuery, string[]>
@@ -82,24 +92,47 @@ export function pathwayQueryFromSearchParams(
 	};
 }
 
-export const API_URL = dev
-	? import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'
-	: process.env.CABE_API_URL ?? 'http://127.0.0.1:5000';
+type Fetch = typeof fetch;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cache: LRUCache<string, any> | undefined = undefined;
+if (!browser) {
+	cache = new LRUCache({
+		maxSize: 1 * 1024 * 1024 * 1024, // 1Gb
+		sizeCalculation: sizeof
+	});
+}
 
 async function getJSON(path: string, myfetch = fetch) {
-	let url = `${API_URL}${path}`;
 	if (browser) {
-		url = `/api${path}`;
+		return getJSONOnBrowser(path, myfetch);
 	}
-	console.time(url);
+	return getJSONOnServer(path, myfetch);
+}
+
+async function getJSONOnBrowser(path: string, myfetch = fetch) {
+	const url = `/api/${path}`;
 	const response = await myfetch(url);
 	if (!response.ok) {
 		console.error(url);
-		console.timeEnd(url);
+		throw new Error(response.statusText);
+	}
+	return await response.json();
+}
+
+async function getJSONOnServer(path: string, myfetch = fetch) {
+	const url = `${API_URL}${path}`;
+	const cached = cache?.get(url);
+	if (cached !== undefined) {
+		return cached;
+	}
+	const response = await myfetch(url);
+	if (!response.ok) {
+		console.error(url);
 		throw new Error(response.statusText);
 	}
 	const data = await response.json();
-	console.timeEnd(url);
+	cache?.set(url, data);
 	return data;
 }
 
@@ -108,12 +141,12 @@ export async function pathwayChoices(): Promise<Record<keyof PathWayQuery, strin
 	return getJSON(path);
 }
 
-export async function pathwayStats(search: string, fetch?: any): Promise<PathwayStats> {
+export async function pathwayStats(search: string, fetch?: Fetch): Promise<PathwayStats> {
 	const path = `/pathwayStats${search}`;
 	return getJSON(path, fetch);
 }
 
-export async function pathwayCarbon(search: string, fetch?: any): Promise<UncertainTime[]> {
+export async function pathwayCarbon(search: string, fetch?: Fetch): Promise<UncertainTime[]> {
 	// TODO: send data instead of search string?
 	// TODO: update search with default choices
 	return getJSON(`/pathwayCarbon${search}`, fetch);
@@ -198,28 +231,22 @@ export async function indicators(ISO: string): Promise<{
 	return getJSON(`/indicators/${ISO}`);
 }
 
-export async function effortSharing(ISO: string, principle: string, search: string, fetch: any) {
-	return getJSON(`/${ISO}/${principle}${search}`, fetch);
-}
-
 export async function effortSharings(
 	ISO: string,
 	search: string,
-	fetch: any
+	fetch: Fetch
 ): Promise<Record<string, UncertainTime[]>> {
-	return getJSON(`/${ISO}/effortSharings${search}`);
-	const r: Record<string, any> = {};
-	for (const principle of Object.keys(principles)) {
-		r[principle] = await effortSharing(ISO, principle, search, fetch);
-	}
-
-	return r;
+	return getJSON(`/${ISO}/effortSharings${search}`, fetch);
 }
 
 export async function effortSharingReductions(
 	ISO: string,
 	search: string,
-	fetch: any
+	fetch: Fetch
 ): Promise<Record<string, Record<number, number>>> {
 	return getJSON(`/${ISO}/effortSharingReductions${search}`, fetch);
+}
+
+export async function borders(fetch?: Fetch): Promise<BordersCollection> {
+	return getJSON('/borders', fetch);
 }

@@ -20,7 +20,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 22
 
       - name: 📥 Install deps
         run: npm ci
@@ -40,7 +40,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 22
 
       - name: 📥 Install deps
         run: npm ci
@@ -60,7 +60,7 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 22
 
       - name: 📥 Install deps
         run: npm ci
@@ -80,23 +80,11 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: ./package.json
-          node-version: 18
+          node-version: 22
 
       - name: 📥 Install deps
         run: npm ci
-      - name: ⬇️  Install data deps
-        run: npm run download:borders
       - name: 🛠 Setup browsers
         run: npx playwright install
-      - name: Fake data
-        working-directory: __tests__
-        # During first page the nc files are opened, use dummy files to prevent build failure
-        run: |
-          cp dummy.nc xr_dataread.nc &&
-          cp dummy.nc xr_alloc_2030.nc &&
-          cp dummy.nc xr_policyscen.nc &&
-          cp dummy.nc xr_temps.nc
       - name: 🎭 Playwright run
         run: npm test
-        env:
-          CABE_DATA_DIR: __tests__
