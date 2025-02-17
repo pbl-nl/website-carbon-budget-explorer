@@ -57,11 +57,11 @@
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hoverBuilder(tmpl: (row: any) => string) {
 		return function (e: ComponentEvents<SvelteComponent>) {
-			const row = e.detail.row;
+			const row = e.row;
 			if (row === undefined) {
 				return;
 			}
-			e.detail.msg = tmpl(row);
+			e.msg = tmpl(row);
 			evt = e;
 		};
 	}
@@ -188,7 +188,14 @@
 					{#each Object.entries(principles) as [id, { color, label }]}
 						{#if activeEffortSharings[id]}
 							<g name={id}>
-								<Line data={$tweenedEffortSharing[id]} x={'time'} y={'mean'} {color} />
+								<Line
+									data={$tweenedEffortSharing[id]}
+									x={'time'}
+									y={'mean'}
+									{color}
+									mouseover={hoverEffortSharing(label)}
+									mouseout={(e) => (evt = e)}
+								/>
 								<Area
 									data={$tweenedEffortSharing[id]}
 									x={'time'}

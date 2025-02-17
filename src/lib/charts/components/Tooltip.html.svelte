@@ -17,12 +17,12 @@
 	let { evt = {}, offset = -5, children }: Props = $props();
 </script>
 
-{#if evt.detail}
+{#if evt.msg}
 	<div
 		class="layercake-tooltip"
 		style="
-      top:{evt.detail.e.layerY + offset}px;
-      left:{evt.detail.e.layerX}px;
+      top:{evt.e.layerY + offset}px;
+      left:{evt.e.layerX}px;
     "
 	>
 		{@render children?.()}

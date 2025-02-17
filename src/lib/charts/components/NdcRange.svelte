@@ -3,8 +3,6 @@
   Generates an SVG area shape using the `area` function from [d3-shape](https://github.com/d3/d3-shape).
  -->
 <script lang="ts">
-	import { handlers } from 'svelte/legacy';
-
 	import type { ScaleLinear } from 'd3';
 	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
@@ -58,10 +56,7 @@
 		stroke={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(
-			() => mouseout(),
-			() => mouseout()
-		)}
+		onmouseout={() => mouseout()}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>
@@ -73,10 +68,7 @@
 		fill={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(
-			() => mouseout(),
-			() => mouseout()
-		)}
+		onmouseout={() => mouseout()}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>
@@ -119,10 +111,7 @@
 		fill={color}
 		onmouseover={hover}
 		onfocus={() => mouseover()}
-		onmouseout={handlers(
-			() => mouseout(),
-			() => mouseout()
-		)}
+		onmouseout={() => mouseout()}
 		onblur={() => mouseout()}
 		role="tooltip"
 	/>

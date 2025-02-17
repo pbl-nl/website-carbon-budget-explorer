@@ -5,12 +5,11 @@
 	import * as L from 'leaflet';
 	// Load proj4leaflet plugin so L.Proj.CRS is available
 	import 'proj4leaflet';
-	import type { BordersCollection } from '$lib/server/db/borders';
 	import 'leaflet/dist/leaflet.css';
 	import { browser } from '$app/environment';
 	import { interpolateYlGnBu, scaleSequential } from 'd3';
 	import ColorLegend from './components/ColorLegend.svelte';
-	import type { BudgetSpatial, SpatialMetric } from '$lib/api';
+	import type { BordersCollection, BudgetSpatial, SpatialMetric } from '$lib/api';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT, LeafletMouseEvent } from 'leaflet';
@@ -67,10 +66,17 @@
 
 	function onMouseOver(e: LeafletMouseEvent) {
 		hoveredFeature = e.sourceTarget.feature;
+
+		e.sourceTarget.setStyle({
+			weight: 1,
+			color: 'black'
+		});
+		e.sourceTarget.bringToFront();
 	}
 
-	function onmouseout() {
+	function onmouseout(e: LeafletMouseEvent) {
 		hoveredFeature = undefined;
+		geojsonlayer?.resetStyle(e.sourceTarget);
 	}
 
 	run(() => {
