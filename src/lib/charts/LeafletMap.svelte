@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { Map, GeoJSON } from 'sveaflet';
+	import { Map, GeoJSON, ControlAttribution } from 'sveaflet';
 	import * as L from 'leaflet';
 	// Load proj4leaflet plugin so L.Proj.CRS is available
 	import 'proj4leaflet';
@@ -29,7 +29,8 @@
 		zoom: 3,
 		minZoom: 2,
 		zoomControl: false,
-		crs: robinson
+		crs: robinson,
+		attributionControl: false
 	};
 
 	const interpolator = interpolateYlGnBu;
@@ -127,6 +128,11 @@
 	{#if browser}
 		<Map options={mapOptions}>
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
+			<ControlAttribution
+				options={{
+					prefix: false
+				}}
+			/>
 		</Map>
 		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
 	{/if}
