@@ -127,6 +127,6 @@ The web application server expects the Python web service to be running on `http
 
 The web application (aka the backend for the frontend aka SvelteKit server) caches the web service requests aggressively.
 It will use up to **1GB of memory** for caching api requests made directly by browser
-and **another 1Gb of memory** for caching api requests made by the backed for the frontend.
+and **another 1Gb of memory** for caching api requests made by the backend for the frontend.
 
 If you changed the data then the web service and the web application server must be restarted.
