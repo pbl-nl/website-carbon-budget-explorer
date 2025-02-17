@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { Map, GeoJSON, TileLayer } from 'sveaflet';
-	// import {CRS} from 'leaflet?client'
+	import { Map, GeoJSON, ControlAttribution } from 'sveaflet';
+	import * as L from 'leaflet';
+	// Load proj4leaflet plugin so L.Proj.CRS is available
+	import 'proj4leaflet';
 	import 'leaflet/dist/leaflet.css';
 	import { browser } from '$app/environment';
 	import { interpolateYlGnBu, scaleSequential } from 'd3';
@@ -13,25 +15,21 @@
 	import type { GeoJSONOptions, MapOptions, GeoJSON as GeoJSONT, LeafletMouseEvent } from 'leaflet';
 	import type { Feature, Geometry } from 'geojson';
 
+	const robinson = new L.Proj.CRS(
+		'ESRI:54030',
+		'+proj=robin +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs',
+		{
+			resolutions: [131072, 65536, 32768, 16384, 8192, 4096, 2048]
+		}
+	);
+
 	const mapOptions: MapOptions = {
-		center: [30, 5],
+		center: [10, 20],
 		zoom: 3,
 		minZoom: 2,
-		zoomControl: false
-	};
-	if (browser) {
-		// mapOptions.crs = CRS.EPSG4326
-	}
-
-	const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.{ext}';
-	const tileLayerOptions = {
-		minZoom: 4,
-		maxZoom: 20,
-		maxNativeZoom: 19,
-		attribution:
-			'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-		ext: 'png',
-		subdomains: 'abcd'
+		zoomControl: false,
+		crs: robinson,
+		attributionControl: false
 	};
 
 	const interpolator = interpolateYlGnBu;
@@ -128,8 +126,12 @@
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
 		<Map options={mapOptions}>
-			<TileLayer url={tileUrl} options={tileLayerOptions} />
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
+			<ControlAttribution
+				options={{
+					prefix: false
+				}}
+			/>
 		</Map>
 		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
 	{/if}
