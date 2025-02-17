@@ -381,7 +381,7 @@ def population_map(year, scenario="SSP2"):
 def open_aggregated_files():
     root = config.data_dir / config.start_year / 'Aggregated_files'
     files = {}
-    for f in root.glob('xr_alloc_*.nc'):
+    for f in root.glob('xr_alloc_*_GHG_incl.nc'):
         # TODO once https://github.com/pbl-nl/website-carbon-budget-explorer/issues/38#issuecomment-2653487809
         # the removesuffix is no longer needed
         year = f.stem.removeprefix('xr_alloc_').removesuffix('_GHG_incl')
