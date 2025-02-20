@@ -10,9 +10,9 @@
 </script>
 
 <!-- TODO add filter by name and filter by non-country (aka ISO2===null) -->
-<div class=" grid w-full grid-flow-row grid-cols-5">
+<div class=" grid w-full grid-flow-row grid-cols-5" aria-label="Regions">
 	{#each regions as region}
-		<a href={`/regions/${region.iso3}${$page.url.search}`}>
+		<a aria-label={region.iso3} href={`/regions/${region.iso3}${$page.url.search}`}>
 			{region.name}
 		</a>
 	{/each}
