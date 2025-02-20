@@ -262,6 +262,7 @@ def build_regions():
         },
         "NIU": {"iso2": "NU", "iso3": "NIU", "name": "Niue"},
         "COK": {"iso2": "CK", "iso3": "COK", "name": "Cook Islands"},
+        "MDV": {"iso2": "MV", "iso3": "MDV", "name": "Maldives"},
     }
 
     global_regions = set(dsGlobal.Region.values.tolist())
@@ -654,7 +655,7 @@ def effortSharingReductions(ISO):
         for period in periods:
             pselection.update(Time=period)
             es = ds[principle].sel(**pselection).mean().values + 0
-            if np.isnan(es) or np.isnan(hist):
+            if np.isnan(es) or np.isnan(hist) or hist == 0:
                 reductions[principle][period] = None
             else:
                 reductions[principle][period] = -(es - hist) / hist * 100
