@@ -225,8 +225,8 @@ export async function netzero(Region = 'EARTH'): Promise<UncertainTime[]> {
 export async function indicators(ISO: string): Promise<{
 	ndcAmbition: { min: number; max: number } | null;
 	historicalCarbon: number;
-	ndc_inventory: Record<number, [number, number]>;
-	ndc_jones: Record<number, [number, number]>;
+	ndc_inventory: Record<number, [number, number]> | null;
+	ndc_jones: Record<number, [number, number]> | null;
 }> {
 	return getJSON(`/indicators/${ISO}`);
 }

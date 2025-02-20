@@ -9,9 +9,10 @@
 	interface Props {
 		reductions: Record<string, Record<number, number>>;
 		activeEffortSharings: Record<string, boolean>;
+		availablePrinciples: Set<string>;
 	}
 
-	let { reductions, activeEffortSharings = $bindable() }: Props = $props();
+	let { reductions, activeEffortSharings = $bindable(), availablePrinciples }: Props = $props();
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedReductions = tweened(reductions, tweenOptions);
 	run(() => {
@@ -45,14 +46,24 @@
 			<tr>
 				<th>Display graph</th>
 				{#each Object.entries(principles) as [id, { color }]}
-					<th
-						><input
-							type="checkbox"
-							bind:checked={activeEffortSharings[id]}
-							style={`background-color: ${color}`}
-							class="m-1 scale-125 shadow"
-						/></th
-					>
+					<th>
+						{#if availablePrinciples.has(id)}
+							<input
+								type="checkbox"
+								bind:checked={activeEffortSharings[id]}
+								style={`background-color: ${color}`}
+								class="m-1 scale-125 shadow"
+								disabled={!availablePrinciples.has(id)}
+							/>
+						{:else}
+							<input
+								type="checkbox"
+								disabled
+								class="m-1 scale-125 bg-gray-200 shadow"
+								title="Not available for this region"
+							/>
+						{/if}
+					</th>
 				{/each}
 			</tr>
 		</tbody>
