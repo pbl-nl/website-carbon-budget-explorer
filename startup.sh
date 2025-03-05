@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Check if rsync is installed
+if ! command -v rsync &> /dev/null
+then
+    echo "rsync is not installed. Installing..."
+    sudo apt-get update
+    sudo apt-get install -y rsync
+else
+    echo "rsync is already installed."
+fi
+
 # Source and Destination Directories
 SRC_DIR="/data/Version_0_4_2"
 export CABE_DATA_DIR="/home/site/wwwroot/data"  # Set environment variable
@@ -9,7 +19,7 @@ LOG_FILE="/var/log/data_copy.log"
 mkdir -p "$CABE_DATA_DIR"
 
 # Copy the files using rsync
-rsync -av --progress "$SRC_DIR/" "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
+find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
 
 # Check if the copy was successful
 if [ $? -eq 0 ]; then
