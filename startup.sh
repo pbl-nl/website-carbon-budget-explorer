@@ -10,7 +10,7 @@ else
     echo "rsync is already installed."
 fi
 
-# Source and Destination Directories
+# Directories
 SRC_DIR="/data/Version_0_4_2"
 CABE_DATA_DIR="/home/site/wwwroot/data"
 LOG_FILE="/var/log/data_copy.log"
@@ -18,13 +18,13 @@ LOG_FILE="/var/log/data_copy.log"
 # Find the correct /tmp directory that contains ws.py
 TMP_DIR=$(find /tmp -maxdepth 2 -type f -name "ws.py" -exec dirname {} \; | head -n 1)
 
-# If a valid directory is found, copy files to /home/site/wwwroot/
+# If a valid directory is found, sync files to /home/site/wwwroot/
 if [ -d "$TMP_DIR" ]; then
     echo "Found extracted app directory: $TMP_DIR"
-    echo "Copying application files from $TMP_DIR to /home/site/wwwroot/"
+    echo "Syncing application files to /home/site/wwwroot/"
 
-    # Copy all files including hidden files
-    cp -r $TMP_DIR/. /home/site/wwwroot/
+    # Use rsync for efficient copying, including hidden files
+    rsync -av --progress "$TMP_DIR/" /home/site/wwwroot/
 
 else
     echo "Error: No valid extracted directory found in /tmp containing ws.py"
@@ -34,19 +34,28 @@ fi
 # Ensure logs directory exists
 mkdir -p /home/site/wwwroot/logs
 
-# Ensure destination directory exists
-mkdir -p "$CABE_DATA_DIR"
+# Start Gunicorn First
+echo "Starting Gunicorn..."
+exec gunicorn --workers=9 --bind=0.0.0.0 --timeout 600 --keep-alive=5 --worker-class=gevent --preload ws:app --chdir /home/site/wwwroot &
 
-# Copy the files using rsync
-find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress --checksum {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
+# Background Data Copy (so Gunicorn starts immediately)
+(
+    echo "Starting background data sync..."
+    
+    # Ensure destination directory exists
+    mkdir -p "$CABE_DATA_DIR"
 
-# Check if the copy was successful
-if [ $? -eq 0 ]; then
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - Copy completed successfully to $CABE_DATA_DIR" | tee -a "$LOG_FILE"
-else
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - Copy failed" | tee -a "$LOG_FILE"
-    exit 1
-fi
+    # Copy files using rsync in parallel with checksum validation
+    find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress --checksum {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
 
-# Start Gunicorn with the correct working directory
-exec gunicorn --workers=9 --bind=0.0.0.0 --timeout 600 --keep-alive=5 --worker-class=gevent --preload ws:app --chdir /home/site/wwwroot
+    # Check if the copy was successful
+    if [ $? -eq 0 ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Data sync completed successfully to $CABE_DATA_DIR" | tee -a "$LOG_FILE"
+    else
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Data sync failed" | tee -a "$LOG_FILE"
+        exit 1
+    fi
+) &  # Runs in the background
+
+# Keep the script running
+wait
