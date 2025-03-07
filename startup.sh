@@ -25,7 +25,6 @@ if [ -d "$TMP_DIR" ]; then
 
     # Use rsync for efficient copying, including hidden files
     rsync -av --progress "$TMP_DIR/" /home/site/wwwroot/
-
 else
     echo "Error: No valid extracted directory found in /tmp containing ws.py"
     exit 1
@@ -34,28 +33,17 @@ fi
 # Ensure logs directory exists
 mkdir -p /home/site/wwwroot/logs
 
-# Start Gunicorn First
-echo "Starting Gunicorn..."
-exec gunicorn --workers=9 --bind=0.0.0.0 --timeout 600 --keep-alive=5 --worker-class=gevent --preload ws:app --chdir /home/site/wwwroot &
+# Ensure destination directory exists
+mkdir -p "$CABE_DATA_DIR"
 
-# Background Data Copy (so Gunicorn starts immediately)
-(
-    echo "Starting background data sync..."
-    
-    # Ensure destination directory exists
-    mkdir -p "$CABE_DATA_DIR"
+# Copy the files using rsync
+echo "Starting data sync..."
+find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress --checksum {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
 
-    # Copy files using rsync in parallel with checksum validation
-    find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress --checksum {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
-
-    # Check if the copy was successful
-    if [ $? -eq 0 ]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') - Data sync completed successfully to $CABE_DATA_DIR" | tee -a "$LOG_FILE"
-    else
-        echo "$(date '+%Y-%m-%d %H:%M:%S') - Data sync failed" | tee -a "$LOG_FILE"
-        exit 1
-    fi
-) &  # Runs in the background
-
-# Keep the script running
-wait
+# Check if the copy was successful
+if [ $? -eq 0 ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Data sync completed successfully to $CABE_DATA_DIR" | tee -a "$LOG_FILE"
+else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Data sync failed" | tee -a "$LOG_FILE"
+    exit 1
+fi
