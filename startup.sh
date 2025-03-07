@@ -15,8 +15,23 @@ SRC_DIR="/data/Version_0_4_2"
 CABE_DATA_DIR="/home/site/wwwroot/data"
 LOG_FILE="/var/log/data_copy.log"
 
+# Find the correct /tmp directory that contains ws.py
+TMP_DIR=$(find /tmp -maxdepth 2 -type f -name "ws.py" -exec dirname {} \; | head -n 1)
+
+# If a valid directory is found, copy files to /home/site/wwwroot/
+if [ -d "$TMP_DIR" ]; then
+    echo "Found extracted app directory: $TMP_DIR"
+    echo "Copying application files from $TMP_DIR to /home/site/wwwroot/"
+    cp -r $TMP_DIR/* /home/site/wwwroot/
+else
+    echo "Error: No valid extracted directory found in /tmp containing ws.py"
+    exit 1
+fi
+
 # Ensure destination directory exists
 mkdir -p "$CABE_DATA_DIR"
+
+# Ensure logs directory exists
 mkdir -p /home/site/wwwroot/logs
 
 # Copy the files using rsync
