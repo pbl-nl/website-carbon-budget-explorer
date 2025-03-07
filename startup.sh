@@ -22,17 +22,20 @@ TMP_DIR=$(find /tmp -maxdepth 2 -type f -name "ws.py" -exec dirname {} \; | head
 if [ -d "$TMP_DIR" ]; then
     echo "Found extracted app directory: $TMP_DIR"
     echo "Copying application files from $TMP_DIR to /home/site/wwwroot/"
-    cp -r $TMP_DIR/* /home/site/wwwroot/
+
+    # Copy all files including hidden files
+    cp -r $TMP_DIR/. /home/site/wwwroot/
+
 else
     echo "Error: No valid extracted directory found in /tmp containing ws.py"
     exit 1
 fi
 
-# Ensure destination directory exists
-mkdir -p "$CABE_DATA_DIR"
-
 # Ensure logs directory exists
 mkdir -p /home/site/wwwroot/logs
+
+# Ensure destination directory exists
+mkdir -p "$CABE_DATA_DIR"
 
 # Copy the files using rsync
 find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress --checksum {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
@@ -44,3 +47,6 @@ else
     echo "$(date '+%Y-%m-%d %H:%M:%S') - Copy failed" | tee -a "$LOG_FILE"
     exit 1
 fi
+
+# Start Gunicorn with the correct working directory
+exec gunicorn --workers=9 --bind=0.0.0.0 --timeout 600 --keep-alive=5 --worker-class=gevent --preload ws:app --chdir /home/site/wwwroot
