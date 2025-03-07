@@ -17,6 +17,7 @@ LOG_FILE="/var/log/data_copy.log"
 
 # Ensure destination directory exists
 mkdir -p "$CABE_DATA_DIR"
+mkdir -p /home/site/wwwroot/logs
 
 # Copy the files using rsync
 find "$SRC_DIR" -type f | xargs -n 1 -P 4 -I {} rsync -zav --inplace --progress --checksum {} "$CABE_DATA_DIR/" | tee -a "$LOG_FILE"
