@@ -4,8 +4,8 @@
 if ! command -v rsync &> /dev/null
 then
     echo "rsync is not installed. Installing..."
-    sudo apt-get update
-    sudo apt-get install -y rsync
+    apt-get update
+    apt-get install -y rsync
 else
     echo "rsync is already installed."
 fi
