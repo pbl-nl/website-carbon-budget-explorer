@@ -134,14 +134,6 @@
 	run(() => {
 		pathwayCarbonTweened.set(data.result.pathway);
 	});
-	const emissionGapTweened = tweened(data.result.gap.emission, tweenOptions);
-	run(() => {
-		emissionGapTweened.set(data.result.gap.emission);
-	});
-	const ambitionGapTweened = tweened(data.result.gap.ambition, tweenOptions);
-	run(() => {
-		ambitionGapTweened.set(data.result.gap.ambition);
-	});
 </script>
 
 <div class="flex h-full gap-4">
