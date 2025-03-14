@@ -7,7 +7,8 @@ import {
 	netzero,
 	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
-	budget
+	budget,
+	gap
 } from '$lib/api';
 
 export const load = (async ({ url }: { url: URL }) => {
@@ -23,7 +24,8 @@ export const load = (async ({ url }: { url: URL }) => {
 		historicalEmissions: await historicalEmissions(),
 		currentPolicy: curPol,
 		ndc: ndc_,
-		netzero: await netzero()
+		netzero: await netzero(),
+		gap: await gap(url.search)
 	};
 	// TODO many rows in result have same year, so could be optimised for size
 	return {
