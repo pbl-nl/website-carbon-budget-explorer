@@ -1,20 +1,20 @@
 import type { PageLoad } from './$types';
 import { searchParam } from '$lib/searchparam';
 import {
+	budget,
 	effortSharingReductions,
 	effortSharings,
 	globalPathway,
-	pathwayQueryFromSearchParams,
-	pathwayStats
+	pathwayQueryFromSearchParams
 } from '$lib/api';
 import type { principles } from '$lib/principles';
 
 export const load: PageLoad = async ({ params, data, url, fetch }) => {
+	// TODO rename iso to region
 	const iso = params.iso;
 	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, data.pathway.choices);
 	const pathway = {
 		query: pathwayQuery,
-		stats: await pathwayStats(url.search, fetch),
 		...data.pathway
 	};
 
@@ -40,7 +40,8 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 
 	const global = {
 		...data.global,
-		pathway: await globalPathway(url.search, fetch)
+		pathway: await globalPathway(url.search, fetch),
+		budget: await budget(url.search, fetch)
 	};
 
 	return {

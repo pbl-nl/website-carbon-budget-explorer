@@ -99,7 +99,7 @@
 			evt = e;
 		};
 	}
-	const hoverHistoricalCarbon = hoverBuilder(
+	const hoverhistoricalEmissions = hoverBuilder(
 		(row) =>
 			`The historical greenhouse gas emissions in ${row.time} were ${row.value.toFixed(1)} Gt CO₂e`
 	);
@@ -134,21 +134,21 @@
 	run(() => {
 		pathwayCarbonTweened.set(data.result.pathway);
 	});
-	const emissionGapTweened = tweened(data.result.stats.ghg.gaps.emission, tweenOptions);
+	const emissionGapTweened = tweened(data.result.gap.emission, tweenOptions);
 	run(() => {
-		emissionGapTweened.set(data.result.stats.ghg.gaps.emission);
+		emissionGapTweened.set(data.result.gap.emission);
 	});
-	const ambitionGapTweened = tweened(data.result.stats.ghg.gaps.ambition, tweenOptions);
+	const ambitionGapTweened = tweened(data.result.gap.ambition, tweenOptions);
 	run(() => {
-		ambitionGapTweened.set(data.result.stats.ghg.gaps.ambition);
+		ambitionGapTweened.set(data.result.gap.ambition);
 	});
 </script>
 
 <div class="flex h-full gap-4">
 	<Sidebar>
 		<GlobalBudgetCard
-			remaining={data.result.stats.co2.remaining}
-			relative={data.result.stats.co2.relative}
+			remaining={data.global.budget.remaining}
+			relative={data.global.budget.relative}
 		/>
 		<div id="globalquerycard">
 			<GlobalQueryCard
@@ -237,11 +237,11 @@
 		<div class="relative grow bg-base-100 p-4 shadow-lg">
 			<Pathway {evt} yAxisTtle="Greenhouse gas emissions (Gt CO₂e/year)">
 				<Line
-					data={data.result.historicalCarbon}
+					data={data.result.historicalEmissions}
 					x={'time'}
 					y={'value'}
 					color="black"
-					mouseover={hoverHistoricalCarbon}
+					mouseover={hoverhistoricalEmissions}
 					mouseout={(e) => (evt = e)}
 				/>
 				{#if policyPathwayToggles.current || emissionGapHover}
@@ -282,18 +282,10 @@
 				{/if}
 
 				{#if ambitionGapHover}
-					<Gap
-						x={data.result.stats.ghg.gaps.index}
-						y0={data.result.stats.ghg.gaps.ndc}
-						y1={data.result.stats.ghg.gaps.budget}
-					/>
+					<Gap x={data.result.gap.index} y0={data.result.gap.ndc} y1={data.result.gap.budget} />
 				{/if}
 				{#if emissionGapHover}
-					<Gap
-						x={data.result.stats.ghg.gaps.index}
-						y0={data.result.stats.ghg.gaps.curPol}
-						y1={data.result.stats.ghg.gaps.budget}
-					/>
+					<Gap x={data.result.gap.index} y0={data.result.gap.curPol} y1={data.result.gap.budget} />
 				{/if}
 
 				<Line

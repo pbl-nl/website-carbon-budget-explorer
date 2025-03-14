@@ -2,16 +2,17 @@ import type { PageServerLoad } from '../global/$types';
 import {
 	globalPathway,
 	currentPolicy,
-	historicalCarbon,
+	historicalEmissions,
 	ndc,
 	netzero,
-	pathwayChoices,
+	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
-	pathwayStats
+	budget,
+	gap
 } from '$lib/api';
 
 export const load = (async ({ url }: { url: URL }) => {
-	const choices = await pathwayChoices();
+	const choices = await globalPathwayOptions();
 	const query = pathwayQueryFromSearchParams(url.searchParams, choices);
 
 	const pathway = await globalPathway(url.search);
@@ -20,17 +21,20 @@ export const load = (async ({ url }: { url: URL }) => {
 
 	const result = {
 		pathway,
-		stats: await pathwayStats(url.search),
-		historicalCarbon: await historicalCarbon(),
+		historicalEmissions: await historicalEmissions(),
 		currentPolicy: curPol,
 		ndc: ndc_,
-		netzero: await netzero()
+		netzero: await netzero(),
+		gap: await gap(url.search)
 	};
 	// TODO many rows in result have same year, so could be optimised for size
 	return {
 		pathway: {
 			query,
 			choices
+		},
+		global: {
+			budget: await budget(url.search)
 		},
 		result
 	};

@@ -2,22 +2,21 @@ import { searchParam } from '$lib/searchparam';
 import {
 	currentPolicy,
 	fullCenturyBudgetSpatial,
-	historicalCarbon,
+	historicalEmissions,
 	globalPathway,
-	pathwayChoices,
+	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
-	pathwayStats
+	budget
 } from '$lib/api';
 import type { BudgetSpatial } from '$lib/api';
 import type { principles } from '$lib/principles';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }: { url: URL }) => {
-	const choices = await pathwayChoices();
+	const choices = await globalPathwayOptions();
 	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, choices);
 	const pathway = {
 		query: pathwayQuery,
-		stats: await pathwayStats(url.search),
 		choices
 	};
 
@@ -34,7 +33,11 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 		domain: [0, 1]
 	};
 	if (selectedEffortSharing !== undefined) {
-		rawMetrics = await fullCenturyBudgetSpatial(selectedAllocationTime, url.search);
+		rawMetrics = await fullCenturyBudgetSpatial(
+			selectedAllocationTime,
+			selectedEffortSharing,
+			url.search
+		);
 	}
 
 	const metrics = {
@@ -43,9 +46,10 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 	};
 
 	const global = {
-		historicalCarbon: await historicalCarbon(),
+		historicalEmissions: await historicalEmissions(),
 		pathway: await globalPathway(url.search),
-		currentPolicy: await currentPolicy()
+		currentPolicy: await currentPolicy(),
+		budget: await budget(url.search)
 	};
 
 	const data = {

@@ -1,5 +1,12 @@
 import type { PageServerLoad } from './$types';
-import { currentPolicy, historicalCarbon, indicators, pathwayChoices, regionInfo } from '$lib/api';
+import {
+	currentPolicy,
+	historicalEmissions,
+	globalPathwayOptions,
+	regionInfo,
+	ndcReductions,
+	ndcProjections
+} from '$lib/api';
 import { extent } from 'd3';
 
 // TODO figure out when pathway query in url.searchparams is changed
@@ -8,17 +15,18 @@ import { extent } from 'd3';
 export const load: PageServerLoad = async ({ params }) => {
 	const iso = params.iso;
 
-	const choices = await pathwayChoices();
+	const choices = await globalPathwayOptions();
 	const info = await regionInfo(iso);
-	const hist = await historicalCarbon(iso, 1850, 2021);
-	const indicators_ = await indicators(iso);
-	if (indicators_.ndcAmbition !== null) {
+	const hist = await historicalEmissions(iso, 1850, 2021);
+	const ndcReduction = await ndcReductions(iso);
+	const ndcProjection = await ndcProjections(iso);
+	if (ndcReduction !== null) {
 		// Country has historical ndc and probably also curpol and netzero
 		// TODO fetch ndc, curpol, netzero and plot
 	}
 
 	const global = {
-		historicalCarbon: await historicalCarbon(),
+		historicalEmissions: await historicalEmissions(),
 		currentPolicy: await currentPolicy()
 	};
 
@@ -27,11 +35,12 @@ export const load: PageServerLoad = async ({ params }) => {
 		pathway: {
 			choices
 		},
-		historicalCarbon: {
+		historicalEmissions: {
 			data: hist,
 			extent: extent(hist, (d) => d.value) as [number, number]
 		},
-		indicators: indicators_,
+		ndcReduction,
+		ndcProjection,
 		global
 	};
 	return r;
