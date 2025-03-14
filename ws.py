@@ -492,7 +492,7 @@ def ndcRange_jones(region):
         return None
     return {2030: [ds_ndc_min, ds_ndc_max]}
 
-@app.get("/statistics/ncdProjections/<region>")
+@app.get("/statistics/ndcProjections/<region>")
 def ndcProjections(region):
     return {
         "ndc_inventory": ndcRange_inventory(region),
