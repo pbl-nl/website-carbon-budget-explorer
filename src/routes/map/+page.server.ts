@@ -3,7 +3,7 @@ import {
 	currentPolicy,
 	fullCenturyBudgetSpatial,
 	historicalCarbon,
-	pathwayCarbon,
+	globalPathway,
 	pathwayChoices,
 	pathwayQueryFromSearchParams,
 	pathwayStats
@@ -44,7 +44,7 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 
 	const global = {
 		historicalCarbon: await historicalCarbon(),
-		pathwayCarbon: await pathwayCarbon(url.search),
+		pathway: await globalPathway(url.search),
 		currentPolicy: await currentPolicy()
 	};
 

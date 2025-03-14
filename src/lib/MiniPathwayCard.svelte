@@ -11,7 +11,7 @@
 
 	interface Props {
 		global: {
-			pathwayCarbon: UncertainTime[];
+			pathway: UncertainTime[];
 			historicalCarbon: CertainTime[];
 			currentPolicy: UncertainTime[];
 		};
@@ -23,9 +23,9 @@
 	const ipcc_red = '#c82f10';
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const pathwayCarbonTweened = tweened(global.pathwayCarbon, tweenOptions);
+	const pathwayCarbonTweened = tweened(global.pathway, tweenOptions);
 	run(() => {
-		pathwayCarbonTweened.set(global.pathwayCarbon);
+		pathwayCarbonTweened.set(global.pathway);
 	});
 
 	// TODO add tooltips for each area

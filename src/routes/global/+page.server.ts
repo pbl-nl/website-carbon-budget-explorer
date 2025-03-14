@@ -1,6 +1,6 @@
 import type { PageServerLoad } from '../global/$types';
 import {
-	pathwayCarbon,
+	globalPathway,
 	currentPolicy,
 	historicalCarbon,
 	ndc,
@@ -14,12 +14,12 @@ export const load = (async ({ url }: { url: URL }) => {
 	const choices = await pathwayChoices();
 	const query = pathwayQueryFromSearchParams(url.searchParams, choices);
 
-	const pathway = await pathwayCarbon(url.search);
+	const pathway = await globalPathway(url.search);
 	const curPol = await currentPolicy();
 	const ndc_ = await ndc();
 
 	const result = {
-		pathwayCarbon: pathway,
+		pathway,
 		stats: await pathwayStats(url.search),
 		historicalCarbon: await historicalCarbon(),
 		currentPolicy: curPol,

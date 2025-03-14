@@ -3,7 +3,7 @@ import { searchParam } from '$lib/searchparam';
 import {
 	effortSharingReductions,
 	effortSharings,
-	pathwayCarbon,
+	globalPathway,
 	pathwayQueryFromSearchParams,
 	pathwayStats
 } from '$lib/api';
@@ -40,7 +40,7 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 
 	const global = {
 		...data.global,
-		pathwayCarbon: await pathwayCarbon(url.search, fetch)
+		pathway: await globalPathway(url.search, fetch)
 	};
 
 	return {

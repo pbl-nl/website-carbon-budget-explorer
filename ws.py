@@ -75,8 +75,8 @@ DEFAULT_RCI_WEIGHT = 'Half'
 DEFAULT_CAPABILITY_THRESHOLD = 'Th'
 
 
-@app.get("/pathwayCarbon")
-def pathwayCarbon():
+@app.get("/timeseries/global/emissions/pathway")
+def globalPathway():
     """Get global carbon pathway for a given selection.
 
     To test:
@@ -117,14 +117,12 @@ def pathwayChoices():
 
 
 def pathwaySelection():
-    choices = pathwayChoices()
     # this specifies the defaults that are shown in the global graph, but not the default slider settings!
     defaults = {'temperature': 2.0,
                 'exceedanceRisk': 0.5,
                 'negativeEmissions': 0.5,
                 'timing': 'Immediate',
                 'nonCO2red': 0.5}
-    # defaults = {k: v[0] for k, v in choices.items()}
 
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),

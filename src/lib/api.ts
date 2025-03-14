@@ -146,10 +146,10 @@ export async function pathwayStats(search: string, fetch?: Fetch): Promise<Pathw
 	return getJSON(path, fetch);
 }
 
-export async function pathwayCarbon(search: string, fetch?: Fetch): Promise<UncertainTime[]> {
+export async function globalPathway(search: string, fetch?: Fetch): Promise<UncertainTime[]> {
 	// TODO: send data instead of search string?
 	// TODO: update search with default choices
-	return getJSON(`/pathwayCarbon${search}`, fetch);
+	return getJSON(`/globalPathway${search}`, fetch);
 }
 
 export async function historicalCarbon(

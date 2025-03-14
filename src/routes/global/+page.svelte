@@ -130,9 +130,9 @@
 	// $: console.log(data.result.currentPolicy); // only nans in input data...
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const pathwayCarbonTweened = tweened(data.result.pathwayCarbon, tweenOptions);
+	const pathwayCarbonTweened = tweened(data.result.pathway, tweenOptions);
 	run(() => {
-		pathwayCarbonTweened.set(data.result.pathwayCarbon);
+		pathwayCarbonTweened.set(data.result.pathway);
 	});
 	const emissionGapTweened = tweened(data.result.stats.ghg.gaps.emission, tweenOptions);
 	run(() => {
