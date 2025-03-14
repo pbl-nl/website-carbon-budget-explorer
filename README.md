@@ -48,11 +48,10 @@ gunicorn --bind 0.0.0.0:5000 --workers 4 'ws:app'
 
 (Add `--reload` argumment to reload on Python file changes)
 
-In Windows gunicorn might not work. Then use waitress.
+In Windows gunicorn does not work, use flask built-in developer server instead.
 
 ```shell
-pip install waitress
-waitress-serve --listen=127.0.0.1:5000 ws:app
+flask --app ws:app run -p 5000
 ```
 
 ## Developing
