@@ -87,7 +87,7 @@ let cache: LRUCache<string, any> | undefined = undefined;
 if (!browser) {
 	cache = new LRUCache({
 		maxSize: 1 * 1024 * 1024 * 1024, // 1Gb
-		sizeCalculation: (v) => v === null ? 1 : sizeof(v)
+		sizeCalculation: (v) => (v === null ? 1 : sizeof(v))
 	});
 }
 

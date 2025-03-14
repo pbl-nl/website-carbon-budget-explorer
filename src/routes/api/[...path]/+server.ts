@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 
 const cache = new LRUCache<string, Uint8Array>({
 	maxSize: 1 * 1024 * 1024 * 1024, // 1Gb
-	sizeCalculation: (v) => v === null ? 1 : v.byteLength
+	sizeCalculation: (v) => (v === null ? 1 : v.byteLength)
 });
 
 // Poormans cached reverse proxy for /api/* to Python ws

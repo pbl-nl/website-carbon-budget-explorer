@@ -25,6 +25,7 @@ export const load = (async ({ url }: { url: URL }) => {
 		currentPolicy: curPol,
 		ndc: ndc_,
 		netzero: await netzero(),
+		budget: await budget(url.search),
 		gap: await gap(url.search)
 	};
 	// TODO many rows in result have same year, so could be optimised for size
@@ -32,9 +33,6 @@ export const load = (async ({ url }: { url: URL }) => {
 		pathway: {
 			query,
 			choices
-		},
-		global: {
-			budget: await budget(url.search)
 		},
 		result
 	};

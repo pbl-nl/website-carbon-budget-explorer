@@ -139,8 +139,8 @@
 <div class="flex h-full gap-4">
 	<Sidebar>
 		<GlobalBudgetCard
-			remaining={data.global.budget.remaining}
-			relative={data.global.budget.relative}
+			remaining={data.result.budget.remaining}
+			relative={data.result.budget.relative}
 		/>
 		<div id="globalquerycard">
 			<GlobalQueryCard
