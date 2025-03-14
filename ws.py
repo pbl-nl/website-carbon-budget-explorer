@@ -445,7 +445,7 @@ def isEU(region):
     return region
 
 
-@app.get("/statistics/ndcReductions/<region>")
+@app.get("/statistics/ndc/reductions/<region>")
 def ndcReductions(region):
     region = isEU(region)
 
@@ -492,7 +492,7 @@ def ndcRange_jones(region):
         return None
     return {2030: [ds_ndc_min, ds_ndc_max]}
 
-@app.get("/statistics/ndcProjections/<region>")
+@app.get("/statistics/ndc/projections/<region>")
 def ndcProjections(region):
     return {
         "ndc_inventory": ndcRange_inventory(region),

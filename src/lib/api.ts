@@ -209,11 +209,11 @@ export async function ndcProjections(region: string): Promise<{
 	ndc_inventory: Record<number, [number, number]> | null;
 	ndc_jones: Record<number, [number, number]> | null;
 }> {
-	return getJSON(`/statistics/ndcProjections/${region}`);
+	return getJSON(`/statistics/ndc/projections/${region}`);
 }
 
 export async function ndcReductions(region: string): Promise<{ min: number; max: number } | null> {
-	return getJSON(`/statistics/ndcReductions/${region}`);
+	return getJSON(`/statistics/ndc/reductions/${region}`);
 }
 
 export async function effortSharings(
