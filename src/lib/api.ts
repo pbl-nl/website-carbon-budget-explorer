@@ -22,8 +22,6 @@ export interface Gap {
 	budget: number;
 	curPol: number;
 	ndc: number;
-	ambition: number;
-	emission: number;
 }
 
 export interface TimeSeriesValue {

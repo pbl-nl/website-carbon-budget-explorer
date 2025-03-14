@@ -318,8 +318,6 @@ def gap():
         "budget": pathway / 1000,
         "curPol": curPol / 1000,
         "ndc": ndc / 1000,
-        "emission": (curPol - pathway) / 1000,
-        "ambition": (ndc - pathway) / 1000,
     }
 
 
