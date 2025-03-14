@@ -451,7 +451,7 @@ def ndcReductions(region):
     ndc2030_max = dsGlobal.GHG_ndc_red.sel(Region=region).max().values.tolist()
 
     if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
-        return None
+        return jsonify(None)
     return {
         "min": ndc2030_min * 100,
         "max": ndc2030_max * 100
