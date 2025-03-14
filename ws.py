@@ -140,8 +140,8 @@ def find_region_files():
     )
     available_region_files = {}
     for f in region_dir.glob("xr_alloc_*.nc"):
-        iso = f.stem.removeprefix("xr_alloc_")
-        available_region_files[iso] = f
+        region = f.stem.removeprefix("xr_alloc_")
+        available_region_files[region] = f
     return available_region_files
 
 
@@ -376,7 +376,6 @@ def fullCenturyBudgetSpatial(year, effortSharing):
              # TODO: precalculate per capita data instead of division below?
             / population_map(year=2021)
         )
-        .rename(Region="ISO")
         .to_series()
         .rename("value")
         .dropna()  # Note: dropping NaN values here
@@ -500,16 +499,16 @@ def ndcProjections(region):
         "ndc_jones": ndcRange_jones(region)
     }
 
-def get_ds(ISO):
-    if ISO not in available_region_files:
-        raise ValueError(f"ISO {ISO} not found")
-    fn = available_region_files[ISO]
+def get_ds(region):
+    if region not in available_region_files:
+        raise ValueError(f"Region {region} not found")
+    fn = available_region_files[region]
     return xr.open_dataset(fn)
 
 
-def effortSharing(ISO, principle):
+def effortSharing(region, principle):
     selection = globalPathwayChoices()
-    ds = (get_ds(ISO)[principle]
+    ds = (get_ds(region)[principle]
           .sel(**selection)
           .rename(Time="time")
     )

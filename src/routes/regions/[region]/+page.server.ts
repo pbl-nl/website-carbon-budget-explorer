@@ -13,13 +13,13 @@ import { extent } from 'd3';
 // then this load method is not called, but only ./+page.ts:load is called
 
 export const load: PageServerLoad = async ({ params }) => {
-	const iso = params.iso;
+	const region = params.region;
 
 	const choices = await globalPathwayOptions();
-	const info = await regionInfo(iso);
-	const hist = await historicalEmissions(iso, 1850, 2021);
-	const ndcReduction = await ndcReductions(iso);
-	const ndcProjection = await ndcProjections(iso);
+	const info = await regionInfo(region);
+	const hist = await historicalEmissions(region, 1850, 2021);
+	const ndcReduction = await ndcReductions(region);
+	const ndcProjection = await ndcProjections(region);
 	if (ndcReduction !== null) {
 		// Country has historical ndc and probably also curpol and netzero
 		// TODO fetch ndc, curpol, netzero and plot

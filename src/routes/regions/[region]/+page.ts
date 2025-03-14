@@ -10,18 +10,17 @@ import {
 import type { principles } from '$lib/principles';
 
 export const load: PageLoad = async ({ params, data, url, fetch }) => {
-	// TODO rename iso to region
-	const iso = params.iso;
+	const region = params.region;
 	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, data.pathway.choices);
 	const pathway = {
 		query: pathwayQuery,
 		...data.pathway
 	};
 
-	// TODO validate iso, check that file exists
+	// TODO validate region, check that file exists
 	// TODO make single api call
-	const effortSharing = await effortSharings(iso, url.search, fetch);
-	const reductions = await effortSharingReductions(iso, url.search, fetch);
+	const effortSharing = await effortSharings(region, url.search, fetch);
+	const reductions = await effortSharingReductions(region, url.search, fetch);
 
 	let initialEffortSharingName = searchParam<keyof typeof principles>(
 		url,

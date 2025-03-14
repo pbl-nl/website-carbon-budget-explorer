@@ -5,7 +5,7 @@ import { API_URL } from './config';
 import type { principles } from './principles';
 
 export interface SpatialMetric {
-	ISO: string;
+	Region: string;
 	value: number;
 }
 
@@ -170,8 +170,8 @@ export async function listRegions(): Promise<Region[]> {
 	return getJSON(`/regions`);
 }
 
-export async function regionInfo(ISO: string): Promise<Region> {
-	return getJSON(`/regions/${ISO}`);
+export async function regionInfo(region: string): Promise<Region> {
+	return getJSON(`/regions/${region}`);
 }
 
 export interface BudgetSpatial<T = SpatialMetric> {

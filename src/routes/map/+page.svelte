@@ -71,7 +71,7 @@
 		| undefined = $state();
 	let hoveredMetric = $derived(
 		hoveredFeature
-			? data.metrics.data.find((m) => m.ISO === hoveredFeature!.properties!.ISO_A3_EH)
+			? data.metrics.data.find((m) => m.Region === hoveredFeature!.properties!.ISO_A3_EH)
 			: undefined
 	);
 </script>
