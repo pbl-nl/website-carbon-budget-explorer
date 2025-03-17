@@ -144,7 +144,7 @@
 		/>
 		<div id="globalquerycard">
 			<GlobalQueryCard
-				choices={data.pathway.choices}
+				options={data.pathway.options}
 				query={data.pathway.query}
 				onChange={updateQueryParam}
 			/>

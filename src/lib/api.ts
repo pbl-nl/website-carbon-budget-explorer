@@ -62,15 +62,15 @@ export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties
 
 export function pathwayQueryFromSearchParams(
 	searchParams: URLSearchParams,
-	choices: Record<keyof PathWayQuery, string[]>
+	options: Record<keyof PathWayQuery, string[]>
 ): PathWayQuery {
-	// TODO check each searchParam is in respective choices array
-	const temperature = searchParams.get('temperature') ?? choices.temperature[5]; //Math.floor(choices.temperature.length / 2)];
-	const exceedanceRisk = searchParams.get('exceedanceRisk') ?? choices.exceedanceRisk[2]; //[Math.floor(choices.exceedanceRisk.length / 2)];
-	// TODO when more choices are available use Medium==1 as default
-	const negativeEmissions = searchParams.get('negativeEmissions') ?? choices.negativeEmissions[3]; //[Math.floor(choices.negativeEmissions.length / 2)];
-	const timing = searchParams.get('timing') ?? choices.timing[1]; //[Math.floor(choices.timing.length / 2)];
-	const nonCO2red = searchParams.get('nonCO2red') ?? choices.nonCO2red[2]; //[Math.floor(choices.nonCO2red.length / 2)];
+	// TODO check each searchParam is in respective options array
+	const temperature = searchParams.get('temperature') ?? options.temperature[5]; //Math.floor(options.temperature.length / 2)];
+	const exceedanceRisk = searchParams.get('exceedanceRisk') ?? options.exceedanceRisk[2]; //[Math.floor(options.exceedanceRisk.length / 2)];
+	// TODO when more options are available use Medium==1 as default
+	const negativeEmissions = searchParams.get('negativeEmissions') ?? options.negativeEmissions[3]; //[Math.floor(options.negativeEmissions.length / 2)];
+	const timing = searchParams.get('timing') ?? options.timing[1]; //[Math.floor(options.timing.length / 2)];
+	const nonCO2red = searchParams.get('nonCO2red') ?? options.nonCO2red[2]; //[Math.floor(options.nonCO2red.length / 2)];
 	return {
 		temperature,
 		exceedanceRisk,
@@ -146,7 +146,7 @@ export async function gap(search: string, fetch?: Fetch): Promise<Gap> {
 
 export async function globalPathway(search: string, fetch?: Fetch): Promise<UncertainTime[]> {
 	// TODO: send data instead of search string?
-	// TODO: update search with default choices
+	// TODO: update search with default choice
 	return getJSON(`/timeseries/global/emissions/pathway${search}`, fetch);
 }
 

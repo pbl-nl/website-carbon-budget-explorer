@@ -12,8 +12,8 @@ import {
 } from '$lib/api';
 
 export const load = (async ({ url }: { url: URL }) => {
-	const choices = await globalPathwayOptions();
-	const query = pathwayQueryFromSearchParams(url.searchParams, choices);
+	const options = await globalPathwayOptions();
+	const query = pathwayQueryFromSearchParams(url.searchParams, options);
 
 	const pathway = await globalPathway(url.search);
 	const curPol = await currentPolicy();
@@ -32,7 +32,7 @@ export const load = (async ({ url }: { url: URL }) => {
 	return {
 		pathway: {
 			query,
-			choices
+			options
 		},
 		result
 	};

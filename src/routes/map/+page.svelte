@@ -83,7 +83,7 @@
 			relative={data.global.budget.relative}
 		/>
 		<GlobalQueryCard
-			choices={data.pathway.choices}
+			options={data.pathway.options}
 			query={data.pathway.query}
 			onChange={updateQueryParam}
 		/>

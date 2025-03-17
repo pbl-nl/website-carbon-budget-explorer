@@ -5,11 +5,11 @@
 
 	interface Props {
 		query: PathWayQuery;
-		choices: Record<keyof PathWayQuery, string[]>;
+		options: Record<keyof PathWayQuery, string[]>;
 		onChange: (name: string, value: string) => void;
 	}
 
-	let { query, choices, onChange }: Props = $props();
+	let { query, options, onChange }: Props = $props();
 
 	let defaults = {
 		temperature: '2.0',
@@ -72,7 +72,7 @@
 				>
 				<CustomRange
 					bind:value={temperature}
-					options={choices.temperature.map((d) => Number(d))}
+					options={options.temperature.map((d) => Number(d))}
 					name="temperature"
 				/>
 			</div>
@@ -86,7 +86,7 @@
 				>
 				<CustomRange
 					bind:value={exceedanceRisk}
-					options={choices.exceedanceRisk.map((d) => Number(d))}
+					options={options.exceedanceRisk.map((d) => Number(d))}
 					name="risk"
 				/>
 			</div>
@@ -101,7 +101,7 @@
 				>
 				<CustomRange
 					bind:value={nonCO2red}
-					options={choices.nonCO2red.map((d) => Number(d))}
+					options={options.nonCO2red.map((d) => Number(d))}
 					name="nonCO2red"
 				/>
 			</div>
@@ -117,7 +117,7 @@
 				>
 				<CustomRange
 					bind:value={negativeEmissions}
-					options={choices.negativeEmissions.map((d) => Number(d))}
+					options={options.negativeEmissions.map((d) => Number(d))}
 					name="negEmis"
 				/>
 			</div>
@@ -128,7 +128,7 @@
 					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5, so identical data will be shown in that case."
 					>ⓘ</span
 				>
-				<CategoryPicker bind:value={timing} options={choices.timing} name="timing" />
+				<CategoryPicker bind:value={timing} options={options.timing} name="timing" />
 			</div>
 		</div>
 	</div>

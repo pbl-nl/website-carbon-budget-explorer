@@ -13,11 +13,11 @@ import type { principles } from '$lib/principles';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }: { url: URL }) => {
-	const choices = await globalPathwayOptions();
-	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, choices);
+	const options = await globalPathwayOptions();
+	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, options);
 	const pathway = {
 		query: pathwayQuery,
-		choices
+		options
 	};
 
 	const selectedEffortSharing = searchParam<undefined | keyof typeof principles>(

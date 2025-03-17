@@ -15,7 +15,7 @@ import { extent } from 'd3';
 export const load: PageServerLoad = async ({ params }) => {
 	const region = params.region;
 
-	const choices = await globalPathwayOptions();
+	const options = await globalPathwayOptions();
 	const info = await regionInfo(region);
 	const hist = await historicalEmissions(region, 1850, 2021);
 	const ndcReduction = await ndcReductions(region);
@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const r = {
 		info,
 		pathway: {
-			choices
+			options
 		},
 		historicalEmissions: {
 			data: hist,

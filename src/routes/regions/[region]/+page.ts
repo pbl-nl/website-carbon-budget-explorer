@@ -11,7 +11,7 @@ import type { principles } from '$lib/principles';
 
 export const load: PageLoad = async ({ params, data, url, fetch }) => {
 	const region = params.region;
-	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, data.pathway.choices);
+	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, data.pathway.options);
 	const pathway = {
 		query: pathwayQuery,
 		...data.pathway
