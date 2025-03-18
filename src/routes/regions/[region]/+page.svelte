@@ -190,11 +190,7 @@
 				</div>
 			</section>
 
-			<StatsTable
-				reductions={data.reductions}
-				bind:activeEffortSharings
-				{availablePrinciples}
-			/>
+			<StatsTable reductions={data.reductions} bind:activeEffortSharings {availablePrinciples} />
 			<section id="overview" class="grow">
 				<Pathway yDomain={domainExtent} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
 					<Line
