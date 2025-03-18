@@ -111,23 +111,32 @@ def global_pathway_options():
     return {
         "temperature": ds_global.Temperature.values.tolist(),
         "exceedanceRisk": ds_global.Risk.values.tolist(),
+        "nonCO2red": ds_global.NonCO2red.values.tolist(),
         "negativeEmissions": ds_global.NegEmis.values.tolist(),
         "timing": ds_global.Timing.values.tolist(),
-        "nonCO2red": ds_global.NonCO2red.values.tolist(),
+    }
+
+
+@app.get("/defaults/pathway/global")
+def global_pathway_defaults():
+    return {
+        "temperature": 2.0,
+        "exceedanceRisk": 0.5,
+        "nonCO2red": 0.5,
+        "negativeEmissions": 0.67,
+        "timing": "Delayed",
     }
 
 
 def global_pathway_choices():
-    # TODO fix slider settings
-    # this specifies the defaults that are shown in the global graph, but not the default slider settings!
-    defaults = {"temperature": 2.0, "exceedanceRisk": 0.5, "negativeEmissions": 0.5, "timing": "Immediate", "nonCO2red": 0.5}
+    defaults = global_pathway_defaults()
 
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),
         Risk=request.args.get("exceedanceRisk", defaults["exceedanceRisk"]),
+        NonCO2red=request.args.get("nonCO2red", defaults["nonCO2red"]),
         NegEmis=request.args.get("negativeEmissions", defaults["negativeEmissions"]),
         Timing=request.args.get("timing", defaults["timing"]),
-        NonCO2red=request.args.get("nonCO2red", defaults["nonCO2red"]),
     )
 
 

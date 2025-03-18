@@ -11,19 +11,11 @@
 
 	let { query, options, onChange }: Props = $props();
 
-	let defaults = {
-		temperature: '2.0',
-		exceedanceRisk: '0.5',
-		negativeEmissions: '0.5',
-		timing: 'Immediate',
-		nonCO2red: '0.5'
-	};
-
-	let temperature: string = $state(query.temperature || defaults.temperature);
-	let exceedanceRisk: string = $state(query.exceedanceRisk || defaults.exceedanceRisk);
-	let negativeEmissions: string = $state(query.negativeEmissions || defaults.negativeEmissions);
-	let timing: string = $state(query.timing || defaults.timing);
-	let nonCO2red: string = $state(query.nonCO2red || defaults.nonCO2red);
+	let temperature: string = $state(query.temperature);
+	let exceedanceRisk: string = $state(query.exceedanceRisk);
+	let negativeEmissions: string = $state(query.negativeEmissions);
+	let timing: string = $state(query.timing);
+	let nonCO2red: string = $state(query.nonCO2red);
 
 	$effect(() => {
 		if (query.temperature === temperature) {

@@ -8,12 +8,14 @@ import {
 	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
 	budget,
-	gap
+	gap,
+	globalPathWayDefaults
 } from '$lib/api';
 
 export const load = (async ({ url }: { url: URL }) => {
 	const options = await globalPathwayOptions();
-	const query = pathwayQueryFromSearchParams(url.searchParams, options);
+	const defaults = await globalPathWayDefaults();
+	const query = pathwayQueryFromSearchParams(url.searchParams, defaults);
 
 	const pathway = await globalPathway(url.search);
 	const curPol = await currentPolicy();

@@ -12,9 +12,9 @@ export interface SpatialMetric {
 export interface PathWayQuery {
 	temperature: string;
 	exceedanceRisk: string;
+	nonCO2red: string;
 	negativeEmissions: string;
 	timing: string;
-	nonCO2red: string;
 }
 
 export interface Gap {
@@ -62,21 +62,20 @@ export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties
 
 export function pathwayQueryFromSearchParams(
 	searchParams: URLSearchParams,
-	options: Record<keyof PathWayQuery, string[]>
+	defaults: PathWayQuery
 ): PathWayQuery {
 	// TODO check each searchParam is in respective options array
-	const temperature = searchParams.get('temperature') ?? options.temperature[5]; //Math.floor(options.temperature.length / 2)];
-	const exceedanceRisk = searchParams.get('exceedanceRisk') ?? options.exceedanceRisk[2]; //[Math.floor(options.exceedanceRisk.length / 2)];
-	// TODO when more options are available use Medium==1 as default
-	const negativeEmissions = searchParams.get('negativeEmissions') ?? options.negativeEmissions[3]; //[Math.floor(options.negativeEmissions.length / 2)];
-	const timing = searchParams.get('timing') ?? options.timing[1]; //[Math.floor(options.timing.length / 2)];
-	const nonCO2red = searchParams.get('nonCO2red') ?? options.nonCO2red[2]; //[Math.floor(options.nonCO2red.length / 2)];
+	const temperature = searchParams.get('temperature') ?? defaults.temperature;
+	const exceedanceRisk = searchParams.get('exceedanceRisk') ?? defaults.exceedanceRisk;
+	const negativeEmissions = searchParams.get('negativeEmissions') ?? defaults.negativeEmissions;
+	const timing = searchParams.get('timing') ?? defaults.timing;
+	const nonCO2red = searchParams.get('nonCO2red') ?? defaults.nonCO2red;
 	return {
 		temperature,
 		exceedanceRisk,
+		nonCO2red,
 		negativeEmissions,
-		timing,
-		nonCO2red
+		timing
 	};
 }
 
@@ -126,6 +125,11 @@ async function getJSONOnServer(path: string, myfetch = fetch) {
 
 export async function globalPathwayOptions(): Promise<Record<keyof PathWayQuery, string[]>> {
 	const path = '/options/pathway/global';
+	return getJSON(path);
+}
+
+export async function globalPathWayDefaults(): Promise<PathWayQuery> {
+	const path = '/defaults/pathway/global';
 	return getJSON(path);
 }
 

@@ -6,7 +6,8 @@ import {
 	globalPathway,
 	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
-	budget
+	budget,
+	globalPathWayDefaults
 } from '$lib/api';
 import type { BudgetSpatial } from '$lib/api';
 import type { allocationMethods } from '$lib/allocationMethods';
@@ -14,9 +15,10 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }: { url: URL }) => {
 	const options = await globalPathwayOptions();
-	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, options);
+	const defaults = await globalPathWayDefaults();
+	const query = pathwayQueryFromSearchParams(url.searchParams, defaults);
 	const pathway = {
-		query: pathwayQuery,
+		query,
 		options
 	};
 

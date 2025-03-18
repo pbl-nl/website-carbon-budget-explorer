@@ -2,10 +2,11 @@ import type { PageServerLoad } from './$types';
 import {
 	currentPolicy,
 	historicalEmissions,
-	globalPathwayOptions,
 	regionInfo,
 	ndcReductions,
-	ndcProjections
+	ndcProjections,
+	globalPathWayDefaults,
+	globalPathwayOptions
 } from '$lib/api';
 import { extent } from 'd3';
 
@@ -16,6 +17,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const region = params.region;
 
 	const options = await globalPathwayOptions();
+	const defaults = await globalPathWayDefaults();
 	const info = await regionInfo(region);
 	const hist = await historicalEmissions(region, 1850, 2021);
 	const ndcReduction = await ndcReductions(region);
@@ -33,7 +35,8 @@ export const load: PageServerLoad = async ({ params }) => {
 	const r = {
 		info,
 		pathway: {
-			options
+			options,
+			defaults
 		},
 		historicalEmissions: {
 			data: hist,

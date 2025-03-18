@@ -11,14 +11,13 @@ import type { allocationMethods } from '$lib/allocationMethods';
 
 export const load: PageLoad = async ({ params, data, url, fetch }) => {
 	const region = params.region;
-	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, data.pathway.options);
+	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, data.pathway.defaults);
 	const pathway = {
 		query: pathwayQuery,
 		...data.pathway
 	};
 
 	// TODO validate region, check that file exists
-	// TODO make single api call
 	const allocationMethod = await getEmissionsAllocations(region, url.search, fetch);
 	const reductions = await allocationReduction(region, url.search, fetch);
 
