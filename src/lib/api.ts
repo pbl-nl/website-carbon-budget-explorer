@@ -219,7 +219,7 @@ export async function effortSharings(
 	search: string,
 	fetch: Fetch
 ): Promise<Record<string, UncertainTime[]>> {
-	return getJSON(`/timeseries/${region}/principles${search}`, fetch);
+	return getJSON(`/timeseries/${region}/emissions/allocations${search}`, fetch);
 }
 
 export async function effortSharingReductions(
