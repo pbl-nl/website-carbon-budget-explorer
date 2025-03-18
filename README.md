@@ -87,6 +87,14 @@ The code can be checked with
 npm run check
 ```
 
+The Python web service (ws.py) can be formatted and linted with [Ruff](https://docs.astral.sh/ruff)
+
+```bash
+pip install ruff
+ruff check
+ruff format
+```
+
 ## Testing
 
 The unit test can be run with
