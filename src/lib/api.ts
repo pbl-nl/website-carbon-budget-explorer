@@ -2,7 +2,7 @@ import { browser } from '$app/environment';
 import { LRUCache } from 'lru-cache';
 import sizeof from 'object-sizeof';
 import { API_URL } from './config';
-import type { principles } from './principles';
+import type { allocationMethods } from './allocationMethods';
 
 export interface SpatialMetric {
 	Region: string;
@@ -179,12 +179,10 @@ export interface BudgetSpatial<T = SpatialMetric> {
 
 export async function fullCenturyBudgetSpatial(
 	allocationTime: string,
-	effortSharing: keyof typeof principles,
+	allocationMethod: keyof typeof allocationMethods,
 	search: string
-	// Scenario = 'SSP2',
-	// Convergence_year = 2040
 ): Promise<BudgetSpatial> {
-	return getJSON(`/map/${allocationTime}/${effortSharing}${search}`);
+	return getJSON(`/map/${allocationTime}/${allocationMethod}${search}`);
 }
 
 async function policyPathway(policy: string, Region: string): Promise<UncertainTime[]> {
@@ -214,7 +212,7 @@ export async function ndcReductions(region: string): Promise<{ min: number; max:
 	return getJSON(`/statistics/ndc/reductions/${region}`);
 }
 
-export async function effortSharings(
+export async function getEmissionsAllocations(
 	region: string,
 	search: string,
 	fetch: Fetch

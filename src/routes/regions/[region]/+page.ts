@@ -3,11 +3,11 @@ import { searchParam } from '$lib/searchparam';
 import {
 	budget,
 	effortSharingReductions,
-	effortSharings,
+	getEmissionsAllocations,
 	globalPathway,
 	pathwayQueryFromSearchParams
 } from '$lib/api';
-import type { principles } from '$lib/principles';
+import type { allocationMethods } from '$lib/allocationMethods';
 
 export const load: PageLoad = async ({ params, data, url, fetch }) => {
 	const region = params.region;
@@ -19,10 +19,10 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 
 	// TODO validate region, check that file exists
 	// TODO make single api call
-	const effortSharing = await effortSharings(region, url.search, fetch);
+	const effortSharing = await getEmissionsAllocations(region, url.search, fetch);
 	const reductions = await effortSharingReductions(region, url.search, fetch);
 
-	let initialEffortSharingName = searchParam<keyof typeof principles>(
+	let initialEffortSharingName = searchParam<keyof typeof allocationMethods>(
 		url,
 		'effortSharing',
 		'PC' // When no effort sharing is selected on prev page, use per capita as default
@@ -32,7 +32,7 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 		if ('PC' in effortSharing) {
 			initialEffortSharingName = 'PC';
 		} else {
-			initialEffortSharingName = Object.keys(effortSharing)[0] as keyof typeof principles;
+			initialEffortSharingName = Object.keys(effortSharing)[0] as keyof typeof allocationMethods;
 			// TODO handle when no effort sharing data is available
 		}
 	}

@@ -6,7 +6,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import LeafletMap from '$lib/charts/LeafletMap.svelte';
-	import { principles } from '$lib/principles';
+	import { allocationMethods } from '$lib/allocationMethods';
 	import ShareTabs from '$lib/ShareTabs.svelte';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import AllocationCard from '$lib/AllocationCard.svelte';
@@ -140,7 +140,7 @@
 							<div class="prose text-lg font-bold">Choose a method of allocation:</div>
 						</div>
 						<div class="flex w-full flex-row content-stretch justify-stretch gap-2 p-2">
-							{#each Object.entries(principles) as [id, { label, summary }]}
+							{#each Object.entries(allocationMethods) as [id, { label, summary }]}
 								<button
 									class={clsx(
 										'tooltip h-16 flex-1 rounded border-2 text-center shadow-lg before:w-36',

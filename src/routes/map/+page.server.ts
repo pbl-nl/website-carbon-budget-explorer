@@ -9,7 +9,7 @@ import {
 	budget
 } from '$lib/api';
 import type { BudgetSpatial } from '$lib/api';
-import type { principles } from '$lib/principles';
+import type { allocationMethods } from '$lib/allocationMethods';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }: { url: URL }) => {
@@ -20,7 +20,7 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 		options
 	};
 
-	const selectedEffortSharing = searchParam<undefined | keyof typeof principles>(
+	const selectedEffortSharing = searchParam<undefined | keyof typeof allocationMethods>(
 		url,
 		'effortSharing',
 		'PCC'

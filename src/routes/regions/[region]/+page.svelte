@@ -3,7 +3,7 @@
 
 	import CountryHeader from '$lib/CountryHeader.svelte';
 
-	import PrincipleStatsTable from '$lib/PrincipleStatsTable.svelte';
+	import StatsTable from '$lib/StatsTable.svelte';
 
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
@@ -13,7 +13,7 @@
 	import Pathway from '$lib/charts/Pathway.svelte';
 	import Line from '$lib/charts/components/Line.svelte';
 	import Area from '$lib/charts/components/Area.svelte';
-	import { principles } from '$lib/principles';
+	import { allocationMethods } from '$lib/allocationMethods';
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
@@ -44,7 +44,7 @@
 
 	let activeEffortSharings = $state(
 		Object.fromEntries(
-			Object.keys(principles)
+			Object.keys(allocationMethods)
 				.filter((p) => availablePrinciples.has(p))
 				.map((id) => [id, id === data.initialEffortSharingName])
 		)
@@ -190,7 +190,7 @@
 				</div>
 			</section>
 
-			<PrincipleStatsTable
+			<StatsTable
 				reductions={data.reductions}
 				bind:activeEffortSharings
 				{availablePrinciples}
@@ -205,7 +205,7 @@
 						mouseover={hoverhistoricalEmissions}
 						mouseout={(e) => (evt = e)}
 					/>
-					{#each Object.entries(principles) as [id, { color, label }]}
+					{#each Object.entries(allocationMethods) as [id, { color, label }]}
 						{#if activeEffortSharings[id]}
 							<g name={id}>
 								<Line
