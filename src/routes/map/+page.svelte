@@ -54,8 +54,8 @@
 		}
 	}
 
-	function selectEffortSharing(value: string) {
-		updateQueryParam('effortSharing', value);
+	function selectAllocationMethod(value: string) {
+		updateQueryParam('allocationMethod', value);
 	}
 
 	let allocationTime = $state('2030');
@@ -144,10 +144,10 @@
 								<button
 									class={clsx(
 										'tooltip h-16 flex-1 rounded border-2 text-center shadow-lg before:w-36',
-										data.effortSharing === id ? 'btn-neutral' : 'btn-outline bg-base-100'
+										data.allocationMethod === id ? 'btn-neutral' : 'btn-outline bg-base-100'
 									)}
-									disabled={data.effortSharing === id}
-									onclick={() => selectEffortSharing(id)}
+									disabled={data.allocationMethod === id}
+									onclick={() => selectAllocationMethod(id)}
 									data-tip={summary}
 								>
 									{label}

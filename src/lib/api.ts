@@ -220,7 +220,7 @@ export async function getEmissionsAllocations(
 	return getJSON(`/timeseries/${region}/emissions/allocations${search}`, fetch);
 }
 
-export async function effortSharingReductions(
+export async function allocationReduction(
 	region: string,
 	search: string,
 	fetch: Fetch

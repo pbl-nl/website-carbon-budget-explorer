@@ -20,9 +20,9 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 		options
 	};
 
-	const selectedEffortSharing = searchParam<undefined | keyof typeof allocationMethods>(
+	const selectedAllocationMethod = searchParam<undefined | keyof typeof allocationMethods>(
 		url,
-		'effortSharing',
+		'allocationMethod',
 		'PCC'
 	);
 
@@ -32,10 +32,10 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 		data: [],
 		domain: [0, 1]
 	};
-	if (selectedEffortSharing !== undefined) {
+	if (selectedAllocationMethod !== undefined) {
 		rawMetrics = await fullCenturyBudgetSpatial(
 			selectedAllocationTime,
-			selectedEffortSharing,
+			selectedAllocationMethod,
 			url.search
 		);
 	}
@@ -54,7 +54,7 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 
 	const data = {
 		pathway,
-		effortSharing: selectedEffortSharing,
+		allocationMethod: selectedAllocationMethod,
 		metrics,
 		global
 	};

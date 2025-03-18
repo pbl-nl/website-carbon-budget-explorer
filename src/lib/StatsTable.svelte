@@ -8,11 +8,15 @@
 
 	interface Props {
 		reductions: Record<string, Record<number, number>>;
-		activeEffortSharings: Record<string, boolean>;
-		availablePrinciples: Set<string>;
+		activeAllocationMethods: Record<string, boolean>;
+		availableAllocationMethods: Set<string>;
 	}
 
-	let { reductions, activeEffortSharings = $bindable(), availablePrinciples }: Props = $props();
+	let {
+		reductions,
+		activeAllocationMethods = $bindable(),
+		availableAllocationMethods
+	}: Props = $props();
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedReductions = tweened(reductions, tweenOptions);
 	run(() => {
@@ -47,13 +51,13 @@
 				<th>Display graph</th>
 				{#each Object.entries(allocationMethods) as [id, { color }]}
 					<th>
-						{#if availablePrinciples.has(id)}
+						{#if availableAllocationMethods.has(id)}
 							<input
 								type="checkbox"
-								bind:checked={activeEffortSharings[id]}
+								bind:checked={activeAllocationMethods[id]}
 								style={`background-color: ${color}`}
 								class="m-1 scale-125 shadow"
-								disabled={!availablePrinciples.has(id)}
+								disabled={!availableAllocationMethods.has(id)}
 							/>
 						{:else}
 							<input

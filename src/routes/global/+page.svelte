@@ -49,8 +49,7 @@
 				element: '#sharetabs',
 				popover: {
 					title: 'Proceed to map',
-					description:
-						"When you're ready, proceed to the map view to select your effort-sharing principle"
+					description: "When you're ready, proceed to the map view to select your allocation method"
 				}
 			}
 		]

@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 import { searchParam } from '$lib/searchparam';
 import {
 	budget,
-	effortSharingReductions,
+	allocationReduction,
 	getEmissionsAllocations,
 	globalPathway,
 	pathwayQueryFromSearchParams
@@ -19,21 +19,21 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 
 	// TODO validate region, check that file exists
 	// TODO make single api call
-	const effortSharing = await getEmissionsAllocations(region, url.search, fetch);
-	const reductions = await effortSharingReductions(region, url.search, fetch);
+	const allocationMethod = await getEmissionsAllocations(region, url.search, fetch);
+	const reductions = await allocationReduction(region, url.search, fetch);
 
-	let initialEffortSharingName = searchParam<keyof typeof allocationMethods>(
+	let initialAllocationMethod = searchParam<keyof typeof allocationMethods>(
 		url,
-		'effortSharing',
-		'PC' // When no effort sharing is selected on prev page, use per capita as default
+		'allocationMethod',
+		'PC' // When no allocation method is selected on prev page, use per capita as default
 	);
-	if (!(initialEffortSharingName in effortSharing)) {
-		// If selected principle does not have data for region, fallback to PC
-		if ('PC' in effortSharing) {
-			initialEffortSharingName = 'PC';
+	if (!(initialAllocationMethod in allocationMethod)) {
+		// If selected allocation method does not have data for region, fallback to PC
+		if ('PC' in allocationMethod) {
+			initialAllocationMethod = 'PC';
 		} else {
-			initialEffortSharingName = Object.keys(effortSharing)[0] as keyof typeof allocationMethods;
-			// TODO handle when no effort sharing data is available
+			initialAllocationMethod = Object.keys(allocationMethod)[0] as keyof typeof allocationMethods;
+			// TODO handle when no allocation data is available
 		}
 	}
 
@@ -46,8 +46,8 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 	return {
 		...data,
 		pathway,
-		initialEffortSharingName,
-		effortSharing,
+		initialAllocationMethod,
+		allocationMethod,
 		reductions,
 		global
 	};

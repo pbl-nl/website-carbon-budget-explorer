@@ -39,22 +39,22 @@
 		}
 	}
 
-	// Not all regions have data for all principles
-	let availablePrinciples = $derived(new Set(Object.keys(data.effortSharing)));
+	// Not all regions have data for all allocation methods
+	let availableAllocationMethods = $derived(new Set(Object.keys(data.allocationMethod)));
 
-	let activeEffortSharings = $state(
+	let activeAllocationMethods = $state(
 		Object.fromEntries(
 			Object.keys(allocationMethods)
-				.filter((p) => availablePrinciples.has(p))
-				.map((id) => [id, id === data.initialEffortSharingName])
+				.filter((p) => availableAllocationMethods.has(p))
+				.map((id) => [id, id === data.initialAllocationMethod])
 		)
 	);
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const tweenedEffortSharing = tweened(data.effortSharing, tweenOptions);
+	const tweenedAllocationMethod = tweened(data.allocationMethod, tweenOptions);
 	run(() => {
-		tweenedEffortSharing.set(data.effortSharing);
+		tweenedAllocationMethod.set(data.allocationMethod);
 	});
 
 	// Hover effort sharing
@@ -80,7 +80,7 @@
 			)} to ${row.min.toFixed(0)} Mt CO₂e`
 	);
 
-	function hoverEffortSharing(id: string) {
+	function hoverAllocationMethod(id: string) {
 		return hoverBuilder(
 			(row) => `${id} in ${row.time} is ${row.mean.toFixed(0)} Mt CO₂e (with default settings)`
 		);
@@ -128,10 +128,10 @@
 			extent[1] = data.historicalEmissions.extent[1] * 1.5;
 		} else {
 			// If there is no historical data, use all effort sharing data
-			const effortSharings = Object.values(data.effortSharing).flatMap((d) => d);
-			if (effortSharings.length > 0) {
-				extent[0] = Math.min(...effortSharings.map((d) => d.min));
-				extent[1] = Math.max(...effortSharings.map((d) => d.max));
+			const allocationMethods = Object.values(data.allocationMethod).flatMap((d) => d);
+			if (allocationMethods.length > 0) {
+				extent[0] = Math.min(...allocationMethods.map((d) => d.min));
+				extent[1] = Math.max(...allocationMethods.map((d) => d.max));
 			}
 		}
 		return extent;
@@ -190,7 +190,11 @@
 				</div>
 			</section>
 
-			<StatsTable reductions={data.reductions} bind:activeEffortSharings {availablePrinciples} />
+			<StatsTable
+				reductions={data.reductions}
+				bind:activeAllocationMethods
+				{availableAllocationMethods}
+			/>
 			<section id="overview" class="grow">
 				<Pathway yDomain={domainExtent} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
 					<Line
@@ -202,23 +206,23 @@
 						mouseout={(e) => (evt = e)}
 					/>
 					{#each Object.entries(allocationMethods) as [id, { color, label }]}
-						{#if activeEffortSharings[id]}
+						{#if activeAllocationMethods[id]}
 							<g name={id}>
 								<Line
-									data={$tweenedEffortSharing[id]}
+									data={$tweenedAllocationMethod[id]}
 									x={'time'}
 									y={'mean'}
 									{color}
-									mouseover={hoverEffortSharing(label)}
+									mouseover={hoverAllocationMethod(label)}
 									mouseout={(e) => (evt = e)}
 								/>
 								<Area
-									data={$tweenedEffortSharing[id]}
+									data={$tweenedAllocationMethod[id]}
 									x={'time'}
 									y0={'min'}
 									y1={'max'}
 									{color}
-									mouseover={hoverEffortSharing(label)}
+									mouseover={hoverAllocationMethod(label)}
 									mouseout={(e) => (evt = e)}
 								/>
 							</g>
