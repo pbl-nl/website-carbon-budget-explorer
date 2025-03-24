@@ -201,7 +201,11 @@
 				{availableAllocationMethods}
 			/>
 			<section id="overview" class="grow">
-				<Pathway yDomain={tweeneddomainExtent.current} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
+				<Pathway
+					yDomain={tweeneddomainExtent.current}
+					{evt}
+					yAxisTtle="GHG emissions (Mt CO₂e/year)"
+				>
 					<Line
 						data={data.historicalEmissions.data.filter((d) => d.time >= 1990)}
 						x={'time'}
