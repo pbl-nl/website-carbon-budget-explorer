@@ -86,6 +86,7 @@
 		);
 	}
 
+	// TODO use regions['EU'].countries
 	const euMemberStates = [
 		'AUT',
 		'BEL',
@@ -154,7 +155,11 @@
 	<div class="flex h-full grow flex-col">
 		<!-- setting *any* initial height + grow fixes overflow-auto with h-full -->
 		<div class="flex h-[100px] grow flex-col overflow-y-auto rounded-md bg-base-100 p-2 shadow-xl">
-			<CountryHeader info={data.info} />
+			<CountryHeader
+				info={data.info}
+				regionsOfCountry={data.regionsOfCountry}
+				countriesOfRegion={data.countriesOfRegion}
+			/>
 			<section id="key-indicators">
 				<div class="px-12">
 					<p>

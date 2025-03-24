@@ -2,11 +2,12 @@ import type { PageServerLoad } from './$types';
 import {
 	currentPolicy,
 	historicalEmissions,
-	regionInfo,
 	ndcReductions,
 	ndcProjections,
 	globalPathWayDefaults,
-	globalPathwayOptions
+	globalPathwayOptions,
+	listRegions,
+	type Region
 } from '$lib/api';
 import { extent } from 'd3';
 
@@ -18,7 +19,14 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const options = await globalPathwayOptions();
 	const defaults = await globalPathWayDefaults();
-	const info = await regionInfo(region);
+	const regions = await listRegions();
+	const info = regions.find((r) => r.iso3 === region);
+	if (!info) {
+		throw new Error(`Region ${region} not found`);
+	}
+	const regionLookup = new Map<string, Region>(regions.map((r) => [r.iso3, r]));
+	const countriesOfRegion = info.countries?.map((c) => regionLookup.get(c)!);
+	const regionsOfCountry = info.regions?.map((r) => regionLookup.get(r)!);
 	const hist = await historicalEmissions(region, 1850, 2021);
 	const ndcReduction = await ndcReductions(region);
 	const ndcProjection = await ndcProjections(region);
@@ -44,7 +52,9 @@ export const load: PageServerLoad = async ({ params }) => {
 		},
 		ndcReduction,
 		ndcProjection,
-		global
+		global,
+		countriesOfRegion,
+		regionsOfCountry
 	};
 	return r;
 };

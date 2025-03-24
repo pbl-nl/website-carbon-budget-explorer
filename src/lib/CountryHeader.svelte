@@ -3,10 +3,13 @@
 	import type { Region } from './api';
 	interface Props {
 		info: Region;
+		regionsOfCountry?: Region[];
+		countriesOfRegion?: Region[];
 	}
 
-	let { info }: Props = $props();
+	let { info, countriesOfRegion, regionsOfCountry }: Props = $props();
 
+	console.log(countriesOfRegion);
 	const blankFlag =
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"%3E%3C/svg%3E';
 	let regionFlag = $state(`https://flagcdn.com/${info.iso2?.toLowerCase()}.svg`);
@@ -30,4 +33,44 @@
 		}}
 	/>
 	<h1 class="text-3xl font-bold">{info.name}</h1>
+	{#if countriesOfRegion}
+		<div class="flex flex-row gap-2">
+			{#each countriesOfRegion as country}
+				<a
+					href={`/regions/${country.iso3}`}
+					title={`View ${country.name}`}
+					aria-label={`View ${country.name}`}
+				>
+					<img
+						src={`https://flagcdn.com/${country.iso2?.toLowerCase()}.svg`}
+						alt={country.name}
+						class="h-4"
+						onerror={() => {
+							regionFlag = blankFlag;
+						}}
+					/>
+				</a>
+			{/each}
+		</div>
+	{/if}
+	{#if regionsOfCountry}
+		<div class="flex flex-row gap-2">
+			{#each regionsOfCountry as region}
+				<a
+					href={`/regions/${region.iso3}`}
+					title={`View ${region.name}`}
+					aria-label={`View ${region.name}`}
+				>
+					<img
+						src={`https://flagcdn.com/${region.iso2?.toLowerCase()}.svg`}
+						alt={region.name}
+						class="h-4"
+						onerror={() => {
+							regionFlag = blankFlag;
+						}}
+					/>
+				</a>
+			{/each}
+		</div>
+	{/if}
 </div>
