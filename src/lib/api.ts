@@ -166,6 +166,9 @@ export interface Region {
 	iso2: string;
 	iso3: string;
 	name: string;
+	// If countries is unset then the region is a country
+	countries?: string[];
+	regions?: string[];
 }
 
 export async function listRegions(): Promise<Region[]> {
