@@ -122,17 +122,25 @@
 	}
 
 	let domainExtent = $derived.by(() => {
+		// Set a reasonable default
 		const extent: [number, number] = [-100, 100];
+
+		// Refine default with extents of historical emissions
+		// Make sure 0-line is always visible
 		if (data.historicalEmissions.extent[1] !== undefined) {
-			extent[0] = data.historicalEmissions.extent[1] * -0.3;
-			extent[1] = data.historicalEmissions.extent[1] * 1.5;
-		} else {
-			// If there is no historical data, use all effort sharing data
-			const allocationMethods = Object.values(data.allocationMethod).flatMap((d) => d);
-			if (allocationMethods.length > 0) {
-				extent[0] = Math.min(...allocationMethods.map((d) => d.min));
-				extent[1] = Math.max(...allocationMethods.map((d) => d.max));
-			}
+			extent[0] = Math.min(0, data.historicalEmissions.extent[0] * 0.9);
+			extent[1] = Math.max(0, data.historicalEmissions.extent[1] * 1.1);
+		}
+		// Refine defaults with extents of active allocationMethods
+		const allocationMethods = Object.entries(data.allocationMethod)
+			.filter(([key]) => activeAllocationMethods[key])
+			.map(([, value]) => value)
+			.flatMap((d) => d);
+		if (allocationMethods.length > 0) {
+			const activeMethodMin = Math.min(...allocationMethods.map((d) => d.mean)) * 1.1;
+			const activeMethodMax = Math.max(...allocationMethods.map((d) => d.mean)) * 1.1;
+			extent[0] = activeMethodMin < extent[0] ? activeMethodMin : extent[0];
+			extent[1] = activeMethodMax > extent[1] ? activeMethodMax : extent[1];
 		}
 		return extent;
 	});
