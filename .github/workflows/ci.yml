@@ -88,3 +88,12 @@ jobs:
         run: npx playwright install
       - name: 🎭 Playwright run
         run: npm test
+
+  ruff:
+    name: 🐶 Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+      - name: 🔍 Check
+        uses: astral-sh/ruff-action@v3

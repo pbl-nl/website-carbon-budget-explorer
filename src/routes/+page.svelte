@@ -38,9 +38,7 @@
 							2.
 						</h3>
 						<div class="-ml-6 flex-1 -skew-x-[20deg] rounded bg-neutral p-4 px-10 opacity-60">
-							<h3 class="mb-2 text-xl font-semibold text-white">
-								Choose your effort-sharing principle
-							</h3>
+							<h3 class="mb-2 text-xl font-semibold text-white">Choose your allocation method</h3>
 							<p class="text-white">Implicating each country's "fair" emissions</p>
 						</div>
 					</li>

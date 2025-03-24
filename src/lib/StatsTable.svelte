@@ -4,15 +4,19 @@
 	import { cubicOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
 
-	import { principles } from '$lib/principles';
+	import { allocationMethods } from '$lib/allocationMethods';
 
 	interface Props {
 		reductions: Record<string, Record<number, number>>;
-		activeEffortSharings: Record<string, boolean>;
-		availablePrinciples: Set<string>;
+		activeAllocationMethods: Record<string, boolean>;
+		availableAllocationMethods: Set<string>;
 	}
 
-	let { reductions, activeEffortSharings = $bindable(), availablePrinciples }: Props = $props();
+	let {
+		reductions,
+		activeAllocationMethods = $bindable(),
+		availableAllocationMethods
+	}: Props = $props();
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedReductions = tweened(reductions, tweenOptions);
 	run(() => {
@@ -25,7 +29,7 @@
 		<thead>
 			<tr>
 				<th>Allocation method</th>
-				{#each Object.values(principles) as { label }}
+				{#each Object.values(allocationMethods) as { label }}
 					<th>{label}</th>
 				{/each}
 			</tr>
@@ -33,27 +37,27 @@
 		<tbody>
 			<tr>
 				<th>2030 reductions<br />relative to 2015</th>
-				{#each Object.keys(principles) as id}
+				{#each Object.keys(allocationMethods) as id}
 					<th>{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%</th>
 				{/each}
 			</tr>
 			<tr>
 				<th>2040 reductions<br />relative to 2015</th>
-				{#each Object.keys(principles) as id}
+				{#each Object.keys(allocationMethods) as id}
 					<th>{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%</th>
 				{/each}
 			</tr>
 			<tr>
 				<th>Display graph</th>
-				{#each Object.entries(principles) as [id, { color }]}
+				{#each Object.entries(allocationMethods) as [id, { color }]}
 					<th>
-						{#if availablePrinciples.has(id)}
+						{#if availableAllocationMethods.has(id)}
 							<input
 								type="checkbox"
-								bind:checked={activeEffortSharings[id]}
+								bind:checked={activeAllocationMethods[id]}
 								style={`background-color: ${color}`}
 								class="m-1 scale-125 shadow"
-								disabled={!availablePrinciples.has(id)}
+								disabled={!availableAllocationMethods.has(id)}
 							/>
 						{:else}
 							<input

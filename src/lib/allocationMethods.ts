@@ -1,6 +1,6 @@
 // Top colors from https://venngage.com/tools/accessible-color-palette-generator
 
-export const principles = {
+export const allocationMethods = {
 	GF: {
 		label: 'Grandfathering',
 		summary: 'Continuity. Based on current emission levels',

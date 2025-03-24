@@ -13,13 +13,13 @@ Should have the following data files:
 1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders` and move downloaded file to CABE_DATA_DIR directory.
 1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{ISO}.nc"` - Region specific data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{REGION}.nc"` - Region specific data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Aggregated_files" / "xr_alloc_{YEAR}.nc"` - Aggregated data
 
 The `CABE_DATA_DIR` variable is the path to the data directory.
 The `CABE_START_YEAR` variable is the start year of the allocation.
 The `CABE_ASSUMPTIONSET` variable encodes assumptions on which gases are included (GHG or CO2_only) and land use (included/excluded).
-The `ISO` variable is the 3 letter ISO code of the region.
+The `REGION` variable is the 3 letter ISO code of the region.
 The `YEAR` variable is the year of the allocation.
 
 The `CABE_` variables are defined in the `.env` file.
@@ -55,6 +55,12 @@ pip install waitress
 waitress-serve --listen=127.0.0.1:5000 ws:app
 ```
 
+To see the routes of the web service use
+
+```bash
+flask --app ws:app routes -s rule
+```
+
 ## Developing
 
 You'll need [node.js](https://nodejs.org/en) (v22 or greater) to run a local development server.
@@ -85,6 +91,14 @@ The code can be checked with
 
 ```bash
 npm run check
+```
+
+The Python web service (ws.py) can be formatted and linted with [Ruff](https://docs.astral.sh/ruff)
+
+```bash
+pip install ruff
+ruff check
+ruff format
 ```
 
 ## Testing

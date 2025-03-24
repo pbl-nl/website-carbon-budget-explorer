@@ -38,7 +38,7 @@
 		feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>,
 		metrics: SpatialMetric[]
 	) {
-		return metrics.find((m) => m.ISO === feature.properties!.ISO_A3_EH);
+		return metrics.find((m) => m.Region === feature.properties!.ISO_A3_EH);
 	}
 
 	interface Props {

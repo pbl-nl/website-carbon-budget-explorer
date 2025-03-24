@@ -49,8 +49,7 @@
 				element: '#sharetabs',
 				popover: {
 					title: 'Proceed to map',
-					description:
-						"When you're ready, proceed to the map view to select your effort-sharing principle"
+					description: "When you're ready, proceed to the map view to select your allocation method"
 				}
 			}
 		]
@@ -99,7 +98,7 @@
 			evt = e;
 		};
 	}
-	const hoverHistoricalCarbon = hoverBuilder(
+	const hoverhistoricalEmissions = hoverBuilder(
 		(row) =>
 			`The historical greenhouse gas emissions in ${row.time} were ${row.value.toFixed(1)} Gt CO₂e`
 	);
@@ -130,29 +129,21 @@
 	// $: console.log(data.result.currentPolicy); // only nans in input data...
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const pathwayCarbonTweened = tweened(data.result.pathwayCarbon, tweenOptions);
+	const pathwayCarbonTweened = tweened(data.result.pathway, tweenOptions);
 	run(() => {
-		pathwayCarbonTweened.set(data.result.pathwayCarbon);
-	});
-	const emissionGapTweened = tweened(data.result.stats.ghg.gaps.emission, tweenOptions);
-	run(() => {
-		emissionGapTweened.set(data.result.stats.ghg.gaps.emission);
-	});
-	const ambitionGapTweened = tweened(data.result.stats.ghg.gaps.ambition, tweenOptions);
-	run(() => {
-		ambitionGapTweened.set(data.result.stats.ghg.gaps.ambition);
+		pathwayCarbonTweened.set(data.result.pathway);
 	});
 </script>
 
 <div class="flex h-full gap-4">
 	<Sidebar>
 		<GlobalBudgetCard
-			remaining={data.result.stats.co2.remaining}
-			relative={data.result.stats.co2.relative}
+			remaining={data.result.budget.remaining}
+			relative={data.result.budget.relative}
 		/>
 		<div id="globalquerycard">
 			<GlobalQueryCard
-				choices={data.pathway.choices}
+				options={data.pathway.options}
 				query={data.pathway.query}
 				onChange={updateQueryParam}
 			/>
@@ -237,11 +228,11 @@
 		<div class="relative grow bg-base-100 p-4 shadow-lg">
 			<Pathway {evt} yAxisTtle="Greenhouse gas emissions (Gt CO₂e/year)">
 				<Line
-					data={data.result.historicalCarbon}
+					data={data.result.historicalEmissions}
 					x={'time'}
 					y={'value'}
 					color="black"
-					mouseover={hoverHistoricalCarbon}
+					mouseover={hoverhistoricalEmissions}
 					mouseout={(e) => (evt = e)}
 				/>
 				{#if policyPathwayToggles.current || emissionGapHover}
@@ -282,18 +273,10 @@
 				{/if}
 
 				{#if ambitionGapHover}
-					<Gap
-						x={data.result.stats.ghg.gaps.index}
-						y0={data.result.stats.ghg.gaps.ndc}
-						y1={data.result.stats.ghg.gaps.budget}
-					/>
+					<Gap x={data.result.gap.index} y0={data.result.gap.ndc} y1={data.result.gap.budget} />
 				{/if}
 				{#if emissionGapHover}
-					<Gap
-						x={data.result.stats.ghg.gaps.index}
-						y0={data.result.stats.ghg.gaps.curPol}
-						y1={data.result.stats.ghg.gaps.budget}
-					/>
+					<Gap x={data.result.gap.index} y0={data.result.gap.curPol} y1={data.result.gap.budget} />
 				{/if}
 
 				<Line
