@@ -13,12 +13,12 @@ Should have the following data files:
 1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders` and move downloaded file to CABE_DATA_DIR directory.
 1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ISO_PATH} / "xr_alloc_{ISO}.nc"` - Region specific data
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / 'Aggregated_files' / "xr_alloc_{YEAR}_GHG_incl.nc"` - Aggregated data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{ISO}.nc"` - Region specific data
+1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Aggregated_files" / "xr_alloc_{YEAR}.nc"` - Aggregated data
 
 The `CABE_DATA_DIR` variable is the path to the data directory.
 The `CABE_START_YEAR` variable is the start year of the allocation.
-The `CABE_ISO_PATH` variable is the path in which the region specific files are located.
+The `CABE_ASSUMPTIONSET` variable encodes assumptions on which gases are included (GHG or CO2_only) and land use (included/excluded).
 The `ISO` variable is the 3 letter ISO code of the region.
 The `YEAR` variable is the year of the allocation.
 

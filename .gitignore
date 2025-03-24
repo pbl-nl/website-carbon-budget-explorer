@@ -9,6 +9,8 @@ venv/
 /cache
 
 test-results
+screenshots
+playwright-report
 node_modules
 
 # Output

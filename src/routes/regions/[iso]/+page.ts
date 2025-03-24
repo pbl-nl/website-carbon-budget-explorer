@@ -17,16 +17,26 @@ export const load: PageLoad = async ({ params, data, url, fetch }) => {
 		stats: await pathwayStats(url.search, fetch),
 		...data.pathway
 	};
-	const initialEffortSharingName = searchParam<keyof typeof principles>(
-		url,
-		'effortSharing',
-		'PC' // When no effort sharing is selected on prev page, use per capita as default
-	);
 
 	// TODO validate iso, check that file exists
 	// TODO make single api call
 	const effortSharing = await effortSharings(iso, url.search, fetch);
 	const reductions = await effortSharingReductions(iso, url.search, fetch);
+
+	let initialEffortSharingName = searchParam<keyof typeof principles>(
+		url,
+		'effortSharing',
+		'PC' // When no effort sharing is selected on prev page, use per capita as default
+	);
+	if (!(initialEffortSharingName in effortSharing)) {
+		// If selected principle does not have data for region, fallback to PC
+		if ('PC' in effortSharing) {
+			initialEffortSharingName = 'PC';
+		} else {
+			initialEffortSharingName = Object.keys(effortSharing)[0] as keyof typeof principles;
+			// TODO handle when no effort sharing data is available
+		}
+	}
 
 	const global = {
 		...data.global,

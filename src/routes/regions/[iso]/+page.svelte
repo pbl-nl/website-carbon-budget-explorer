@@ -39,9 +39,14 @@
 		}
 	}
 
+	// Not all regions have data for all principles
+	let availablePrinciples = $derived(new Set(Object.keys(data.effortSharing)));
+
 	let activeEffortSharings = $state(
 		Object.fromEntries(
-			Object.keys(principles).map((id) => [id, id === data.initialEffortSharingName])
+			Object.keys(principles)
+				.filter((p) => availablePrinciples.has(p))
+				.map((id) => [id, id === data.initialEffortSharingName])
 		)
 	);
 
@@ -120,6 +125,22 @@
 	function isEuMemberState(region: string) {
 		return euMemberStates.includes(region);
 	}
+
+	let domainExtent = $derived.by(() => {
+		const extent: [number, number] = [-100, 100];
+		if (data.historicalCarbon.extent[1] !== undefined) {
+			extent[0] = data.historicalCarbon.extent[1] * -0.3;
+			extent[1] = data.historicalCarbon.extent[1] * 1.5;
+		} else {
+			// If there is no historical data, use all effort sharing data
+			const effortSharings = Object.values(data.effortSharing).flatMap((d) => d);
+			if (effortSharings.length > 0) {
+				extent[0] = Math.min(...effortSharings.map((d) => d.min));
+				extent[1] = Math.max(...effortSharings.map((d) => d.max));
+			}
+		}
+		return extent;
+	});
 </script>
 
 <div class="flex h-full flex-row gap-4">
@@ -174,14 +195,13 @@
 				</div>
 			</section>
 
-			<PrincipleStatsTable reductions={data.reductions} bind:activeEffortSharings />
+			<PrincipleStatsTable
+				reductions={data.reductions}
+				bind:activeEffortSharings
+				{availablePrinciples}
+			/>
 			<section id="overview" class="grow">
-				<!-- TODO compute smarter extent -->
-				<Pathway
-					yDomain={[data.historicalCarbon.extent[1] * -0.3, data.historicalCarbon.extent[1] * 1.5]}
-					{evt}
-					yAxisTtle="GHG emissions (Mt CO₂e/year)"
-				>
+				<Pathway yDomain={domainExtent} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
 					<Line
 						data={data.historicalCarbon.data.filter((d) => d.time >= 1990)}
 						x={'time'}
@@ -213,7 +233,7 @@
 							</g>
 						{/if}
 					{/each}
-					{#if !isEuMemberState(data.info.iso3)}
+					{#if !isEuMemberState(data.info.iso3) && data.indicators.ndc_inventory !== null}
 						{#each Object.entries(data.indicators.ndc_inventory) as [year, range]}
 							<NdcRange
 								x={parseInt(year)}

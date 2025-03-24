@@ -25,7 +25,7 @@ from dotenv import dotenv_values
 class Config:
     data_dir: Path
     start_year: str
-    iso_path: str
+    assumption_set: str
 
 def load_env() -> Config:
     config = dotenv_values(".env")
@@ -33,12 +33,12 @@ def load_env() -> Config:
         raise ValueError("CABE_DATA_DIR not set in .env file")
     if 'CABE_START_YEAR' not in config or config['CABE_START_YEAR'] is None:
         raise ValueError("CABE_START_YEAR not set in .env file")
-    if 'CABE_ISO_PATH' not in config or config['CABE_ISO_PATH'] is None:
-        raise ValueError("CABE_ISO_PATH not set in .env file")
+    if "CABE_ASSUMPTIONSET" not in config or config["CABE_ASSUMPTIONSET"] is None:
+        raise ValueError("CABE_ASSUMPTIONSET not set in .env file")
     return Config(
         data_dir=Path(config["CABE_DATA_DIR"]),
-        start_year=config['CABE_START_YEAR'],
-        iso_path=config["CABE_ISO_PATH"]
+        start_year=config["CABE_START_YEAR"],
+        assumption_set=config["CABE_ASSUMPTIONSET"],
     )
 
 config = load_env()
@@ -136,7 +136,9 @@ def pathwaySelection():
 
 
 def find_region_files():
-    region_dir = config.data_dir / config.start_year / config.iso_path
+    region_dir = (
+        config.data_dir / config.start_year / config.assumption_set / "Allocations"
+    )
     available_region_files = {}
     for f in region_dir.glob("xr_alloc_*.nc"):
         iso = f.stem.removeprefix("xr_alloc_")
@@ -260,6 +262,7 @@ def build_regions():
         },
         "NIU": {"iso2": "NU", "iso3": "NIU", "name": "Niue"},
         "COK": {"iso2": "CK", "iso3": "COK", "name": "Cook Islands"},
+        "MDV": {"iso2": "MV", "iso3": "MDV", "name": "Maldives"},
     }
 
     global_regions = set(dsGlobal.Region.values.tolist())
@@ -346,7 +349,7 @@ def historicalCarbon(region="EARTH"):
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df = df.reset_index().rename(columns={'Time': 'time', 'GHG_hist': "value"})
+    df = df.reset_index().rename(columns={'Time': 'time', 'GHG_hist': "value"}).dropna()
     return df.to_dict(orient="records")
 
 
@@ -382,12 +385,14 @@ def population_map(year, scenario="SSP2"):
     return dsGlobal.Population.sel(Time=year, Scenario=scenario)
 
 def open_aggregated_files():
-    root = config.data_dir / config.start_year / 'Aggregated_files'
+    root = (
+        config.data_dir / config.start_year / config.assumption_set / "Aggregated_files"
+    )
     files = {}
-    for f in root.glob('xr_alloc_*_GHG_incl.nc'):
+    for f in root.glob("xr_alloc_*.nc"):
         # TODO once https://github.com/pbl-nl/website-carbon-budget-explorer/issues/38#issuecomment-2653487809
         # the removesuffix is no longer needed
-        year = f.stem.removeprefix('xr_alloc_').removesuffix('_GHG_incl')
+        year = f.stem.removeprefix("xr_alloc_")
         files[year] = xr.open_dataset(f)
     return files
 
@@ -492,6 +497,8 @@ def ndcAmbition(region):
     ndc2030_min = dsGlobal.GHG_ndc_red.sel(Region=region).min().values.tolist()
     ndc2030_max = dsGlobal.GHG_ndc_red.sel(Region=region).max().values.tolist()
 
+    if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
+        return None
     return {
         "min": ndc2030_min * 100,
         "max": ndc2030_max * 100
@@ -500,8 +507,6 @@ def ndcAmbition(region):
     # ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
     # ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
 
-    # if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
-    #     return None
     # hist2015 = dsGlobal.GHG_hist.sel(Region=region, Time=2015).values.tolist()
     # return {
     #     "min": -(ndc2030_max - hist2015) / hist2015 * 100,
@@ -522,7 +527,11 @@ def ndcRange_inventory(region):
     region = isEU(region)
 
     ds_ndc_inv = dsGlobal.GHG_ndc_inv.sel(Region=region)
-    return {2030: [ds_ndc_inv.min().values.tolist(), ds_ndc_inv.max().values.tolist()]}
+    min_ndc_inv = ds_ndc_inv.min().values.tolist()
+    max_ndc_inv = ds_ndc_inv.max().values.tolist()
+    if np.isnan(min_ndc_inv) or np.isnan(max_ndc_inv):
+        return None
+    return {2030: [min_ndc_inv, max_ndc_inv]}
 
 
 def ndcRange_jones(region):
@@ -530,7 +539,11 @@ def ndcRange_jones(region):
     region = isEU(region)
 
     ds_ndc = dsGlobal.GHG_ndc.sel(Region=region)
-    return {2030: [ds_ndc.min().values.tolist(), ds_ndc.max().values.tolist()]}
+    ds_ndc_min = ds_ndc.min().values.tolist()
+    ds_ndc_max = ds_ndc.max().values.tolist()
+    if np.isnan(ds_ndc_min) or np.isnan(ds_ndc_max):
+        return None
+    return {2030: [ds_ndc_min, ds_ndc_max]}
 
 
 @app.get("/indicators/<region>")
@@ -581,6 +594,9 @@ def effortSharing(ISO, principle):
 
     mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
 
+    if mr_df.isna().all():
+        return None
+
     agg_dims = [dim for dim in ds.dims if dim != "time"]
     min_df = ds.min(agg_dims, skipna=True).to_pandas().rename("min")
     max_df = ds.max(agg_dims, skipna=True).to_pandas().rename("max")
@@ -588,6 +604,7 @@ def effortSharing(ISO, principle):
     return (
         pd.concat([mr_df, min_df, max_df], axis=1)
         .reset_index()
+        .dropna()
         .to_dict(orient="records")
     )
 
@@ -607,7 +624,13 @@ def effortSharings(ISO):
 
     http://127.0.0.1:5000//USA/effortSharings?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 221.552ms
     """
-    return {k: effortSharing(ISO, k) for k in principles}
+    sharings = {}
+    for principle in principles:
+        sharing = effortSharing(ISO, principle)
+        if sharing is None:
+            continue
+        sharings[principle] = sharing
+    return sharings
 
 
 @app.get("/<ISO>/effortSharingReductions")
@@ -619,6 +642,7 @@ def effortSharingReductions(ISO):
     )
 
     hist = dsGlobal.GHG_hist.sel(Region=ISO, Time=1990).values + 0
+    ds = get_ds(ISO)
 
     reductions = {}
     for principle in principles:
@@ -630,8 +654,8 @@ def effortSharingReductions(ISO):
         reductions[principle] = {}
         for period in periods:
             pselection.update(Time=period)
-            es = get_ds(ISO)[principle].sel(**pselection).mean().values + 0
-            if np.isnan(es):
+            es = ds[principle].sel(**pselection).mean().values + 0
+            if np.isnan(es) or np.isnan(hist) or hist == 0:
                 reductions[principle][period] = None
             else:
                 reductions[principle][period] = -(es - hist) / hist * 100
@@ -639,8 +663,4 @@ def effortSharingReductions(ISO):
     return reductions
 
 if __name__ == "__main__":
-    # region = input("Choose a focus country or region: ")
-    region = "USA"
-    # print(f"NDC Ambition in 2030 relative to 2015: {ndcAmbition(region)}% reduction")
-    # print(f"NDC Range: {ndcRange(region)}")
-    print(ndcAmbition(region))
+    print(ndcAmbition("USA"))

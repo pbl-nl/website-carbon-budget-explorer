@@ -7,5 +7,5 @@ export default defineConfig({
 	},
 
 	testDir: 'tests',
-	testMatch: /(.+\.)?(test|spec)\.[jt]s/
+	testMatch: '**/*.@(spec|test).?(c|m)[jt]s?(x)'
 });

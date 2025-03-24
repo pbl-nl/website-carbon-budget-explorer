@@ -37,7 +37,9 @@
 			data
 				.filter((d) => d[x] && d[y])
 				.map((d) => {
-					return $xScale(d[x]) + ',' + $yScale(d[y]);
+					const px = $xScale(d[x]);
+					const py = $yScale(d[y]);
+					return `${px},${py}`;
 				})
 				.join('L')
 	);
