@@ -362,7 +362,7 @@ def allocation_map(year, allocation_method):
     selection = global_pathway_choices()
     if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
-    if allocation_method == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if allocation_method in ["ECPC", "GDR"]:
         selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
@@ -535,14 +535,13 @@ def emission_allocation_per_method(region, allocation_method):
     mr_selection = dict()
     if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         mr_selection.update(Scenario="SSP2")
-    if allocation_method == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if allocation_method in ["ECPC", "GDR"]:
         mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
     if allocation_method == "ECPC":
         mr_selection.update(
             Discount_factor=DEFAULT_DISCOUNT_FACTOR,
-            Convergence_year=DEFAULT_CONVERGENCE_YEAR,
         )
     if allocation_method == "GDR":
         mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
@@ -592,7 +591,7 @@ def allocation_reduction(region):
         pselection = selection.copy()
         if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
             pselection.update(Scenario="SSP2")
-        if allocation_method == "PCC":
+        if allocation_method in ["PCC", "ECPC"]:
             pselection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
         reductions[allocation_method] = {}
         for period in periods:
