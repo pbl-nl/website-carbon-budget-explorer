@@ -22,6 +22,7 @@
 	run(() => {
 		tweenedReductions.set(reductions);
 	});
+	const grandfatheringColor = 'text-gray-400';
 </script>
 
 <div class="rounded px-12 py-8">
@@ -30,7 +31,13 @@
 			<tr>
 				<th>Allocation method</th>
 				{#each Object.values(allocationMethods) as { label }}
-					<th>{label}</th>
+					<th>
+						{#if label==='Grandfathering'}
+							<span class={grandfatheringColor}>{label}</span>
+						{:else}
+							{label}
+						{/if}
+					</th>
 				{/each}
 			</tr>
 		</thead>
@@ -38,13 +45,21 @@
 			<tr>
 				<th>2030 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<th>{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%</th>
+					<th>
+						<span class={id === 'GF' ? grandfatheringColor : ''}>
+							{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%
+						</span>
+					</th>
 				{/each}
 			</tr>
 			<tr>
 				<th>2040 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<th>{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%</th>
+					<th>
+						<span class={id === 'GF' ? grandfatheringColor : ''}>
+							{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%
+						</span>
+					</th>
 				{/each}
 			</tr>
 			<tr>

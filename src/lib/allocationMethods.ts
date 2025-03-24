@@ -1,11 +1,6 @@
 // Top colors from https://venngage.com/tools/accessible-color-palette-generator
 
 export const allocationMethods = {
-	GF: {
-		label: 'Grandfathering',
-		summary: 'Continuity. Based on current emission levels',
-		color: '#0a3dda'
-	},
 	PC: {
 		label: 'Per capita',
 		summary: 'Equality. Based on current population levels.',
@@ -32,5 +27,10 @@ export const allocationMethods = {
 		summary:
 			'Responsibility + Equality. Based on historical emissions and the past and future per capita share.',
 		color: '#ae6600'
+	},
+	GF: {
+		label: 'Grandfathering',
+		summary: 'Continuity. Based on current emission levels. Not considered fair.',
+		color: '#919191'
 	}
 } as const;
