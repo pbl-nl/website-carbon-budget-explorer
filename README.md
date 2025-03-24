@@ -55,6 +55,12 @@ pip install waitress
 waitress-serve --listen=127.0.0.1:5000 ws:app
 ```
 
+To see the routes of the web service use
+
+```bash
+flask --app ws:app routes -s rule
+```
+
 ## Developing
 
 You'll need [node.js](https://nodejs.org/en) (v22 or greater) to run a local development server.
