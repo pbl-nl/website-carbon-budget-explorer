@@ -76,7 +76,10 @@
 
 	function onmouseout(e: LeafletMouseEvent) {
 		hoveredFeature = undefined;
-		geojsonlayer?.resetStyle(e.sourceTarget);
+		e.sourceTarget.setStyle({
+			weight: 1,
+			color: 'darkgrey'
+		});
 	}
 
 	run(() => {

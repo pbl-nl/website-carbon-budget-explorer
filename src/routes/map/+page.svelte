@@ -100,12 +100,16 @@
 					<div
 						class="absolute left-0 top-0 z-[500] min-h-[4.5rem] w-64 rounded-br-md bg-white p-2 shadow"
 					>
-						{#if hoveredFeature && hoveredFeature.properties && hoveredMetric}
+						{#if hoveredFeature && hoveredFeature.properties}
 							<div>
 								{hoveredFeature.properties.NAME}
 							</div>
 							<div>
-								{hoveredMetric.value.toFixed(0)} tonnes CO₂e per capita
+								{#if hoveredMetric}
+									{hoveredMetric.value.toFixed(0)} tonnes CO₂e per capita
+								{:else}
+									No data available
+								{/if}
 							</div>
 						{:else}
 							<div>Click on a country or</div>
