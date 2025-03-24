@@ -208,9 +208,9 @@
 					countries. Also this method is dependent on the socio-economic scenario.
 					<br />
 					<br />
-					The 'Equal Cumulative Per Capita' method computes the total budget (past plus future) that
-					a country would obtain based on their (past plus future) population fractions, and then subtracts
-					from this the already spent emissions in the past.
+					The 'Equal Cumulative Per Capita' method computes a debt or surplus based on historical emissions
+					and historical population, and pays off this debt (or surplus) over time, converging to a Per
+					Capita allocation (default in 2050).
 					<br />
 					<br />
 					The 'Greenhouse Development Rights' method is, in the short run, based on a
@@ -220,22 +220,22 @@
 						rel="noopener noreferrer">Responsibility-Capability Index</a
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
-				<QA question="Why are there different absolute NDC values shown in the country graph?">
-					When NDCs area published by countries, they are expressed in relative terms (e.g. 30 %
+				<QA question="Why are there two absolute NDC values shown in the country graph?">
+					Many countries indicate NDC ambitions in various levels or conditionalities, for example to certain developments
+					such as economic growth, or international support. The two values shown are the minimum and
+					maximum NDC values deduced.
+				</QA>
+				<QA question="What NDC data is shown?">
+					When NDCs area published by countries, they are often expressed in relative terms (e.g. 30 %
 					reduction in 2030 compared to 1990). The absolute values are calculations that depend on
-					the historical and baseline emission data used. We show two versions: one based on the
-					data we use for the Carbon Budget Explorer (Jones et al., 2021), and one based on the data
-					used in the
+					the historical and baseline emission data used. We use NDC data based on the
+					data we use for the Carbon Budget Explorer (Jones et al., 2021), which is deduced from
 					<a
 						href="https://themasites.pbl.nl/o/climate-ndc-policies-tool/"
 						target="_blank"
 						rel="noopener noreferrer">PBL NDC tool</a
-					>
-					(PRIMAP historical data).
-					<br />
-					<br />
-					These values are only an indication. When precise NDC data is needed, it is better to refer
-					to the official NDC documents.
+					>, which is based on historical data from PRIMAP. All NDC values are only an indication.
+					When precise NDC data is needed, it is better to refer to the official NDC documents.
 				</QA>
 				<QA question="Why are there no NDCs for European Member States?">
 					European Member States have a joint NDC, which is to reduce GHG emissions by at least 55 %
@@ -276,7 +276,8 @@
 					All data can be downloaded <a
 						href="https://doi.org/10.5281/zenodo.12188104"
 						target="_blank">from Zenodo</a
-					>, including more recent developments. The Python code for the computations can be found
+					>, including more recent developments. Version 0.4.2 is used in the current release of the
+					Carbon Budget Explorer. The Python code for the computations can be found
 					on
 					<a href="https://doi.org/10.5281/zenodo.13640303" target="_blank">Zenodo</a> or
 					<a href="https://github.com/imagepbl/EffortSharing/tree/v1.0.0" target="_blank">GitHub</a

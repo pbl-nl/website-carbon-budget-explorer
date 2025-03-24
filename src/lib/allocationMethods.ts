@@ -30,7 +30,7 @@ export const allocationMethods = {
 	ECPC: {
 		label: 'Equal cumulative per capita',
 		summary:
-			'Responsibility + Equality. Based on historical emissions and the past and future per capita share.',
+			'Responsibility + Equality. Pays off historical debt and surplus in the short run and converges to per capita in 2050.',
 		color: '#ae6600'
 	}
 } as const;

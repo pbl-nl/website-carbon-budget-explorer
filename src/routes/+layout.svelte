@@ -77,7 +77,7 @@
 				/> Carbon Budget Explorer</a
 			>
 		</div>
-		<div class="alert" style="width: 50%">
+		<div class="alert" style="width: 30%">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"
@@ -91,8 +91,7 @@
 				/></svg
 			>
 			<span
-				>This website has been updated with new data in September 2024. Please see the About page
-				for more information</span
+				>This website has been updated in March 2025 (see About page).</span
 			>
 		</div>
 		<div class="flex-none">
