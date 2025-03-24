@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import CountryHeader from '$lib/CountryHeader.svelte';
 
 	import StatsTable from '$lib/StatsTable.svelte';
@@ -15,7 +13,7 @@
 	import Area from '$lib/charts/components/Area.svelte';
 	import { allocationMethods } from '$lib/allocationMethods';
 	import { cubicOut } from 'svelte/easing';
-	import { tweened } from 'svelte/motion';
+	import { Tween } from 'svelte/motion';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
@@ -52,10 +50,7 @@
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const tweenedAllocationMethod = tweened(data.allocationMethod, tweenOptions);
-	run(() => {
-		tweenedAllocationMethod.set(data.allocationMethod);
-	});
+	const tweenedAllocationMethod = Tween.of(() => data.allocationMethod, tweenOptions);
 
 	// Hover effort sharing
 	let evt = $state({});
@@ -144,6 +139,8 @@
 		}
 		return extent;
 	});
+
+	const tweeneddomainExtent = Tween.of(() => domainExtent, tweenOptions);
 </script>
 
 <div class="flex h-full flex-row gap-4">
@@ -204,7 +201,7 @@
 				{availableAllocationMethods}
 			/>
 			<section id="overview" class="grow">
-				<Pathway yDomain={domainExtent} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
+				<Pathway yDomain={tweeneddomainExtent.current} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
 					<Line
 						data={data.historicalEmissions.data.filter((d) => d.time >= 1990)}
 						x={'time'}
@@ -217,7 +214,7 @@
 						{#if activeAllocationMethods[id]}
 							<g name={id}>
 								<Line
-									data={$tweenedAllocationMethod[id]}
+									data={tweenedAllocationMethod.current[id]}
 									x={'time'}
 									y={'mean'}
 									{color}
@@ -225,7 +222,7 @@
 									mouseout={(e) => (evt = e)}
 								/>
 								<Area
-									data={$tweenedAllocationMethod[id]}
+									data={tweenedAllocationMethod.current[id]}
 									x={'time'}
 									y0={'min'}
 									y1={'max'}
