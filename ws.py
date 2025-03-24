@@ -362,7 +362,7 @@ def allocation_map(year, allocation_method):
     selection = global_pathway_choices()
     if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
-    if allocation_method == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if allocation_method in ["ECPC", "GDR"]:
         selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
@@ -535,7 +535,7 @@ def emission_allocation_per_method(region, allocation_method):
     mr_selection = dict()
     if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         mr_selection.update(Scenario="SSP2")
-    if allocation_method == "PCC":
+    if allocation_method in ["PCC"]:
         mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if allocation_method in ["ECPC", "GDR"]:
         mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
