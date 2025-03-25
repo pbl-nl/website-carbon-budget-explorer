@@ -26,21 +26,52 @@ The `CABE_` variables are defined in the `.env` file.
 See [.env.example](.env.example) file for an example.
 To run the application the `.env` file is required.
 
-## API service
+## Software requirements
 
-The API web service reads the NetCDF file and returns the data as JSON which is used in the web application.
+You should have [Node.js](https://nodejs.org/en) (v22 or greater) and Python 3.12 installed.
 
-It is written in Python using [Flask](https://flask.palletsprojects.com/) and [xarray](https://xarray.dev/).
-
-Python dependencies can be installed with
+Dependencies can be installed with
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+# From the root of the repository
+# To install Node.js dependencies
+npm install
+# To install Python dependencies
 pip install -r requirements.txt
 ```
 
-The web service can be started with
+<details>
+<summary>
+Sofware installation on Windows
+</summary>
+
+Use miniforge to setup Python and Node.js.
+
+1. From [https://conda-forge..org/download](https://conda-forge.org/download/) download the latest Miniforge3 Windows 64-bit installer and install it.
+2. Open a PowerShell
+3. Create environment with `mamba create --name cabe python=3.12 nodejs=22`
+4. Activate environment with `mamba activate cabe`
+5. Change the current working directory to the location where you want clone the repository. For example `cd C:\Users\username\Documents`.
+6. Clone repo with `git clone https://github.com/pbl-nl/website-carbon-budget-explorer.git` or use [Visual Studio Code](https://code.visualstudio.com/) to clone repository.
+7. Change the current working directory to the repository with `cd website-carbon-budget-explorer`.
+8. Install Python dependencies with `pip install -r requirements.txt`
+9. Install Node.js dependencies with `npm install`
+
+If `git` executable is not installed, then install with `mamba install git`.
+
+If `mamba` executable is not available, use `conda` instead.
+
+Do not forget to activate the environment with `mamba activate cabe` before running the commands below.
+
+</details>
+
+## API service
+
+The API web service reads the NetCDF files and returns the data as JSON which is used in the web application.
+
+It is written in Python using [Flask](https://flask.palletsprojects.com/) and [xarray](https://xarray.dev/).
+
+On Linux and MacOS the web service can be started with
 
 ```bash
 gunicorn --bind 0.0.0.0:5000 --workers 4 'ws:app'
@@ -48,7 +79,7 @@ gunicorn --bind 0.0.0.0:5000 --workers 4 'ws:app'
 
 (Add `--reload` argumment to reload on Python file changes)
 
-In Windows gunicorn does not work, use flask built-in developer server instead.
+On Windows, use flask built-in developer server.
 
 ```shell
 flask --app ws:app run -p 5000
@@ -62,8 +93,7 @@ flask --app ws:app routes -s rule
 
 ## Developing
 
-You'll need [node.js](https://nodejs.org/en) (v22 or greater) to run a local development server.
-Once you've created a project and installed dependencies with `npm install`, start a development server:
+Start a development server:
 
 ```bash
 npm run dev
