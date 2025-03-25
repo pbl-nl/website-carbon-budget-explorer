@@ -40,10 +40,7 @@ npm install
 pip install -r requirements.txt
 ```
 
-<details>
-<summary>
-Sofware installation on Windows
-</summary>
+## Sofware installation on Windows
 
 Use miniforge to setup Python and Node.js.
 
@@ -62,8 +59,6 @@ If `git` executable is not installed, then install with `mamba install git`.
 If `mamba` executable is not available, use `conda` instead.
 
 Do not forget to activate the environment with `mamba activate cabe` before running the commands below.
-
-</details>
 
 ## API service
 
