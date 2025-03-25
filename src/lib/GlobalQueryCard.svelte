@@ -97,7 +97,7 @@
 					name="nonCO2red"
 				/>
 			</div>
-			<p><i>How do we spend these emissions over time is determined by:</i></p>
+			<p><i>The allocation of these emissions over time is determined by:</i></p>
 			<div class="block">
 				End-of-century negative emissions
 				<span
