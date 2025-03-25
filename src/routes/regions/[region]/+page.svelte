@@ -86,42 +86,6 @@
 		);
 	}
 
-	// TODO use regions['EU'].countries
-	const euMemberStates = [
-		'AUT',
-		'BEL',
-		'BGR',
-		'HRV',
-		'CYP',
-		'CZE',
-		'DNK',
-		'EST',
-		'FIN',
-		'FRA',
-		'DEU',
-		'GRC',
-		'HUN',
-		'IRL',
-		'ITA',
-		'LVA',
-		'LTU',
-		'LUX',
-		'MLT',
-		'NLD',
-		'POL',
-		'PRT',
-		'ROU',
-		'SVK',
-		'SVN',
-		'ESP',
-		'SWE'
-	];
-
-	// Function to check if the region is an EU member state
-	function isEuMemberState(region: string) {
-		return euMemberStates.includes(region);
-	}
-
 	let domainExtent = $derived.by(() => {
 		const extent: [number, number] = [-100, 100];
 		if (data.historicalEmissions.extent[1] !== undefined) {
@@ -168,7 +132,7 @@
 							{#if data.ndcReduction === null}
 								-
 							{:else if data.ndcReduction.min === data.ndcReduction.max}
-								{#if isEuMemberState(data.info.iso3)}
+								{#if data.isEuMemberState}
 									EU Member States do not have individual NDCs. The EU27's joint NDC target is to
 									reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
 									translates to 2085 Mt CO₂e in 2030.
@@ -177,7 +141,7 @@
 								{:else}
 									{data.ndcReduction.min.toFixed(0)} % reduction
 								{/if}
-							{:else if isEuMemberState(data.info.iso3)}
+							{:else if data.isEuMemberState}
 								EU Member States do not have individual NDCs. The EU27's joint NDC target is to
 								reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
 								translates to 2085 Mt CO₂e in 2030.
@@ -233,7 +197,7 @@
 							</g>
 						{/if}
 					{/each}
-					{#if !isEuMemberState(data.info.iso3) && data.ndcProjection.ndc_inventory !== null}
+					{#if !data.isEuMemberState && data.ndcProjection.ndc_inventory !== null}
 						{#each Object.entries(data.ndcProjection.ndc_inventory) as [year, range]}
 							<NdcRange
 								x={parseInt(year)}

@@ -26,7 +26,10 @@ function nestRegions(regions: Region[], region: string) {
 	}
 	const countriesOfRegion = info.countries?.map((c) => regionLookup.get(c)).filter(isRegion);
 	const regionsOfCountry = info.regions?.map((r) => regionLookup.get(r)).filter(isRegion);
-	return { info, countriesOfRegion, regionsOfCountry };
+	const eu = regionLookup.get('EU')?.countries;
+	const isEuMemberState = Boolean(eu?.includes(region));
+	console.log(isEuMemberState);
+	return { info, countriesOfRegion, regionsOfCountry, isEuMemberState };
 }
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -35,7 +38,10 @@ export const load: PageServerLoad = async ({ params }) => {
 	const options = await globalPathwayOptions();
 	const defaults = await globalPathWayDefaults();
 	const regions = await listRegions();
-	const { info, countriesOfRegion, regionsOfCountry } = nestRegions(regions, region);
+	const { info, countriesOfRegion, regionsOfCountry, isEuMemberState } = nestRegions(
+		regions,
+		region
+	);
 	const hist = await historicalEmissions(region, 1850, 2021);
 	const ndcReduction = await ndcReductions(region);
 	const ndcProjection = await ndcProjections(region);
@@ -63,7 +69,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		ndcProjection,
 		global,
 		countriesOfRegion,
-		regionsOfCountry
+		regionsOfCountry,
+		isEuMemberState
 	};
 	return r;
 };
