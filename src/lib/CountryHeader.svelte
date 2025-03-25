@@ -12,10 +12,12 @@
 
 	const blankFlag =
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"%3E%3C/svg%3E';
-	let regionFlag = $state(info.iso2 ? `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg`: blankFlag);
+	let regionFlag = $state(
+		info.iso2 ? `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg` : blankFlag
+	);
 
 	$effect(() => {
-		regionFlag = info.iso2 ? `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg`: blankFlag;
+		regionFlag = info.iso2 ? `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg` : blankFlag;
 	});
 </script>
 

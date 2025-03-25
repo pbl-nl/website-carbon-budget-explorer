@@ -14,7 +14,11 @@
 <div class=" grid w-full grid-flow-row grid-cols-5" aria-label="Regions">
 	{#each regions as region}
 		{#if 'countries' in region}
-			<a data-sveltekit-preload-data="tap" aria-label={region.iso3} href={`/regions/${region.iso3}${$page.url.search}`}>
+			<a
+				data-sveltekit-preload-data="tap"
+				aria-label={region.iso3}
+				href={`/regions/${region.iso3}${$page.url.search}`}
+			>
 				{region.name}
 			</a>
 		{/if}
@@ -24,7 +28,11 @@
 <div class=" grid w-full grid-flow-row grid-cols-5" aria-label="Regions">
 	{#each regions as region}
 		{#if !('countries' in region)}
-			<a data-sveltekit-preload-data="tap" aria-label={region.iso3} href={`/regions/${region.iso3}${$page.url.search}`}>
+			<a
+				data-sveltekit-preload-data="tap"
+				aria-label={region.iso3}
+				href={`/regions/${region.iso3}${$page.url.search}`}
+			>
 				{region.name}
 			</a>
 		{/if}

@@ -10,7 +10,7 @@
 	} = $props();
 </script>
 
-<details class="dropdown drop">
+<details class="drop dropdown">
 	<summary class="btn btn-ghost btn-xs font-normal">{title} &#9660;</summary>
 	<ul
 		class="menu dropdown-content rounded-box z-50 max-h-[70vh] w-max overflow-y-auto bg-base-100 p-2 shadow-sm"
