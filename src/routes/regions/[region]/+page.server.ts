@@ -28,7 +28,6 @@ function nestRegions(regions: Region[], region: string) {
 	const regionsOfCountry = info.regions?.map((r) => regionLookup.get(r)).filter(isRegion);
 	const eu = regionLookup.get('EU')?.countries;
 	const isEuMemberState = Boolean(eu?.includes(region));
-	console.log(isEuMemberState);
 	return { info, countriesOfRegion, regionsOfCountry, isEuMemberState };
 }
 
