@@ -22,6 +22,7 @@
 	import type { ComponentEvents, SvelteComponent } from 'svelte';
 	import NdcRange from '$lib/charts/components/NdcRange.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	import NdcDot from '$lib/NdcDot.svelte';
 
 	interface Props {
 		data: PageData;
@@ -73,12 +74,14 @@
 	const hoverhistoricalEmissions = hoverBuilder(
 		(row) => `Historical emissions in ${row.time} were ${row.value.toFixed(0)} Mt CO₂e`
 	);
-	const hoverNdc = hoverBuilder(
-		(row) =>
-			`Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
-				0
-			)} to ${row.min.toFixed(0)} Mt CO₂e`
-	);
+	const hoverNdc = hoverBuilder((row) => {
+		if (row.min.toFixed(0) === row.max.toFixed(0)) {
+			return `Nationally determined contribution in ${row.time} is ${row.max.toFixed(0)} Mt CO₂e`;
+		}
+		return `Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
+			0
+		)} to ${row.min.toFixed(0)} Mt CO₂e`;
+	});
 
 	function hoverAllocationMethod(id: string) {
 		return hoverBuilder(
@@ -162,7 +165,7 @@
 						<span>
 							{#if data.ndcReduction === null}
 								-
-							{:else if data.ndcReduction.min === data.ndcReduction.max}
+							{:else if data.ndcReduction.min.toFixed(0) === data.ndcReduction.max.toFixed(0)}
 								{#if isEuMemberState(data.info.iso3)}
 									EU Member States do not have individual NDCs. The EU27's joint NDC target is to
 									reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
@@ -230,17 +233,29 @@
 					{/each}
 					{#if !isEuMemberState(data.info.iso3) && data.ndcProjection.ndc_inventory !== null}
 						{#each Object.entries(data.ndcProjection.ndc_inventory) as [year, range]}
-							<NdcRange
-								x={parseInt(year)}
-								y0={range[0]}
-								y1={range[1]}
-								textNdcMin={`Min: ${range[0].toFixed(0)}`}
-								textNdcMax={`Max: ${range[1].toFixed(0)}`}
-								textNdc={`NDC`}
-								color="black"
-								mouseover={hoverNdc}
-								mouseout={(e) => (evt = e)}
-							/>
+							{#if range[0].toFixed(0) === range[1].toFixed(0)}
+								<NdcDot
+									x={parseInt(year)}
+									y={range[0]}
+									textNdc={`NDC`}
+									text4Dot={range[1].toFixed(0)}
+									color="black"
+									mouseover={hoverNdc}
+									mouseout={(e) => (evt = e)}
+								/>
+							{:else}
+								<NdcRange
+									x={parseInt(year)}
+									y0={range[0]}
+									y1={range[1]}
+									textNdcMin={`Min: ${range[0].toFixed(0)}`}
+									textNdcMax={`Max: ${range[1].toFixed(0)}`}
+									textNdc={`NDC`}
+									color="black"
+									mouseover={hoverNdc}
+									mouseout={(e) => (evt = e)}
+								/>
+							{/if}
 						{/each}
 						<!-- {#each Object.entries(data.ndcProjection.ndc_jones) as [year, range]}
 							<NdcRange
