@@ -1,0 +1,22 @@
+include = ['ws.py']
+line-length = 200
+target-version = "py312"
+
+[lint]
+select = [
+     # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # naming
+    "N"
+]
+fixable = ["ALL"]

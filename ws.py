@@ -9,17 +9,19 @@ Run with
     gunicorn -w 4 'ws:app'
 
 """
+
 from dataclasses import dataclass
 from json import loads
 from pathlib import Path
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
 import numpy as np
-import xarray as xr
 import pandas as pd
 import sentry_sdk
+import xarray as xr
 from dotenv import dotenv_values
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 
 @dataclass(frozen=True)
 class Config:
@@ -27,11 +29,12 @@ class Config:
     start_year: str
     assumption_set: str
 
+
 def load_env() -> Config:
     config = dotenv_values(".env")
-    if 'CABE_DATA_DIR' not in config or config['CABE_DATA_DIR'] is None:
+    if "CABE_DATA_DIR" not in config or config["CABE_DATA_DIR"] is None:
         raise ValueError("CABE_DATA_DIR not set in .env file")
-    if 'CABE_START_YEAR' not in config or config['CABE_START_YEAR'] is None:
+    if "CABE_START_YEAR" not in config or config["CABE_START_YEAR"] is None:
         raise ValueError("CABE_START_YEAR not set in .env file")
     if "CABE_ASSUMPTIONSET" not in config or config["CABE_ASSUMPTIONSET"] is None:
         raise ValueError("CABE_ASSUMPTIONSET not set in .env file")
@@ -40,6 +43,7 @@ def load_env() -> Config:
         start_year=config["CABE_START_YEAR"],
         assumption_set=config["CABE_ASSUMPTIONSET"],
     )
+
 
 config = load_env()
 
@@ -52,12 +56,11 @@ sentry_sdk.init(
 app = Flask(__name__)
 CORS(app)
 
-# TODO improve endpoint names
 # TODO use class-based views for a reusable nc-file viewer?
 # TODO write tests with dummy data
 
 # Global data (xr_dataread.nc)
-dsGlobal = xr.open_dataset(config.data_dir / config.start_year / "xr_dataread.nc")
+ds_global = xr.open_dataset(config.data_dir / config.start_year / "xr_dataread.nc")
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -69,30 +72,28 @@ DEFAULT_DISCOUNT_FACTOR = 0.0
 DEFAULT_HISTORICAL_STARTYEAR = 1990
 
 # GDR RCI weight
-DEFAULT_RCI_WEIGHT = 'Half'
+DEFAULT_RCI_WEIGHT = "Half"
 
 # GDR capability threshold
-DEFAULT_CAPABILITY_THRESHOLD = 'Th'
+DEFAULT_CAPABILITY_THRESHOLD = "Th"
 
 
-@app.get("/pathwayCarbon")
-def pathwayCarbon():
+@app.get("/timeseries/global/emissions/pathway")
+def global_emission_pathway():
     """Get global carbon pathway for a given selection.
 
     To test:
     production server:
-    http://127.0.0.1:8000/pathwayCarbon?exceedanceRisk=0.5&negativeEmissions=0.5
+    http://127.0.0.1:8000/timeseries/global/emissions/pathway?exceedanceRisk=0.5&negativeEmissions=0.5
 
     dev server:
-    http://127.0.0.1:5000/pathwayCarbon?exceedanceRisk=0.5&negativeEmissions=0.5
+    http://127.0.0.1:5000/timeseries/global/emissions/pathway?exceedanceRisk=0.5&negativeEmissions=0.5
     """
     df = (
         (
-            dsGlobal.GHG_globe.sel(
+            ds_global.GHG_globe.sel(
                 # TODO remove defaults
-                # TODO use request.data instead of request.args?
-                # args uses GET, data uses POST, GET is idempotent which is easier to cache so keep using args
-                **pathwaySelection(),
+                **global_pathway_choices(),
                 Time=slice(2021, 2100),
             )
             / 1000  # global GHG in Gt CO2e
@@ -105,48 +106,51 @@ def pathwayCarbon():
     return df.to_dict(orient="records")
 
 
-@app.get("/pathwayChoices")
-def pathwayChoices():
+@app.get("/options/pathway/global")
+def global_pathway_options():
     return {
-        "temperature": dsGlobal.Temperature.values.tolist(),
-        "exceedanceRisk": dsGlobal.Risk.values.tolist(),
-        "negativeEmissions": dsGlobal.NegEmis.values.tolist(),
-        "timing": dsGlobal.Timing.values.tolist(),
-        "nonCO2red": dsGlobal.NonCO2red.values.tolist()
+        "temperature": ds_global.Temperature.values.tolist(),
+        "exceedanceRisk": ds_global.Risk.values.tolist(),
+        "nonCO2red": ds_global.NonCO2red.values.tolist(),
+        "negativeEmissions": ds_global.NegEmis.values.tolist(),
+        "timing": ds_global.Timing.values.tolist(),
     }
 
 
-def pathwaySelection():
-    choices = pathwayChoices()
-    # this specifies the defaults that are shown in the global graph, but not the default slider settings!
-    defaults = {'temperature': 2.0,
-                'exceedanceRisk': 0.5,
-                'negativeEmissions': 0.5,
-                'timing': 'Immediate',
-                'nonCO2red': 0.5}
-    # defaults = {k: v[0] for k, v in choices.items()}
+@app.get("/defaults/pathway/global")
+def global_pathway_defaults():
+    return {
+        "temperature": 2.0,
+        "exceedanceRisk": 0.5,
+        "nonCO2red": 0.5,
+        "negativeEmissions": 0.67,
+        "timing": "Delayed",
+    }
+
+
+def global_pathway_choices():
+    defaults = global_pathway_defaults()
 
     return dict(
         Temperature=request.args.get("temperature", defaults["temperature"]),
         Risk=request.args.get("exceedanceRisk", defaults["exceedanceRisk"]),
+        NonCO2red=request.args.get("nonCO2red", defaults["nonCO2red"]),
         NegEmis=request.args.get("negativeEmissions", defaults["negativeEmissions"]),
         Timing=request.args.get("timing", defaults["timing"]),
-        NonCO2red=request.args.get("nonCO2red", defaults["nonCO2red"])
     )
 
 
 def find_region_files():
-    region_dir = (
-        config.data_dir / config.start_year / config.assumption_set / "Allocations"
-    )
+    region_dir = config.data_dir / config.start_year / config.assumption_set / "Allocations"
     available_region_files = {}
     for f in region_dir.glob("xr_alloc_*.nc"):
-        iso = f.stem.removeprefix("xr_alloc_")
-        available_region_files[iso] = f
+        region = f.stem.removeprefix("xr_alloc_")
+        available_region_files[region] = f
     return available_region_files
 
 
 available_region_files = find_region_files()
+
 
 def read_geojson(fn: Path):
     """Remove all properties except NAME, ISO_A2_EH and ISO_A3_EH"""
@@ -159,8 +163,10 @@ def read_geojson(fn: Path):
         }
     return geojson
 
+
 country_border_geojson_file = config.data_dir / "ne_110m_admin_0_countries.geojson"
 country_border_geojson = read_geojson(country_border_geojson_file)
+
 
 @app.get("/borders")
 def borders():
@@ -186,6 +192,7 @@ def borders():
     ```
     """
     return country_border_geojson
+
 
 def build_regions():
     countries_from_geojson = {}
@@ -265,7 +272,7 @@ def build_regions():
         "MDV": {"iso2": "MV", "iso3": "MDV", "name": "Maldives"},
     }
 
-    global_regions = set(dsGlobal.Region.values.tolist())
+    global_regions = set(ds_global.Region.values.tolist())
     data = []
     for region in global_regions:
         if region in available_region_files and region in global_regions:
@@ -277,6 +284,7 @@ def build_regions():
 
 
 available_regions = build_regions()
+
 
 @app.get("/regions")
 def regions():
@@ -291,103 +299,51 @@ def region(region):
     raise ValueError(f"Region {region} not found")
 
 
-@app.get("/pathwayStats")
-def pathwayStats():
-    def stats(emission_type):
-        if emission_type == 'ghg':
-            hist = dsGlobal.GHG_hist
-            globe = dsGlobal.GHG_globe
-        elif emission_type == 'co2':
-            hist = dsGlobal.CO2_hist
-            globe = dsGlobal.CO2_globe
-        else:
-            raise ValueError(f"Emission type {emission_type} not supported")
+@app.get("/statistics/budget/global")
+def budget():
+    hist = ds_global.CO2_hist
+    remaining = ds_global.sel(**global_pathway_choices()).Budget.values.tolist()
+    reference = hist.sel(Region="EARTH").sel(Time=2021).item()
+    relative = remaining / reference
+    return {"remaining": remaining, "relative": relative * 1000}
 
-        used = hist.sel(Region="EARTH").sum().values.tolist()
-        remaining = dsGlobal.sel(**pathwaySelection()).Budget.values.tolist()
-        total = used + remaining
-        reference = hist.sel(Region="EARTH").sel(Time=2021).item()
-        relative = remaining / reference
 
-        # TODO gaps is not needed on non-global pages, so dont compute if there
-        gap_index = 2030
-        pathway = (
-            globe.sel(Time=gap_index, **pathwaySelection())
-            .values
-            + 0
-        )
-        curPol = ds_policyscen.CurPol.sel(Region="EARTH", Time=gap_index).mean().values + 0
-        ndc = ds_policyscen.NDC.sel(Region="EARTH", Time=gap_index).mean().values + 0
-
-        gaps = {
-            "index": gap_index,
-            "budget": pathway / 1000,
-            "curPol": curPol / 1000,
-            "ndc": ndc / 1000,
-            "emission": (curPol - pathway) / 1000,
-            "ambition": (ndc - pathway) / 1000,
-        }
-        return {
-            "total": total / 1000,
-            "used": used / 1000,
-            "remaining": remaining,
-            "relative": relative * 1000,
-            "gaps": gaps
-        }
+@app.get("/statistics/gap/global")
+def gap():
+    globe = ds_global.GHG_globe
+    gap_index = 2030
+    pathway = globe.sel(Time=gap_index, **global_pathway_choices()).values + 0
+    # TODO do not calculate mean here, but precalculate it
+    cur_pol = ds_policyscen.CurPol.sel(Region="EARTH", Time=gap_index).mean().values + 0
+    ndc = ds_policyscen.NDC.sel(Region="EARTH", Time=gap_index).mean().values + 0
     return {
-        "co2": stats("co2"),
-        "ghg": stats("ghg")
+        "index": gap_index,
+        "budget": pathway / 1000,
+        "curPol": cur_pol / 1000,
+        "ndc": ndc / 1000,
     }
 
 
-@app.get("/historicalCarbon/<region>")
-def historicalCarbon(region="EARTH"):
+@app.get("/timeseries/<region>/emissions/historical")
+def historical_emissions(region="EARTH"):
     start = request.args.get("start")
     end = request.args.get("end")
-    df = dsGlobal.GHG_hist.sel(Region=region, Time=slice(start, end)).to_pandas()
+    df = ds_global.GHG_hist.sel(Region=region, Time=slice(start, end)).to_pandas()
 
     if region == "EARTH":
         df /= 1000  # global GHG in Gt CO2e
 
-    df = df.reset_index().rename(columns={'Time': 'time', 'GHG_hist': "value"}).dropna()
+    df = df.reset_index().rename(columns={"Time": "time", "GHG_hist": "value"}).dropna()
     return df.to_dict(orient="records")
 
-
-@app.get("/populationOverTime/<region>")
-def populationOverTime(region):
-    start = request.args.get("start")
-    end = request.args.get("end")
-    scenario = "SSP2"
-    df = dsGlobal.Population.sel(
-        Scenario=scenario, Region=region, Time=slice(start, end)
-    ).to_pandas()
-    df.index.rename("time", inplace=True)
-    df = df.dropna().reset_index()  # Note the missing data!
-    df["value"] = df.pop(0)
-    return df.to_dict(orient="records")
-
-
-@app.get("/gdpOverTime/<region>")
-def gdpOverTime(region):
-    start = request.args.get("start")
-    end = request.args.get("end")
-    scenario = "SSP2"
-    df = dsGlobal.Population.sel(
-        Scenario=scenario, Region=region, Time=slice(start, end)
-    ).to_pandas()
-    df.index.rename("time", inplace=True)
-    df = df.dropna().reset_index()  # Note the missing data!
-    df["value"] = df.pop(0)
-    return df.to_dict(orient="records")
 
 def population_map(year, scenario="SSP2"):
     """Return population map as xarray data-array"""
-    return dsGlobal.Population.sel(Time=year, Scenario=scenario)
+    return ds_global.Population.sel(Time=year, Scenario=scenario)
+
 
 def open_aggregated_files():
-    root = (
-        config.data_dir / config.start_year / config.assumption_set / "Aggregated_files"
-    )
+    root = config.data_dir / config.start_year / config.assumption_set / "Aggregated_files"
     files = {}
     for f in root.glob("xr_alloc_*.nc"):
         # TODO once https://github.com/pbl-nl/website-carbon-budget-explorer/issues/38#issuecomment-2653487809
@@ -396,32 +352,31 @@ def open_aggregated_files():
         files[year] = xr.open_dataset(f)
     return files
 
+
 file_by_year = open_aggregated_files()
 
-@app.get("/map/<year>/GHG")
-def fullCenturyBudgetSpatial(year):
+
+@app.get("/map/<year>/<allocation_method>")
+def allocation_map(year, allocation_method):
     """Get map of GHG by year"""
-    effortSharing = request.args.get("effortSharing", "PCC")
-    selection = pathwaySelection()
-    if effortSharing in ["PC", "PCC", "AP", "GDR", "ECPC"]:
+    selection = global_pathway_choices()
+    if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
-    if effortSharing == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
-    if effortSharing in ["ECPC", "GDR"]:
+    if allocation_method in ["ECPC", "GDR"]:
         selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
-    if effortSharing == "ECPC":
+    if allocation_method == "ECPC":
         selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR)
-    if effortSharing == "GDR":
-        selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
-                         Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
+    if allocation_method == "GDR":
+        selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
 
     df = (
         (
-            file_by_year[year][effortSharing]
-            .sel(**selection)
+            file_by_year[year][allocation_method].sel(**selection)
+            # TODO: precalculate per capita data instead of division below?
             / population_map(year=2021)
         )
-        .rename(Region="ISO")
         .to_series()
         .rename("value")
         .dropna()  # Note: dropping NaN values here
@@ -430,11 +385,10 @@ def fullCenturyBudgetSpatial(year):
     rows = df.to_dict(orient="records")
 
     ds = (
-        file_by_year[year]
-        .sel(
+        file_by_year[year].sel(
             Scenario="SSP2",
             Convergence_year=DEFAULT_CONVERGENCE_YEAR,
-            **pathwaySelection(),
+            **global_pathway_choices(),
         )
     ).to_array("variable")
 
@@ -449,12 +403,10 @@ def fullCenturyBudgetSpatial(year):
 ds_policyscen = xr.open_dataset(config.data_dir / "xr_policyscen.nc")
 
 
-@app.get("/policyPathway/<policy>/<region>")
-def policyPathway(policy, region):
+@app.get("/timeseries/<region>/policies/<policy>")
+def policy(policy, region):
     assert policy in {"CurPol", "NDC", "NetZero"}
-    policy_ds = (
-        ds_policyscen[policy].sel(Region=region, Time=slice(2021, 2100)).drop("Region")
-    )
+    policy_ds = ds_policyscen[policy].sel(Region=region, Time=slice(2021, 2100)).drop("Region")
     # Not all countries have data for all policies, so return None if no data
     if policy_ds.isnull().all():
         return jsonify(None)
@@ -472,37 +424,59 @@ def policyPathway(policy, region):
     ).to_pandas()
 
     if region == "EARTH":
-        columns_to_divide = ['mean', 'min', 'max']
+        columns_to_divide = ["mean", "min", "max"]
         df[columns_to_divide] = df[columns_to_divide] / 1000  # global GHG in Gt CO2e
 
     df.index.rename("time", inplace=True)
     return df.reset_index().to_dict(orient="records")
 
 
-def isEU(region):
+def is_eu(region):
     # EU member states do not have individual NDCs but are covered by the EU NDC
-    member_states = [
-        "AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA",
-        "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "MLT", "NLD",
-        "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE"
-    ]
+    member_states = {
+        "AUT",
+        "BEL",
+        "BGR",
+        "HRV",
+        "CYP",
+        "CZE",
+        "DNK",
+        "EST",
+        "FIN",
+        "FRA",
+        "DEU",
+        "GRC",
+        "HUN",
+        "IRL",
+        "ITA",
+        "LVA",
+        "LTU",
+        "LUX",
+        "MLT",
+        "NLD",
+        "POL",
+        "PRT",
+        "ROU",
+        "SVK",
+        "SVN",
+        "ESP",
+        "SWE",
+    }
     if region in member_states:
         return "EU"
     return region
 
 
-def ndcAmbition(region):
-    region = isEU(region)
+@app.get("/statistics/ndc/reductions/<region>")
+def ndc_reductions(region):
+    region = is_eu(region)
 
-    ndc2030_min = dsGlobal.GHG_ndc_red.sel(Region=region).min().values.tolist()
-    ndc2030_max = dsGlobal.GHG_ndc_red.sel(Region=region).max().values.tolist()
+    ndc2030_min = ds_global.GHG_ndc_red.sel(Region=region).min().values.tolist()
+    ndc2030_max = ds_global.GHG_ndc_red.sel(Region=region).max().values.tolist()
 
     if np.isnan(ndc2030_min) or np.isnan(ndc2030_max):
-        return None
-    return {
-        "min": ndc2030_min * 100,
-        "max": ndc2030_max * 100
-    }
+        return jsonify(None)
+    return {"min": ndc2030_min * 100, "max": ndc2030_max * 100}
 
     # ndc2030_min = dsGlobal.GHG_ndc.sel(Region=region).min().values.tolist()
     # ndc2030_max = dsGlobal.GHG_ndc.sel(Region=region).max().values.tolist()
@@ -514,19 +488,11 @@ def ndcAmbition(region):
     # }
 
 
-def historicalCarbonIndicator(region, start, end):
-    return (
-        dsGlobal.GHG_hist.sel(Region=region, Time=slice(start, end))
-        .sum()
-        .values.tolist()
-    )
-
-
-def ndcRange_inventory(region):
+def ndc_range_inventory(region):
     # Absolute emissions from the NDC, based on self-reported inventory data
-    region = isEU(region)
+    region = is_eu(region)
 
-    ds_ndc_inv = dsGlobal.GHG_ndc_inv.sel(Region=region)
+    ds_ndc_inv = ds_global.GHG_ndc_inv.sel(Region=region)
     min_ndc_inv = ds_ndc_inv.min().values.tolist()
     max_ndc_inv = ds_ndc_inv.max().values.tolist()
     if np.isnan(min_ndc_inv) or np.isnan(max_ndc_inv):
@@ -534,11 +500,11 @@ def ndcRange_inventory(region):
     return {2030: [min_ndc_inv, max_ndc_inv]}
 
 
-def ndcRange_jones(region):
+def ndc_range_jones(region):
     # Is using GHGH_ndc_red to get absolute emissions, but then using 2015 Jones data
-    region = isEU(region)
+    region = is_eu(region)
 
-    ds_ndc = dsGlobal.GHG_ndc.sel(Region=region)
+    ds_ndc = ds_global.GHG_ndc.sel(Region=region)
     ds_ndc_min = ds_ndc.min().values.tolist()
     ds_ndc_max = ds_ndc.max().values.tolist()
     if np.isnan(ds_ndc_min) or np.isnan(ds_ndc_max):
@@ -546,51 +512,39 @@ def ndcRange_jones(region):
     return {2030: [ds_ndc_min, ds_ndc_max]}
 
 
-@app.get("/indicators/<region>")
-def indicators(region):
-    start = request.args.get("start", 1850)
-    end = request.args.get("end", 2100)
-    data = {
-        "ndcAmbition": ndcAmbition(region),
-        "historicalCarbon": historicalCarbonIndicator(region, start, end),
-        "ndc_inventory": ndcRange_inventory(region),
-        "ndc_jones": ndcRange_jones(region)
-    }
-    return data
+@app.get("/statistics/ndc/projections/<region>")
+def ndc_projections(region):
+    return {"ndc_inventory": ndc_range_inventory(region), "ndc_jones": ndc_range_jones(region)}
 
 
-def get_ds(ISO):
-    if ISO not in available_region_files:
-        raise ValueError(f"ISO {ISO} not found")
-    fn = available_region_files[ISO]
+def get_ds(region):
+    if region not in available_region_files:
+        raise ValueError(f"Region {region} not found")
+    fn = available_region_files[region]
     return xr.open_dataset(fn)
 
 
-def effortSharing(ISO, principle):
-    selection = pathwaySelection()
-    ds = (get_ds(ISO)[principle]
-          .sel(**selection)
-          .rename(Time="time")
-    )
+def emission_allocation_per_method(region, allocation_method):
+    selection = global_pathway_choices()
+    ds = get_ds(region)[allocation_method].sel(**selection).rename(Time="time")
     # set time as the first dimension
     dim_order = ["time"] + [dim for dim in ds.dims if dim != "time"]
     ds = ds.transpose(*dim_order)
 
     # extract the 'most reasonable' (mr) df which will be the main trajectory line
     mr_selection = dict()
-    if principle in ["PC", "PCC", "AP", "GDR", "ECPC"]:
+    if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         mr_selection.update(Scenario="SSP2")
-    if principle == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
-    if principle in ["ECPC", "GDR"]:
+    if allocation_method in ["ECPC", "GDR"]:
         mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
-    if principle == "ECPC":
-        mr_selection.update(Discount_factor=DEFAULT_DISCOUNT_FACTOR,
-                            Convergence_year=DEFAULT_CONVERGENCE_YEAR,
-                            )
-    if principle == "GDR":
-        mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT,
-                            Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
+    if allocation_method == "ECPC":
+        mr_selection.update(
+            Discount_factor=DEFAULT_DISCOUNT_FACTOR,
+        )
+    if allocation_method == "GDR":
+        mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
 
     mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
 
@@ -601,66 +555,55 @@ def effortSharing(ISO, principle):
     min_df = ds.min(agg_dims, skipna=True).to_pandas().rename("min")
     max_df = ds.max(agg_dims, skipna=True).to_pandas().rename("max")
 
-    return (
-        pd.concat([mr_df, min_df, max_df], axis=1)
-        .reset_index()
-        .dropna()
-        .to_dict(orient="records")
-    )
-
-principles = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
+    return pd.concat([mr_df, min_df, max_df], axis=1).reset_index().dropna().to_dict(orient="records")
 
 
-@app.get("/<ISO>/effortSharings")
-def effortSharings(ISO):
+allocation_methods = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
+
+
+@app.get("/timeseries/<region>/emissions/allocations")
+def emission_allocations(region):
     """
-    http://127.0.0.1:5000//USA/GF?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 36.94ms
-    http://127.0.0.1:5000//USA/PC?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 38.556ms
-    http://127.0.0.1:5000//USA/PCC?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 37.553ms
-    http://127.0.0.1:5000//USA/AP?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 37.296ms
-    http://127.0.0.1:5000//USA/GDR?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 37.304ms
-    http://127.0.0.1:5000//USA/ECPC?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 10.238ms
-    36.94 + 38.56 + 37.55 + 37.29 + 37.30 + 10.23 = 197.869
-
-    http://127.0.0.1:5000//USA/effortSharings?exceedanceRisk=0.67&negativeEmissions=0.4&effortSharing=PCC&temperature=1.8: 221.552ms
+    http://127.0.0.1:5000/timeseries/USA/emissions/allocations?exceedanceRisk=0.67&negativeEmissions=0.4&temperature=1.8: 36.94ms
     """
-    sharings = {}
-    for principle in principles:
-        sharing = effortSharing(ISO, principle)
-        if sharing is None:
+    allocations = {}
+    for allocation_method in allocation_methods:
+        allocation = emission_allocation_per_method(region, allocation_method)
+        if allocation is None:
             continue
-        sharings[principle] = sharing
-    return sharings
+        allocations[allocation_method] = allocation
+    return allocations
 
 
-@app.get("/<ISO>/effortSharingReductions")
-def effortSharingReductions(ISO):
+@app.get("/statistics/reductions/<region>")
+def allocation_reduction(region):
     periods = (2030, 2040)
     selection = dict(
-        **pathwaySelection(),
+        **global_pathway_choices(),
         Time=periods,
     )
 
-    hist = dsGlobal.GHG_hist.sel(Region=ISO, Time=1990).values + 0
-    ds = get_ds(ISO)
+    hist = ds_global.GHG_hist.sel(Region=region, Time=1990).values + 0
+    ds = get_ds(region)
 
     reductions = {}
-    for principle in principles:
+    for allocation_method in allocation_methods:
         pselection = selection.copy()
-        if principle in ["PC", "PCC", "AP", "GDR", "ECPC"]:
+        if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
             pselection.update(Scenario="SSP2")
-        if principle == "PCC":
+        if allocation_method in ["PCC", "ECPC"]:
             pselection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
-        reductions[principle] = {}
+        reductions[allocation_method] = {}
         for period in periods:
             pselection.update(Time=period)
-            es = ds[principle].sel(**pselection).mean().values + 0
+            es = ds[allocation_method].sel(**pselection).mean().values + 0
             if np.isnan(es) or np.isnan(hist) or hist == 0:
-                reductions[principle][period] = None
+                reductions[allocation_method][period] = None
             else:
-                reductions[principle][period] = -(es - hist) / hist * 100
+                reductions[allocation_method][period] = -(es - hist) / hist * 100
 
     return reductions
 
+
 if __name__ == "__main__":
-    print(ndcAmbition("USA"))
+    print(ndc_reductions("USA"))
