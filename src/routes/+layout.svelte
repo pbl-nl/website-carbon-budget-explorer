@@ -77,7 +77,7 @@
 				/> Carbon Budget Explorer</a
 			>
 		</div>
-		<div class="alert" style="width: 30%">
+		<div class="alert" style="width: 50%">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"
