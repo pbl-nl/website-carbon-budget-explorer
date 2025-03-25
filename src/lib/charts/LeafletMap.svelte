@@ -136,7 +136,7 @@
 
 	$effect(() => {
 		if (geojsonlayer) {
-			geojsonlayer.setStyle(styleBuilder(metrics.data));
+			geojsonlayer.setStyle(styleBuilder());
 		}
 	});
 </script>
