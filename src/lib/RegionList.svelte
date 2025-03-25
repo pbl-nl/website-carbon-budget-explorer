@@ -25,7 +25,7 @@
 	{/each}
 </div>
 <h1 class="text-lg">Countries</h1>
-<div class=" grid w-full grid-flow-row grid-cols-5" aria-label="Regions">
+<div class=" grid w-full grid-flow-row grid-cols-5" aria-label="Countries">
 	{#each regions as region}
 		{#if !('countries' in region)}
 			<a
