@@ -372,7 +372,7 @@ def build_regions():
         "Umbrella": ["AUS", "CAN", "ISL", "ISR", "JPN", "KAZ", "NOR", "NZL", "UKR", "USA"],
         "G7": ["CAN", "DEU", "FRA", "GBR", "ITA", "JPN", "USA"],
         "G20": ["ARG", "AUS", "BRA", "CAN", "CHN", "DEU", "FRA", "GBR", "IND", "IDN", "ITA", "JPN", "KOR", "MEX", "RUS", "SAU", "TUR", "USA", "ZAF"],
-        "FSM": ["FSM", "MHL", "PLW", "NRU"],
+        "FSM": ["MHL", "PLW", "NRU"],
         "LDC": [
             "AFG",
             "AGO",
