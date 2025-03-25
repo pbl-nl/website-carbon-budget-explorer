@@ -479,7 +479,7 @@ def build_regions():
             if region["iso3"] in countries:
                 if "regions" not in region:
                     region["regions"] = []
-                region["regions"].append(region2)
+                region["regions"] = sorted(region["regions"] + [region2])
 
     return sorted(data, key=lambda x: x["name"])
 
