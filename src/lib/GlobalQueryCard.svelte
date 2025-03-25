@@ -53,7 +53,7 @@
 	<div class="card-body">
 		<div>
 			<h2 class="not-prose card-title">Global settings</h2>
-			<p class="italic">How many emissions we have left is determined by:</p>
+			<p class="italic">The remaining emissions are determined by:</p>
 			<div class="block">
 				Limit global warming to (&deg;C)
 				<span
