@@ -97,7 +97,7 @@
 		scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator)
 	);
 
-	function styleBuilder(data: Props['metrics']['data']) {
+	function styleBuilder() {
 		return function (geoJsonFeature: RegionFeature | undefined) {
 			if (geoJsonFeature === undefined) {
 				return {};
@@ -114,7 +114,7 @@
 	}
 
 	const geoJsonOptions: GeoJSONOptions = {
-		style: styleBuilder(metrics.data)
+		style: styleBuilder()
 	};
 
 	let geojsonlayer: GeoJSONT | undefined = $state(undefined);
