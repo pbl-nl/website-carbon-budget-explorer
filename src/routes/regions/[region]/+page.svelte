@@ -119,12 +119,13 @@
 	let domainExtent = $derived.by(() => {
 		// Set a reasonable default
 		const extent: [number, number] = [-100, 100];
+		const padding = 1.1; // works for min & max since min should be <= 0
 
 		// Refine default with extents of historical emissions
-		// Make sure 0-line is always visible
+		// Make sure 0-line is always visible (min <=0)
 		if (data.historicalEmissions.extent[1] !== undefined) {
-			extent[0] = Math.min(0, data.historicalEmissions.extent[0] * 0.9);
-			extent[1] = Math.max(0, data.historicalEmissions.extent[1] * 1.1);
+			extent[0] = Math.min(0, data.historicalEmissions.extent[0] * padding);
+			extent[1] = Math.max(0, data.historicalEmissions.extent[1] * padding);
 		}
 		// Refine defaults with extents of active allocationMethods
 		const allocationMethods = Object.entries(data.allocationMethod)
@@ -132,8 +133,8 @@
 			.map(([, value]) => value)
 			.flatMap((d) => d);
 		if (allocationMethods.length > 0) {
-			const activeMethodMin = Math.min(...allocationMethods.map((d) => d.mean)) * 1.1;
-			const activeMethodMax = Math.max(...allocationMethods.map((d) => d.mean)) * 1.1;
+			const activeMethodMin = Math.min(...allocationMethods.map((d) => d.mean)) * padding;
+			const activeMethodMax = Math.max(...allocationMethods.map((d) => d.mean)) * padding;
 			extent[0] = Math.min(extent[0], activeMethodMin);
 			extent[1] = Math.max(extent[1], activeMethodMax);
 		}
