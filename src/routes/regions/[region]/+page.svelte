@@ -134,8 +134,8 @@
 		if (allocationMethods.length > 0) {
 			const activeMethodMin = Math.min(...allocationMethods.map((d) => d.mean)) * 1.1;
 			const activeMethodMax = Math.max(...allocationMethods.map((d) => d.mean)) * 1.1;
-			extent[0] = activeMethodMin < extent[0] ? activeMethodMin : extent[0];
-			extent[1] = activeMethodMax > extent[1] ? activeMethodMax : extent[1];
+			extent[0] = Math.min(extent[0], activeMethodMin);
+			extent[1] = Math.max(extent[1], activeMethodMax);
 		}
 		return extent;
 	});
