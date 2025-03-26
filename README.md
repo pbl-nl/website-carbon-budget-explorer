@@ -40,15 +40,15 @@ npm install
 pip install -r requirements.txt
 ```
 
-## Sofware installation on Windows
+## Software installation on Windows
 
 Use miniforge to setup Python and Node.js.
 
-1. From [https://conda-forge..org/download](https://conda-forge.org/download/) download the latest Miniforge3 Windows 64-bit installer and install it.
+1. From [https://conda-forge.org/download](https://conda-forge.org/download/) download the latest Miniforge3 Windows 64-bit installer and install it.
 2. Open a PowerShell
 3. Create environment with `mamba create --name cabe python=3.12 nodejs=22`
 4. Activate environment with `mamba activate cabe`
-5. Change the current working directory to the location where you want clone the repository. For example `cd C:\Users\username\Documents`.
+5. Change the current working directory to the location where you want to clone the repository. For example `cd C:\Users\username\Documents`.
 6. Clone repo with `git clone https://github.com/pbl-nl/website-carbon-budget-explorer.git` or use [Visual Studio Code](https://code.visualstudio.com/) to clone repository.
 7. Change the current working directory to the repository with `cd website-carbon-budget-explorer`.
 8. Install Python dependencies with `pip install -r requirements.txt`
@@ -79,7 +79,7 @@ On Windows, use flask built-in developer server.
 ```shell
 flask --app ws:app run -p 5000
 ```
-
+If an error occurs here, try out different ports (e.g. 5001, 5005 etc). Also adjust the changed port in the `.env` file. 
 To see the routes of the web service use
 
 ```bash
