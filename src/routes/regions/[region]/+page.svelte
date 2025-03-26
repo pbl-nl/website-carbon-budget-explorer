@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import CountryHeader from '$lib/CountryHeader.svelte';
 
 	import StatsTable from '$lib/StatsTable.svelte';
@@ -15,7 +13,7 @@
 	import Area from '$lib/charts/components/Area.svelte';
 	import { allocationMethods } from '$lib/allocationMethods';
 	import { cubicOut } from 'svelte/easing';
-	import { tweened } from 'svelte/motion';
+	import { Tween } from 'svelte/motion';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
@@ -52,10 +50,7 @@
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const tweenedAllocationMethod = tweened(data.allocationMethod, tweenOptions);
-	run(() => {
-		tweenedAllocationMethod.set(data.allocationMethod);
-	});
+	const tweenedAllocationMethod = Tween.of(() => data.allocationMethod, tweenOptions);
 
 	// Hover effort sharing
 	let evt = $state({});
@@ -122,20 +117,31 @@
 	}
 
 	let domainExtent = $derived.by(() => {
+		// Set a reasonable default
 		const extent: [number, number] = [-100, 100];
+		const padding = 1.1; // works for min & max since min should be <= 0
+
+		// Refine default with extents of historical emissions
+		// Make sure 0-line is always visible (min <=0)
 		if (data.historicalEmissions.extent[1] !== undefined) {
-			extent[0] = data.historicalEmissions.extent[1] * -0.3;
-			extent[1] = data.historicalEmissions.extent[1] * 1.5;
-		} else {
-			// If there is no historical data, use all effort sharing data
-			const allocationMethods = Object.values(data.allocationMethod).flatMap((d) => d);
-			if (allocationMethods.length > 0) {
-				extent[0] = Math.min(...allocationMethods.map((d) => d.min));
-				extent[1] = Math.max(...allocationMethods.map((d) => d.max));
-			}
+			extent[0] = Math.min(0, data.historicalEmissions.extent[0] * padding);
+			extent[1] = Math.max(0, data.historicalEmissions.extent[1] * padding);
+		}
+		// Refine defaults with extents of active allocationMethods
+		const allocationMethods = Object.entries(data.allocationMethod)
+			.filter(([key]) => activeAllocationMethods[key])
+			.map(([, value]) => value)
+			.flatMap((d) => d);
+		if (allocationMethods.length > 0) {
+			const activeMethodMin = Math.min(...allocationMethods.map((d) => d.mean)) * padding;
+			const activeMethodMax = Math.max(...allocationMethods.map((d) => d.mean)) * padding;
+			extent[0] = Math.min(extent[0], activeMethodMin);
+			extent[1] = Math.max(extent[1], activeMethodMax);
 		}
 		return extent;
 	});
+
+	const tweeneddomainExtent = Tween.of(() => domainExtent, tweenOptions);
 </script>
 
 <div class="flex h-full flex-row gap-4">
@@ -196,7 +202,11 @@
 				{availableAllocationMethods}
 			/>
 			<section id="overview" class="grow">
-				<Pathway yDomain={domainExtent} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
+				<Pathway
+					yDomain={tweeneddomainExtent.current}
+					{evt}
+					yAxisTtle="GHG emissions (Mt CO₂e/year)"
+				>
 					<Line
 						data={data.historicalEmissions.data.filter((d) => d.time >= 1990)}
 						x={'time'}
@@ -209,7 +219,7 @@
 						{#if activeAllocationMethods[id]}
 							<g name={id}>
 								<Line
-									data={$tweenedAllocationMethod[id]}
+									data={tweenedAllocationMethod.current[id]}
 									x={'time'}
 									y={'mean'}
 									{color}
@@ -217,7 +227,7 @@
 									mouseout={(e) => (evt = e)}
 								/>
 								<Area
-									data={$tweenedAllocationMethod[id]}
+									data={tweenedAllocationMethod.current[id]}
 									x={'time'}
 									y0={'min'}
 									y1={'max'}
