@@ -79,7 +79,8 @@ On Windows, use flask built-in developer server.
 ```shell
 flask --app ws:app run -p 5000
 ```
-If an error occurs here, try out different ports (e.g. 5001, 5005 etc). Also adjust the changed port in the `.env` file. 
+
+If an error occurs here, try out different ports (e.g. 5001, 5005 etc). Also adjust the changed port in the `.env` file.
 To see the routes of the web service use
 
 ```bash
