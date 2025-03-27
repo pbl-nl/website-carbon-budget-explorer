@@ -89,14 +89,16 @@
 			<div class="flex grow flex-col">
 				<div class="relative h-full w-full">
 					<div
-						class="absolute left-0 top-0 z-[500] flex w-fit flex-row items-center gap-1 rounded-br-md bg-white p-2 shadow"
+						class="absolute left-2 top-2 z-[500] flex w-fit flex-row items-center rounded-lg border border-gray-300 bg-white p-2 shadow-2xl"
 					>
 						<div>Click on a country or</div>
 						<details class="dropdown">
-							<summary class="btn btn-ghost btn-sm font-normal">Select country &#9660;</summary>
+							<summary class="btn btn-ghost btn-xs ps-1 text-base font-normal normal-case"
+								>select country &#9660;</summary
+							>
 							<!-- TODO dont hardcode height and width -->
 							<div
-								class="card dropdown-content compact rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
+								class="card dropdown-content compact rounded-box z-[500] h-[600px] w-[600px] overflow-y-scroll bg-base-100 shadow sm:w-96 xl:w-[800px] 2xl:w-[900px]"
 							>
 								<!-- TODO add filter input box to make it easier to find country -->
 								<div class="card-body">
