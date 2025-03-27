@@ -22,7 +22,7 @@
 	import type { ComponentEvents, SvelteComponent } from 'svelte';
 	import NdcRange from '$lib/charts/components/NdcRange.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
-	import NdcDot from '$lib/NdcDot.svelte';
+	import NdcDot from '$lib/charts/components/NdcDot.svelte';
 
 	interface Props {
 		data: PageData;
