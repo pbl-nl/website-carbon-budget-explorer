@@ -9,7 +9,7 @@
 	let { regions }: Props = $props();
 </script>
 
-<!-- TODO add filter by name and filter by non-country (aka ISO2===null) -->
+<!-- TODO add filter by name and filter by International Groups or country (aka ISO2===null) -->
 <h1 class="text-lg">Regions</h1>
 <div
 	class=" grid w-full grid-flow-row grid-cols-3 md:grid-cols-2 xl:grid-cols-5"
