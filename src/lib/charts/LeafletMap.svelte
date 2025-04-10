@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { Map, GeoJSON, ControlAttribution } from 'sveaflet';
+	import { Map as LMap, GeoJSON, ControlAttribution, Tooltip } from 'sveaflet';
 	import * as L from 'leaflet';
 	// Load proj4leaflet plugin so L.Proj.CRS is available
 	import 'proj4leaflet';
@@ -34,26 +34,28 @@
 
 	const interpolator = interpolateYlGnBu;
 
-	function getMetric(
-		feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>,
-		metrics: SpatialMetric[]
-	) {
-		return metrics.find((m) => m.Region === feature.properties!.ISO_A3_EH);
+	function getMetric(feature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>) {
+		return metricsLookup.get(feature.properties!.ISO_A3_EH);
 	}
 
 	interface Props {
 		borders: BordersCollection;
 		metrics: BudgetSpatial<SpatialMetric>;
 		clickedFeature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties> | undefined;
-		hoveredFeature: GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties> | undefined;
 	}
 
-	let {
-		borders,
-		metrics,
-		clickedFeature = $bindable(),
-		hoveredFeature = $bindable()
-	}: Props = $props();
+	let { borders, metrics, clickedFeature = $bindable() }: Props = $props();
+	const metricsLookup = $derived(new Map(metrics.data.map((m) => [m.Region, m])));
+
+	type RegionFeature = Feature<Geometry, { ISO_A3_EH: string; NAME: string }>;
+
+	interface TooltipContent {
+		latlng: L.LatLng;
+		name: string;
+		metric?: number;
+	}
+
+	let tooltip: TooltipContent | undefined = $state(undefined);
 
 	const tweenOptions = { duration: 1000, easing: cubicOut };
 	const tweenedDomain = tweened(metrics.domain, tweenOptions);
@@ -65,21 +67,27 @@
 	}
 
 	function onMouseOver(e: LeafletMouseEvent) {
-		hoveredFeature = e.sourceTarget.feature;
-
 		e.sourceTarget.setStyle({
 			weight: 1,
 			color: 'black'
 		});
 		e.sourceTarget.bringToFront();
+
+		const feature: RegionFeature = e.sourceTarget.feature;
+		const metric = getMetric(feature);
+		tooltip = {
+			latlng: e.latlng,
+			name: feature.properties!.NAME,
+			metric: metric?.value
+		};
 	}
 
 	function onmouseout(e: LeafletMouseEvent) {
-		hoveredFeature = undefined;
 		e.sourceTarget.setStyle({
 			weight: 1,
 			color: 'darkgrey'
 		});
+		tooltip = undefined;
 	}
 
 	run(() => {
@@ -89,12 +97,12 @@
 		scaleSequential().clamp(true).domain($tweenedDomain).interpolator(interpolator)
 	);
 
-	function styleBuilder(data: Props['metrics']['data']) {
-		return function (geoJsonFeature: Feature<Geometry, { ISO_A3_EH: string }> | undefined) {
+	function styleBuilder() {
+		return function (geoJsonFeature: RegionFeature | undefined) {
 			if (geoJsonFeature === undefined) {
 				return {};
 			}
-			const value = getMetric(geoJsonFeature, data)?.value;
+			const value = getMetric(geoJsonFeature)?.value;
 			// TODO Deal with nans?
 			const defaultOptions = { fillColor: 'grey', color: 'darkgrey', weight: 1 };
 			if (value === undefined) {
@@ -106,7 +114,7 @@
 	}
 
 	const geoJsonOptions: GeoJSONOptions = {
-		style: styleBuilder(metrics.data)
+		style: styleBuilder()
 	};
 
 	let geojsonlayer: GeoJSONT | undefined = $state(undefined);
@@ -128,21 +136,35 @@
 
 	$effect(() => {
 		if (geojsonlayer) {
-			geojsonlayer.setStyle(styleBuilder(metrics.data));
+			geojsonlayer.setStyle(styleBuilder());
 		}
 	});
 </script>
 
 <div class="h-full w-full" id="leaflet-wrapper">
 	{#if browser}
-		<Map options={mapOptions}>
+		<LMap options={mapOptions}>
 			<GeoJSON json={borders} options={geoJsonOptions} bind:instance={geojsonlayer} />
 			<ControlAttribution
 				options={{
 					prefix: false
 				}}
 			/>
-		</Map>
+			{#if tooltip}
+				<Tooltip latLng={tooltip.latlng} class="text-base">
+					<div>
+						{tooltip.name}
+					</div>
+					<div>
+						{#if tooltip.metric}
+							{tooltip.metric.toFixed(0)} tonnes CO₂e per capita
+						{:else}
+							No data available
+						{/if}
+					</div>
+				</Tooltip>
+			{/if}
+		</LMap>
 		<ColorLegend title={'Emissions allocation per capita (t CO2e/pc)'} {scale} />
 	{/if}
 </div>
