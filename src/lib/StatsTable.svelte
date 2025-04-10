@@ -25,11 +25,11 @@
 </script>
 
 <div class="rounded px-12 py-8">
-	<table class="prose w-full max-w-none table-auto">
+	<table class="prose w-full max-w-none table-auto" align="center">
 		<thead>
 			<tr>
 				<th>Allocation method</th>
-				{#each Object.values(allocationMethods) as { label }}
+				{#each Object.values(allocationMethods) as {label}}
 					<th>{label}</th>
 				{/each}
 			</tr>

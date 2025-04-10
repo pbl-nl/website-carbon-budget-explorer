@@ -136,7 +136,7 @@
 			<section id="key-indicators">
 				<div class="px-12">
 					<p>
-						<span class="font-bold"> NDC ambition in 2030 relative to 2015: </span>
+						<span> NDC ambition in 2030 relative to 2015: </span>
 						<span>
 							{#if data.ndcReduction === null}
 								-
@@ -161,7 +161,7 @@
 							{:else}
 								{`${data.ndcReduction.min.toFixed(
 									0
-								)} - ${data.ndcReduction.max.toFixed(0)} % reduction`}
+								)} to ${data.ndcReduction.max.toFixed(0)} % reduction`}
 							{/if}
 						</span>
 					</p>
