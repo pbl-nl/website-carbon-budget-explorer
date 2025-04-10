@@ -220,10 +220,8 @@
 						rel="noopener noreferrer">Responsibility-Capability Index</a
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
-				<QA question="Why are there two absolute NDC values shown in the country graph?">
-					Many countries indicate NDC ambitions in various levels or conditionalities, for example to certain developments
-					such as economic growth, or international support. The two values shown are the minimum and
-					maximum NDC values deduced.
+				<QA question="Why are there sometimes two absolute NDC values shown in the country graph?">
+					Many countries indicate NDC targets at different levels or conditional on, for example, certain developments such as economic growth or international support. The two values shown are the minimum and maximum derived NDC values.
 				</QA>
 				<QA question="What NDC data is shown?">
 					When NDCs area published by countries, they are often expressed in relative terms (e.g. 30 %
