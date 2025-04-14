@@ -29,7 +29,7 @@
 		<thead>
 			<tr>
 				<th>Allocation method</th>
-				{#each Object.values(allocationMethods) as {label}}
+				{#each Object.values(allocationMethods) as { label }}
 					<th>{label}</th>
 				{/each}
 			</tr>

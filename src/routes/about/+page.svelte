@@ -221,13 +221,15 @@
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
 				<QA question="Why are there sometimes two absolute NDC values shown in the country graph?">
-					Many countries indicate NDC targets at different levels or conditional on, for example, certain developments such as economic growth or international support. The two values shown are the minimum and maximum derived NDC values.
+					Many countries indicate NDC targets at different levels or conditional on, for example,
+					certain developments such as economic growth or international support. The two values
+					shown are the minimum and maximum derived NDC values.
 				</QA>
 				<QA question="What NDC data is shown?">
-					When NDCs area published by countries, they are often expressed in relative terms (e.g. 30 %
-					reduction in 2030 compared to 1990). The absolute values are calculations that depend on
-					the historical and baseline emission data used. We use NDC data based on the
-					data we use for the Carbon Budget Explorer (Jones et al., 2021), which is deduced from
+					When NDCs area published by countries, they are often expressed in relative terms (e.g. 30
+					% reduction in 2030 compared to 1990). The absolute values are calculations that depend on
+					the historical and baseline emission data used. We use NDC data based on the data we use
+					for the Carbon Budget Explorer (Jones et al., 2021), which is deduced from
 					<a
 						href="https://themasites.pbl.nl/o/climate-ndc-policies-tool/"
 						target="_blank"
@@ -275,8 +277,7 @@
 						href="https://doi.org/10.5281/zenodo.12188104"
 						target="_blank">from Zenodo</a
 					>, including more recent developments. Version 0.4.2 is used in the current release of the
-					Carbon Budget Explorer. The Python code for the computations can be found
-					on
+					Carbon Budget Explorer. The Python code for the computations can be found on
 					<a href="https://doi.org/10.5281/zenodo.13640303" target="_blank">Zenodo</a> or
 					<a href="https://github.com/imagepbl/EffortSharing/tree/v1.0.0" target="_blank">GitHub</a
 					>.

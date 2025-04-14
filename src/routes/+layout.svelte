@@ -90,9 +90,7 @@
 					d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 				/></svg
 			>
-			<span
-				>This website has been updated in March 2025 (see About page).</span
-			>
+			<span>This website has been updated in March 2025 (see About page).</span>
 		</div>
 		<div class="flex-none">
 			<a href="/about" class="btn btn-square btn-ghost px-10">About</a>

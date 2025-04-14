@@ -153,8 +153,8 @@
 				<div class="card-body">
 					<h2 class="card-title">Policy pathways</h2>
 					<p>
-						Compare your pathway to projections of various policy levels. Of particular
-						interest is the
+						Compare your pathway to projections of various policy levels. Of particular interest is
+						the
 						<span
 							class="tooltip cursor-pointer"
 							role="tooltip"
