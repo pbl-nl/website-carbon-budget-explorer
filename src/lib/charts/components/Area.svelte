@@ -5,7 +5,7 @@
 <script lang="ts">
 	import { bisector, type ScaleLinear } from 'd3';
 	import { area, curveLinear } from 'd3-shape';
-	import { createEventDispatcher, getContext, SvelteComponent, type ComponentEvents } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
 
 	const { xScale, yScale } = getContext<{
@@ -14,27 +14,45 @@
 	}>('LayerCake');
 
 	type Row = Record<string, number>;
-	export let data: Row[];
-	export let x = 'x';
-	export let y0 = 'y0';
-	export let y1 = 'y1';
-	export let color = '#ab00d6';
+	interface Props {
+		data: Row[];
+		x?: string;
+		y0?: string;
+		y1?: string;
+		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mouseover: (e: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mouseout: (e: any) => void;
+	}
 
-	$: shade = area<Row>()
-		.x((d) => $xScale(d[x]))
-		.y1((d) => $yScale(d[y1]))
-		.y0((d) => $yScale(d[y0]))
-		.curve(curveLinear);
-	$: path = shade(data);
+	let {
+		data,
+		x = 'x',
+		y0 = 'y0',
+		y1 = 'y1',
+		color = '#ab00d6',
+		mouseover,
+		mouseout
+	}: Props = $props();
 
-	const dispatch = createEventDispatcher();
+	let shade = $derived(
+		area<Row>()
+			.x((d) => $xScale(d[x]))
+			.y1((d) => $yScale(d[y1]))
+			.y0((d) => $yScale(d[y0]))
+			.curve(curveLinear)
+	);
+	let path = $derived(shade(data));
+
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 
-	function hover(e: ComponentEvents<SvelteComponent>) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	function hover(e: any) {
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox
 		const i = finder.center(data, ox);
-		return dispatch('mouseover', { e, row: data[i] });
+		return mouseover({ e, row: data[i] });
 	}
 </script>
 
@@ -42,11 +60,11 @@
 	class="path-area"
 	d={path}
 	fill={color}
-	on:mouseover={hover}
-	on:mousemove={hover}
-	on:focus={(e) => dispatch('mouseover', { e })}
-	on:mouseout={() => dispatch('mouseout')}
-	on:blur={() => dispatch('mouseout')}
+	onmouseover={hover}
+	onmousemove={hover}
+	onfocus={(e) => mouseover({ e })}
+	onmouseout={mouseout}
+	onblur={mouseout}
 	role="tooltip"
 />
 

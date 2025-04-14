@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll } from 'vitest';
+import { test, expect } from 'vitest';
 
 test('1+1', () => {
 	expect(1 + 1).toBe(2);

@@ -1,36 +1,40 @@
 import type { PageServerLoad } from '../global/$types';
 import {
-	pathwayCarbon,
+	globalPathway,
 	currentPolicy,
-	historicalCarbon,
+	historicalEmissions,
 	ndc,
 	netzero,
-	pathwayChoices,
+	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
-	pathwayStats
+	budget,
+	gap,
+	globalPathWayDefaults
 } from '$lib/api';
 
 export const load = (async ({ url }: { url: URL }) => {
-	const choices = await pathwayChoices();
-	const query = pathwayQueryFromSearchParams(url.searchParams, choices);
+	const options = await globalPathwayOptions();
+	const defaults = await globalPathWayDefaults();
+	const query = pathwayQueryFromSearchParams(url.searchParams, defaults);
 
-	const pathway = await pathwayCarbon(url.search);
+	const pathway = await globalPathway(url.search);
 	const curPol = await currentPolicy();
 	const ndc_ = await ndc();
 
 	const result = {
-		pathwayCarbon: pathway,
-		stats: await pathwayStats(url.search),
-		historicalCarbon: await historicalCarbon(),
+		pathway,
+		historicalEmissions: await historicalEmissions(),
 		currentPolicy: curPol,
 		ndc: ndc_,
-		netzero: await netzero()
+		netzero: await netzero(),
+		budget: await budget(url.search),
+		gap: await gap(url.search)
 	};
 	// TODO many rows in result have same year, so could be optimised for size
 	return {
 		pathway: {
 			query,
-			choices
+			options
 		},
 		result
 	};

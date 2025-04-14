@@ -1,52 +1,74 @@
 <script lang="ts">
 	import CustomRange from '$lib/CustomRange.svelte';
 	import type { PathWayQuery } from '$lib/api';
+	import CategoryPicker from './CategoryPicker.svelte';
 
-	export let query: PathWayQuery;
-	export let choices: Record<keyof PathWayQuery, string[]>;
-	export let onChange: (name: string, value: string) => void;
+	interface Props {
+		query: PathWayQuery;
+		options: Record<keyof PathWayQuery, string[]>;
+		onChange: (name: string, value: string) => void;
+	}
 
-	let defaults = {
-		temperature: 2.0,
-		exceedanceRisk: 0.5,
-		negativeEmissions: 0.5,
-		timing: 'Immediate',
-		nonCO2red: 0.5
-	};
+	let { query, options, onChange }: Props = $props();
 
-	let temperature: string = query.temperature || defaults.temperature;
-	let exceedanceRisk: string = query.exceedanceRisk || defaults.exceedanceRisk;
-	let negativeEmissions: string = query.negativeEmissions || defaults.negativeEmissions;
-	let timing: string = query.timing || defaults.timing;
-	let nonCO2red: string = query.nonCO2red || defaults.nonCO2red;
+	let temperature: string = $state(query.temperature);
+	let exceedanceRisk: string = $state(query.exceedanceRisk);
+	let negativeEmissions: string = $state(query.negativeEmissions);
+	let timing: string = $state(query.timing);
+	let nonCO2red: string = $state(query.nonCO2red);
 
-	$: onChange('temperature', temperature);
-	$: onChange('exceedanceRisk', exceedanceRisk);
-	$: onChange('negativeEmissions', negativeEmissions);
-	$: onChange('timing', timing);
-	$: onChange('nonCO2red', nonCO2red);
+	$effect(() => {
+		if (query.temperature === temperature) {
+			return;
+		}
+		onChange('temperature', temperature);
+	});
+	$effect(() => {
+		if (query.exceedanceRisk === exceedanceRisk) {
+			return;
+		}
+		onChange('exceedanceRisk', exceedanceRisk);
+	});
+	$effect(() => {
+		if (query.negativeEmissions === negativeEmissions) {
+			return;
+		}
+		onChange('negativeEmissions', negativeEmissions);
+	});
+	$effect(() => {
+		if (query.timing === timing) {
+			return;
+		}
+		onChange('timing', timing);
+	});
+	$effect(() => {
+		if (query.nonCO2red === nonCO2red) {
+			return;
+		}
+		onChange('nonCO2red', nonCO2red);
+	});
 </script>
 
-<div class="card-compact card prose min-w-full bg-base-100 shadow-xl">
+<div class="card prose card-compact min-w-full bg-base-100 shadow-xl">
 	<div class="card-body">
 		<div>
-			<h2 class="not-prose card-title">Global budget</h2>
-			<p class="italic">How much do we have left?</p>
-			<p>
+			<h2 class="not-prose card-title">Global settings</h2>
+			<p class="italic">The remaining emissions are determined by:</p>
+			<div class="block">
 				Limit global warming to (&deg;C)
 				<span
 					class="tooltip text-lg"
 					data-tip="The peak temperature target determines the emissions we can globally still emit. A
-			less ambitious target (for example, 2.2°C) implies the possibility to emit more greenhouse gases."
+			less ambitious target (for example, 2.2 °C) implies the possibility to emit more greenhouse gases."
 					>ⓘ</span
 				>
 				<CustomRange
 					bind:value={temperature}
-					options={choices.temperature.map((d) => Number(d))}
+					options={options.temperature.map((d) => Number(d))}
 					name="temperature"
 				/>
-			</p>
-			<p>
+			</div>
+			<div class="block">
 				Acceptable risk of exceeding global warming limit
 				<span
 					class="tooltip z-[750] text-lg"
@@ -56,28 +78,27 @@
 				>
 				<CustomRange
 					bind:value={exceedanceRisk}
-					options={choices.exceedanceRisk.map((d) => Number(d))}
+					options={options.exceedanceRisk.map((d) => Number(d))}
 					name="risk"
 				/>
-			</p>
-			<p>
+			</div>
+			<div class="block">
 				Reduction of non-CO<sub>2</sub> emissions
 				<span
 					class="tooltip z-[750] text-lg"
-					data-tip="Not only CO2, but also other gases play a role in the global emissions trajectory. Setting this slider to low values assumes small reductions in non-CO2 by 2040, which means that CO2 has to reduce much more, and vica versa.
-							  In the graph to the right, we show all greenhouse gases (CO2 and non-CO2), so the green line will barely move if you adjust this slider, as the temperature goal remains fixed.
-							  However, this does greatly affect the carbon budget (which is only the CO2 part) in the top-left corner of your screen."
+					data-tip="Not only CO₂, but also other gases play a role in the global emissions trajectory. Setting this slider to low values assumes small reductions in non-CO₂ by 2040, which means that CO₂ has to reduce much more, and vica versa.
+							  In the graph to the right, we show all greenhouse gases (CO₂ and non-CO₂), so the green line will barely move if you adjust this slider, as the temperature goal remains fixed.
+							  However, this does greatly affect the carbon budget (which is only the CO₂ part) in the top-left corner of your screen."
 					>ⓘ</span
 				>
 				<CustomRange
 					bind:value={nonCO2red}
-					options={choices.nonCO2red.map((d) => Number(d))}
+					options={options.nonCO2red.map((d) => Number(d))}
 					name="nonCO2red"
 				/>
-			</p>
-			<h2 class="not-prose card-title">Global pathway</h2>
-			<p><i>How do we spend these emissions over time?</i></p>
-			<p>
+			</div>
+			<p><i>The allocation of these emissions over time is determined by:</i></p>
+			<div class="block">
 				End-of-century negative emissions
 				<span
 					class="tooltip text-lg"
@@ -87,23 +108,19 @@
 				>
 				<CustomRange
 					bind:value={negativeEmissions}
-					options={choices.negativeEmissions.map((d) => Number(d))}
+					options={options.negativeEmissions.map((d) => Number(d))}
 					name="negEmis"
 				/>
-			</p>
-			<p>
-				The timing of early-century mitigation
+			</div>
+			<div>
+				Timing of early-century mitigation
 				<span
 					class="tooltip text-lg"
-					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5, so identical data will be shown in that case."
+					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5 °C, so identical data will be shown in that case."
 					>ⓘ</span
 				>
-				<CustomRange
-					bind:value={timing}
-					options={choices.timing.map((d) => String(d))}
-					name="timing"
-				/>
-			</p>
+				<CategoryPicker bind:value={timing} options={options.timing} name="timing" />
+			</div>
 		</div>
 	</div>
 </div>

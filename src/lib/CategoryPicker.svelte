@@ -2,7 +2,7 @@
 	interface Props {
 		value: string;
 		// TODO allow options to have a value or a label and value
-		options: number[];
+		options: string[];
 		name: string;
 	}
 
@@ -17,12 +17,12 @@
 	}
 
 	let len = $derived(options.length);
-	let valIndex = $derived(options.indexOf(parseFloat(value)));
+	let valIndex = $derived(options.indexOf(value));
 	// when sliding all intermediate values are also fetched
 	// TODO could only fetch the value when the slider is released
 </script>
 
-<div>
+<label>
 	<div class="flex flex-row gap-2">
 		<input
 			type="range"
@@ -41,4 +41,4 @@
 			<span class={index === valIndex ? 'font-extrabold' : ''}>{option}</span>
 		{/each}
 	</div>
-</div>
+</label>

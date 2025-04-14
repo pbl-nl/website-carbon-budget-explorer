@@ -14,12 +14,10 @@
 
 	interface Props {
 		x: number;
-		y0: number;
-		y1: number;
+		y: number;
 		width?: number;
-		textNdcMin: string;
-		textNdcMax: string;
 		textNdc: string;
+		text4Dot: string;
 		// TODO use color of ndc series on global page?
 		color?: string;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,12 +28,10 @@
 
 	let {
 		x,
-		y0,
-		y1,
+		y,
 		width = 2,
-		textNdcMin,
-		textNdcMax,
 		textNdc,
+		text4Dot,
 		color = 'black',
 		mouseover,
 		mouseout
@@ -43,58 +39,24 @@
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	function hover(e: any) {
-		return mouseover({ e, row: { time: x, min: y0, max: y1 } });
+		return mouseover({ e, row: { time: x, min: y, max: y } });
 	}
 </script>
 
 <g id="ndc">
-	<line
-		x1={$xScale(x)}
-		x2={$xScale(x)}
-		y1={$yScale(y1)}
-		y2={$yScale(y0)}
-		stroke={color}
-		onmouseover={hover}
-		onfocus={() => mouseover()}
-		onmouseout={() => mouseout()}
-		onblur={() => mouseout()}
-		role="tooltip"
-	/>
-	<circle
-		cx={$xScale(x)}
-		r={width * 2}
-		cy={$yScale(y0)}
-		stroke={color}
-		fill={color}
-		onmouseover={hover}
-		onfocus={() => mouseover()}
-		onmouseout={() => mouseout()}
-		onblur={() => mouseout()}
-		role="tooltip"
-	/>
 	<text
 		x={$xScale(x)}
-		y={$yScale(y0) + 30}
+		y={$yScale(y) - 18}
 		fill={color}
 		text-anchor="middle"
 		font-size="15px"
 		class="text-container"
 	>
-		{textNdcMin}
-	</text>
-	<text
-		x={$xScale(x)}
-		y={$yScale(y1) - 18}
-		fill={color}
-		text-anchor="middle"
-		font-size="15px"
-		class="text-container"
-	>
-		{textNdcMax}
+		{text4Dot}
 	</text>
 	<text
 		x={$xScale(x) - 60}
-		y={$yScale(y1) + 8}
+		y={$yScale(y) + 8}
 		fill={color}
 		text-anchor="middle"
 		font-size="18px"
@@ -106,7 +68,7 @@
 	<circle
 		cx={$xScale(x)}
 		r={width * 2}
-		cy={$yScale(y1)}
+		cy={$yScale(y)}
 		stroke={color}
 		fill={color}
 		onmouseover={hover}
@@ -118,11 +80,6 @@
 </g>
 
 <style>
-	line {
-		fill: none;
-		stroke-width: 2;
-	}
-
 	.text-container {
 		position: relative; /* or absolute/fixed if needed */
 		z-index: 9999; /* High value to ensure it is on top */

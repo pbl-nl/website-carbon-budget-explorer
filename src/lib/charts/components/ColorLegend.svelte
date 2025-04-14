@@ -4,10 +4,14 @@
 	import type { ScaleSequential } from 'd3-scale';
 	import { format, interpolateRound, quantile, range } from 'd3';
 
-	export let title: string;
-	export let scale: ScaleSequential<string, never>;
+	interface Props {
+		title: string;
+		scale: ScaleSequential<string, never>;
+	}
 
-	function ramp(color: any, n = 256) {
+	let { title, scale }: Props = $props();
+
+	function ramp(color: (d: number) => string, n = 256) {
 		const canvas = document.createElement('canvas');
 		canvas.height = n;
 		canvas.width = 1;
@@ -28,15 +32,14 @@
 	const marginLeft = 5;
 	const ticks = height / 64;
 
-	$: y = Object.assign(
-		scale.copy().interpolator(interpolateRound(marginBottom, height - marginTop)),
-		{
+	let y = $derived(
+		Object.assign(scale.copy().interpolator(interpolateRound(marginBottom, height - marginTop)), {
 			range() {
 				return [marginBottom, height - marginTop];
 			}
-		}
+		})
 	);
-	$: tickValues = range(ticks + 1).map((i) => quantile(scale.domain(), i / ticks));
+	let tickValues = $derived(range(ticks + 1).map((i) => quantile(scale.domain(), i / ticks)));
 	const tickFormat = format('.4');
 </script>
 

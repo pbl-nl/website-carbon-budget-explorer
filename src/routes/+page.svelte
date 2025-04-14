@@ -1,6 +1,5 @@
 <script lang="ts">
 	import logo from '$lib/logo.svg';
-	export const prerender = true;
 </script>
 
 <main class="container mx-auto flex h-full w-4/5 flex-col items-stretch justify-around">
@@ -39,9 +38,7 @@
 							2.
 						</h3>
 						<div class="-ml-6 flex-1 -skew-x-[20deg] rounded bg-neutral p-4 px-10 opacity-60">
-							<h3 class="mb-2 text-xl font-semibold text-white">
-								Choose your effort-sharing principle
-							</h3>
+							<h3 class="mb-2 text-xl font-semibold text-white">Choose your allocation method</h3>
 							<p class="text-white">Implicating each country's "fair" emissions</p>
 						</div>
 					</li>
@@ -77,7 +74,7 @@
 		</p>
 	</div>
 
-	<a class="btn-primary btn-lg btn w-4/5 self-center" href="/global"> Start exploring &raquo; </a>
+	<a class="btn btn-primary btn-lg w-4/5 self-center" href="/global"> Start exploring &raquo; </a>
 </main>
 
 <style>

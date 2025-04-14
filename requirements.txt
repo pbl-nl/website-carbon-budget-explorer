@@ -1,5 +1,9 @@
-xarray
-netcdf4
-flask
-flask_cors
-gunicorn
+xarray>=2025.1.1
+netcdf4>=1.7.2
+flask>=3.1.0
+flask_cors>=5.0.0
+gunicorn>=23.0.0; platform_system != "Windows"
+sentry-sdk[flask]>=2.20.0
+python-dotenv>=1.0.1
+gevent>=24.11.1
+supervisor>=4.2.5

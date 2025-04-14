@@ -1,37 +1,27 @@
-import { principles } from '$lib/principles';
 import { browser } from '$app/environment';
+import { LRUCache } from 'lru-cache';
+import sizeof from 'object-sizeof';
+import { API_URL } from './config';
+import type { allocationMethods } from './allocationMethods';
 
 export interface SpatialMetric {
-	ISO: string;
+	Region: string;
 	value: number;
 }
 
 export interface PathWayQuery {
 	temperature: string;
 	exceedanceRisk: string;
+	nonCO2red: string;
 	negativeEmissions: string;
 	timing: string;
-	nonCO2red: string;
 }
 
-export interface PathwayStatsType {
-	total: number;
-	used: number;
-	remaining: number;
-	relative: number;
-	gaps: {
-		index: number;
-		budget: number;
-		curPol: number;
-		ndc: number;
-		ambition: number;
-		emission: number;
-	};
-}
-
-export interface PathwayStats {
-	ghg: PathwayStatsType;
-	co2: PathwayStatsType;
+export interface Gap {
+	index: number;
+	budget: number;
+	curPol: number;
+	ndc: number;
 }
 
 export interface TimeSeriesValue {
@@ -62,108 +52,131 @@ export type CertainTime = {
 	value: number;
 };
 
+export interface BorderProperties {
+	ISO_A2_EH: string;
+	ISO_A3_EH: string;
+	NAME: string;
+}
+
+export type BordersCollection = GeoJSON.FeatureCollection<null, BorderProperties>;
+
 export function pathwayQueryFromSearchParams(
 	searchParams: URLSearchParams,
-	choices: Record<keyof PathWayQuery, string[]>
+	defaults: PathWayQuery
 ): PathWayQuery {
-	// TODO check each searchParam is in respective choices array
-	const temperature =
-		searchParams.get('temperature') ??
-		choices.temperature[5];//Math.floor(choices.temperature.length / 2)];
-	const exceedanceRisk =
-		searchParams.get('exceedanceRisk') ??
-		choices.exceedanceRisk[2];//[Math.floor(choices.exceedanceRisk.length / 2)];
-	// TODO when more choices are available use Medium==1 as default
-	const negativeEmissions =
-		searchParams.get('negativeEmissions') ??
-		choices.negativeEmissions[3];//[Math.floor(choices.negativeEmissions.length / 2)];
-	const timing =
-		searchParams.get('timing') ?? choices.timing[1];//[Math.floor(choices.timing.length / 2)];
-	const nonCO2red =
-		searchParams.get('nonCO2red') ?? choices.nonCO2red[2];//[Math.floor(choices.nonCO2red.length / 2)];
+	// TODO check each searchParam is in respective options array
+	const temperature = searchParams.get('temperature') ?? defaults.temperature;
+	const exceedanceRisk = searchParams.get('exceedanceRisk') ?? defaults.exceedanceRisk;
+	const negativeEmissions = searchParams.get('negativeEmissions') ?? defaults.negativeEmissions;
+	const timing = searchParams.get('timing') ?? defaults.timing;
+	const nonCO2red = searchParams.get('nonCO2red') ?? defaults.nonCO2red;
 	return {
 		temperature,
 		exceedanceRisk,
+		nonCO2red,
 		negativeEmissions,
-		timing,
-		nonCO2red
+		timing
 	};
 }
 
-export const API_URL = process.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for production
-// export const API_URL = import.meta.env.CABE_API_URL ?? 'http://127.0.0.1:5000'; // for development
+type Fetch = typeof fetch;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let cache: LRUCache<string, any> | undefined = undefined;
+if (!browser) {
+	cache = new LRUCache({
+		maxSize: 1 * 1024 * 1024 * 1024, // 1Gb
+		sizeCalculation: (v) => (v === null ? 1 : sizeof(v))
+	});
+}
 
 async function getJSON(path: string, myfetch = fetch) {
-	let url = `${API_URL}${path}`;
 	if (browser) {
-		url = `/api${path}`;
+		return getJSONOnBrowser(path, myfetch);
 	}
-	console.time(url);
+	return getJSONOnServer(path, myfetch);
+}
+
+async function getJSONOnBrowser(path: string, myfetch = fetch) {
+	const url = `/api/${path}`;
 	const response = await myfetch(url);
 	if (!response.ok) {
 		console.error(url);
-		console.timeEnd(url);
+		throw new Error(response.statusText);
+	}
+	return await response.json();
+}
+
+async function getJSONOnServer(path: string, myfetch = fetch) {
+	const url = `${API_URL}${path}`;
+	const cached = cache?.get(url);
+	if (cached !== undefined) {
+		return cached;
+	}
+	const response = await myfetch(url);
+	if (!response.ok) {
+		console.error(url);
 		throw new Error(response.statusText);
 	}
 	const data = await response.json();
-	console.timeEnd(url);
+	cache?.set(url, data);
 	return data;
 }
 
-export async function pathwayChoices(): Promise<Record<keyof PathWayQuery, string[]>> {
-	const path = '/pathwayChoices';
+export async function globalPathwayOptions(): Promise<Record<keyof PathWayQuery, string[]>> {
+	const path = '/options/pathway/global';
 	return getJSON(path);
 }
 
-export async function pathwayStats(search: string, fetch?: any): Promise<PathwayStats> {
-	const path = `/pathwayStats${search}`;
+export async function globalPathWayDefaults(): Promise<PathWayQuery> {
+	const path = '/defaults/pathway/global';
+	return getJSON(path);
+}
+
+export async function budget(
+	search: string,
+	fetch?: Fetch
+): Promise<{
+	remaining: number;
+	relative: number;
+}> {
+	return getJSON(`/statistics/budget/global${search}`, fetch);
+}
+
+export async function gap(search: string, fetch?: Fetch): Promise<Gap> {
+	const path = `/statistics/gap/global${search}`;
 	return getJSON(path, fetch);
 }
 
-export async function pathwayCarbon(search: string, fetch?: any): Promise<UncertainTime[]> {
+export async function globalPathway(search: string, fetch?: Fetch): Promise<UncertainTime[]> {
 	// TODO: send data instead of search string?
-	// TODO: update search with default choices
-	return getJSON(`/pathwayCarbon${search}`, fetch);
+	// TODO: update search with default choice
+	return getJSON(`/timeseries/global/emissions/pathway${search}`, fetch);
 }
 
-export async function historicalCarbon(
+export async function historicalEmissions(
 	region = 'EARTH',
 	start = 1990,
 	end = 2021
 ): Promise<CertainTime[]> {
-	return getJSON(`/historicalCarbon/${region}?start=${start}&end=${end}`);
-}
-
-export async function populationOverTime(
-	region: string,
-	start = 1850,
-	end = 2100
-	// Scenario = 'SSP2'
-): Promise<CertainTime[]> {
-	return getJSON(`/populationOverTime/${region}?start=${start}&end=${end}`);
-}
-
-export async function gdpOverTime(
-	region: string,
-	start = 1850,
-	end = 2100
-	// Scenario = 'SSP2'
-): Promise<CertainTime[]> {
-	return getJSON(`/gdpOverTime/${region}?start=${start}&end=${end}`);
+	return getJSON(`/timeseries/${region}/emissions/historical?start=${start}&end=${end}`);
 }
 
 export interface Region {
 	iso2: string;
 	iso3: string;
 	name: string;
+	// If countries is unset then the region is a country
+	countries?: string[];
+	regions?: string[];
 }
 
 export async function listRegions(): Promise<Region[]> {
 	return getJSON(`/regions`);
 }
 
-export async function regionInfo(ISO: string): Promise<Region> {
-	return getJSON(`/regions/${ISO}`);
+export async function regionInfo(region: string): Promise<Region> {
+	return getJSON(`/regions/${region}`);
 }
 
 export interface BudgetSpatial<T = SpatialMetric> {
@@ -173,15 +186,14 @@ export interface BudgetSpatial<T = SpatialMetric> {
 
 export async function fullCenturyBudgetSpatial(
 	allocationTime: string,
+	allocationMethod: keyof typeof allocationMethods,
 	search: string
-	// Scenario = 'SSP2',
-	// Convergence_year = 2040
 ): Promise<BudgetSpatial> {
-	return getJSON(`/map/${allocationTime}/GHG${search}`);
+	return getJSON(`/map/${allocationTime}/${allocationMethod}${search}`);
 }
 
 async function policyPathway(policy: string, Region: string): Promise<UncertainTime[]> {
-	return getJSON(`/policyPathway/${policy}/${Region}`);
+	return getJSON(`/timeseries/${Region}/policies/${policy}`);
 }
 
 export async function currentPolicy(Region = 'EARTH'): Promise<UncertainTime[]> {
@@ -196,36 +208,33 @@ export async function netzero(Region = 'EARTH'): Promise<UncertainTime[]> {
 	return await policyPathway('NetZero', Region);
 }
 
-export async function indicators(ISO: string): Promise<{
-	ndcAmbition: number | null;
-	historicalCarbon: number;
-	ndc: Record<number, [number, number]>;
+export async function ndcProjections(region: string): Promise<{
+	ndc_inventory: Record<number, [number, number]> | null;
+	ndc_jones: Record<number, [number, number]> | null;
 }> {
-	return getJSON(`/indicators/${ISO}`);
+	return getJSON(`/statistics/ndc/projections/${region}`);
 }
 
-export async function effortSharing(ISO: string, principle: string, search: string, fetch: any) {
-	return getJSON(`/${ISO}/${principle}${search}`, fetch);
+export async function ndcReductions(region: string): Promise<{ min: number; max: number } | null> {
+	return getJSON(`/statistics/ndc/reductions/${region}`);
 }
 
-export async function effortSharings(
-	ISO: string,
+export async function getEmissionsAllocations(
+	region: string,
 	search: string,
-	fetch: any
+	fetch: Fetch
 ): Promise<Record<string, UncertainTime[]>> {
-	return getJSON(`/${ISO}/effortSharings${search}`);
-	const r: Record<string, any> = {};
-	for (const principle of Object.keys(principles)) {
-		r[principle] = await effortSharing(ISO, principle, search, fetch);
-	}
-
-	return r;
+	return getJSON(`/timeseries/${region}/emissions/allocations${search}`, fetch);
 }
 
-export async function effortSharingReductions(
-	ISO: string,
+export async function allocationReduction(
+	region: string,
 	search: string,
-	fetch: any
+	fetch: Fetch
 ): Promise<Record<string, Record<number, number>>> {
-	return getJSON(`/${ISO}/effortSharingReductions${search}`, fetch);
+	return getJSON(`/statistics/reductions/${region}${search}`, fetch);
+}
+
+export async function borders(fetch?: Fetch): Promise<BordersCollection> {
+	return getJSON('/borders', fetch);
 }

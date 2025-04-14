@@ -8,19 +8,24 @@
 	import type { ComponentEvents } from 'svelte';
 	import type { SvelteComponent } from 'svelte';
 
-	export let evt: ComponentEvents<SvelteComponent> = {};
-	export let offset = -5;
+	interface Props {
+		evt?: ComponentEvents<SvelteComponent>;
+		offset?: number;
+		children?: import('svelte').Snippet;
+	}
+
+	let { evt = {}, offset = -5, children }: Props = $props();
 </script>
 
-{#if evt.detail}
+{#if evt.msg}
 	<div
 		class="layercake-tooltip"
 		style="
-      top:{evt.detail.e.layerY + offset}px;
-      left:{evt.detail.e.layerX}px;
+      top:{evt.e.layerY + offset}px;
+      left:{evt.e.layerX}px;
     "
 	>
-		<slot />
+		{@render children?.()}
 	</div>
 {/if}
 

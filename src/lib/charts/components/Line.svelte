@@ -4,7 +4,7 @@
  -->
 <script lang="ts">
 	import { bisector, type ScaleLinear } from 'd3';
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { Readable } from 'svelte/store';
 
 	const { xScale, yScale } = getContext<{
@@ -12,22 +12,38 @@
 		yScale: Readable<ScaleLinear<number, number, never>>;
 	}>('LayerCake');
 
-	export let data: Record<string, number>[];
-	export let x = 'x';
-	export let y = 'y';
+	interface Props {
+		data: Record<string, number>[];
+		x?: string;
+		y?: string;
+		color?: string;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mouseout?: (e?: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mouseover?: (e: any) => void;
+	}
 
-	/** @type {String} [stroke='#ab00d6'] - The shape's fill color. This is technically optional because it comes with a default value but you'll likely want to replace it with your own color. */
-	export let color = '#ab00d6';
+	let {
+		data,
+		x = 'x',
+		y = 'y',
+		color = '#ab00d6',
+		mouseout = () => {},
+		mouseover = () => {}
+	}: Props = $props();
 
-	$: path =
+	let path = $derived(
 		'M' +
-		data
-			.map((d) => {
-				return $xScale(d[x]) + ',' + $yScale(d[y]);
-			})
-			.join('L');
+			data
+				.filter((d) => d[x] && d[y])
+				.map((d) => {
+					const px = $xScale(d[x]);
+					const py = $yScale(d[y]);
+					return `${px},${py}`;
+				})
+				.join('L')
+	);
 
-	const dispatch = createEventDispatcher();
 	const finder = bisector((d: (typeof data)[number]) => d[x]);
 </script>
 
@@ -35,15 +51,15 @@
 	class="path-line"
 	d={path}
 	stroke={color}
-	on:mouseover={(e) => {
+	onmouseover={(e) => {
 		const ox = $xScale.invert(e.offsetX);
 		// find entry in data which is closest to ox
 		const i = finder.center(data, ox);
-		return dispatch('mouseover', { e, row: data[i] });
+		return mouseover({ e, row: data[i] });
 	}}
-	on:mouseout={(e) => dispatch('mouseout', { e })}
-	on:focus={(e) => dispatch('mouseover', { e })}
-	on:blur={() => dispatch('mouseout')}
+	onmouseout={(e) => mouseout({ e })}
+	onfocus={(e) => mouseover({ e })}
+	onblur={() => mouseout()}
 	role="tooltip"
 />
 

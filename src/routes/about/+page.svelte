@@ -1,13 +1,13 @@
 <script lang="ts">
 	import QA from '$lib/QA.svelte';
 
-	export const prerender = true;
+	export const prerender = false;
 </script>
 
 <!-- Sidebar -->
 <div class="flex h-full gap-4 rounded bg-primary">
 	<div class="items-between flex h-full w-1/5 flex-col rounded bg-primary">
-		<div class="card-compact card">
+		<div class="card card-compact">
 			<div class="card-body prose">
 				<h2 class="card-title text-white">About</h2>
 				<ul class="not-prose m-2 list-inside list-disc">
@@ -17,7 +17,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="card-compact card mt-auto">
+		<div class="card card-compact mt-auto">
 			<div class="card-body prose">
 				<h2 class="card-title text-white">More information</h2>
 				<p class="text-white">
@@ -50,7 +50,7 @@
 					>
 					projects. For more information you can contact dr.
 					<a
-						href="https://www.uu.nl/medewerkers/MMDekker"
+						href="https://www.pbl.nl/over-het-pbl/medewerkers/mark-dekker"
 						target="_blank"
 						class="text-white"
 						rel="noopener noreferrer">Mark Dekker.</a
@@ -179,7 +179,7 @@
 					and the AR6
 					<a href="https://zenodo.org/records/5886912" target="_blank" rel="noopener noreferrer"
 						>scenario database</a
-					>. For NDC data, we use the Climate Resource NDC factsheets.
+					>. For NDC data, we use the PBL Climate Pledge NDC tool.
 				</QA>
 				<QA question="What are these allocation methods?">
 					Below, we briefly describe the methods one-by-one. For more details, the reader is
@@ -208,9 +208,9 @@
 					countries. Also this method is dependent on the socio-economic scenario.
 					<br />
 					<br />
-					The 'Equal Cumulative Per Capita' method computes the total budget (past plus future) that
-					a country would obtain based on their (past plus future) population fractions, and then subtracts
-					from this the already spent emissions in the past.
+					The 'Equal Cumulative Per Capita' method computes a debt or surplus based on historical emissions
+					and historical population, and pays off this debt (or surplus) over time, converging to a Per
+					Capita allocation (default in 2050).
 					<br />
 					<br />
 					The 'Greenhouse Development Rights' method is, in the short run, based on a
@@ -220,26 +220,67 @@
 						rel="noopener noreferrer">Responsibility-Capability Index</a
 					>, and in the long run based on GDP per capita (similar to Ability to Pay).
 				</QA>
+				<QA question="Why are there sometimes two absolute NDC values shown in the country graph?">
+					Many countries indicate NDC targets at different levels or conditional on, for example,
+					certain developments such as economic growth or international support. The two values
+					shown are the minimum and maximum derived NDC values.
+				</QA>
+				<QA question="What NDC data is shown?">
+					When NDCs area published by countries, they are often expressed in relative terms (e.g. 30
+					% reduction in 2030 compared to 1990). The absolute values are calculations that depend on
+					the historical and baseline emission data used. We use NDC data based on the data we use
+					for the Carbon Budget Explorer (Jones et al., 2021), which is deduced from
+					<a
+						href="https://themasites.pbl.nl/o/climate-ndc-policies-tool/"
+						target="_blank"
+						rel="noopener noreferrer">PBL NDC tool</a
+					>, which is based on historical data from PRIMAP. All NDC values are only an indication.
+					When precise NDC data is needed, it is better to refer to the official NDC documents.
+				</QA>
+				<QA question="Why are there no NDCs for European Member States?">
+					European Member States have a joint NDC, which is to reduce GHG emissions by at least 55 %
+					by 2030 compared to 1990 levels. This is a shared goal for the EU27, and therefore no
+					individual NDCs are available for European Member States.
+					<br />
+					<br />
+					The allocation of emission reductions to each Member State is determined via several Directives
+					(ETS, ESR and others). You can find
+					<a
+						href="https://data.consilium.europa.eu/doc/document/ST-14286-2023-INIT/en/pdf"
+						target="_blank"
+						rel="noopener noreferrer">more information here.</a
+					>
+				</QA>
 			</section>
 			<section>
 				<h2 id="other">Other</h2>
 				<QA question="How can I contact you?">
-					All questions, comments and ideas are welcome. Please can dr. <a
-						href="https://www.uu.nl/medewerkers/MMDekker"
+					All questions, comments and ideas are welcome. Please contact dr. <a
+						href="https://www.pbl.nl/over-het-pbl/medewerkers/mark-dekker"
 						target="_blank"
 						rel="noopener noreferrer">Mark Dekker</a
 					> from the Netherlands Environmental Assessment Agency.
 				</QA>
 				<QA question="How can I cite this work?">
-					For general purposes, feel free to refer this work as Dekker, M.M. (2023) The Carbon
+					For general purposes, feel free to refer to this work as Dekker, M.M. (2023) The Carbon
 					Budget Explorer. [Online]. Available: https://www.carbonbudgetexplorer.eu. <br />
-					<br /> For scientific purposes, because the data is still undergoing many developments, we
-					recommend waiting for the preprint of the scientific article (estimated in spring 2024) before
-					citing the research.
+					<br /> For scientific purposes, you can refer to the
+					<a
+						href="https://doi.org/10.21203/rs.3.rs-5023350/v1"
+						target="_blank"
+						rel="noopener noreferrer">preprint</a
+					>
+					of this work. It is currently under review.
 				</QA>
 				<QA question="Will the data and code be publicly available?">
-					Yes, all data and code (for both this tool and the scientific analysis) will be publicly
-					available. We expect to publish this in spring 2024.
+					All data can be downloaded <a
+						href="https://doi.org/10.5281/zenodo.12188104"
+						target="_blank">from Zenodo</a
+					>, including more recent developments. Version 0.4.2 is used in the current release of the
+					Carbon Budget Explorer. The Python code for the computations can be found on
+					<a href="https://doi.org/10.5281/zenodo.13640303" target="_blank">Zenodo</a> or
+					<a href="https://github.com/imagepbl/EffortSharing/tree/v1.0.0" target="_blank">GitHub</a
+					>.
 				</QA>
 				<QA question="What future updates are expected?">
 					The Explorer is constantly in development, by updating NDC or other data, but also in
