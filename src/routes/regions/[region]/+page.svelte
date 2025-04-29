@@ -79,7 +79,7 @@
 	});
 
 	const hoverTextNdc = function (e: ComponentEvents<SvelteComponent>) {
-		    const myevt = {e, msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry.'};
+		    const myevt = {e, msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry. Read more on the About page.'};
 			evt = myevt;
 		};
 
