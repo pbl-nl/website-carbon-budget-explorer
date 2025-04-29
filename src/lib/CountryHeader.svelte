@@ -1,15 +1,24 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import type { Region } from './api';
+	import RegionsDropDown from './RegionsDropDown.svelte';
 	interface Props {
 		info: Region;
+		regionsOfCountry?: Region[];
+		countriesOfRegion?: Region[];
 	}
 
-	let { info }: Props = $props();
+	let { info, countriesOfRegion, regionsOfCountry }: Props = $props();
 
 	const blankFlag =
 		'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"%3E%3C/svg%3E';
-	let regionFlag = $state(`https://flagcdn.com/${info.iso2?.toLowerCase()}.svg`);
+	let regionFlag = $state(
+		info.iso2 ? `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg` : blankFlag
+	);
+
+	$effect(() => {
+		regionFlag = info.iso2 ? `https://flagcdn.com/${info.iso2?.toLowerCase()}.svg` : blankFlag;
+	});
 </script>
 
 <div id="country-header" class="flex flex-row items-center gap-4 pb-2">
@@ -30,4 +39,10 @@
 		}}
 	/>
 	<h1 class="text-3xl font-bold">{info.name}</h1>
+	{#if countriesOfRegion}
+		<RegionsDropDown title="Members" regions={countriesOfRegion} />
+	{/if}
+	{#if regionsOfCountry}
+		<RegionsDropDown title="Member of" regions={regionsOfCountry} />
+	{/if}
 </div>

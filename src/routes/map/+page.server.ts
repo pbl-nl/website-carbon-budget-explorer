@@ -2,28 +2,29 @@ import { searchParam } from '$lib/searchparam';
 import {
 	currentPolicy,
 	fullCenturyBudgetSpatial,
-	historicalCarbon,
-	pathwayCarbon,
-	pathwayChoices,
+	historicalEmissions,
+	globalPathway,
+	globalPathwayOptions,
 	pathwayQueryFromSearchParams,
-	pathwayStats
+	budget,
+	globalPathWayDefaults
 } from '$lib/api';
 import type { BudgetSpatial } from '$lib/api';
-import type { principles } from '$lib/principles';
+import type { allocationMethods } from '$lib/allocationMethods';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }: { url: URL }) => {
-	const choices = await pathwayChoices();
-	const pathwayQuery = pathwayQueryFromSearchParams(url.searchParams, choices);
+	const options = await globalPathwayOptions();
+	const defaults = await globalPathWayDefaults();
+	const query = pathwayQueryFromSearchParams(url.searchParams, defaults);
 	const pathway = {
-		query: pathwayQuery,
-		stats: await pathwayStats(url.search),
-		choices
+		query,
+		options
 	};
 
-	const selectedEffortSharing = searchParam<undefined | keyof typeof principles>(
+	const selectedAllocationMethod = searchParam<undefined | keyof typeof allocationMethods>(
 		url,
-		'effortSharing',
+		'allocationMethod',
 		'PCC'
 	);
 
@@ -33,8 +34,12 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 		data: [],
 		domain: [0, 1]
 	};
-	if (selectedEffortSharing !== undefined) {
-		rawMetrics = await fullCenturyBudgetSpatial(selectedAllocationTime, url.search);
+	if (selectedAllocationMethod !== undefined) {
+		rawMetrics = await fullCenturyBudgetSpatial(
+			selectedAllocationTime,
+			selectedAllocationMethod,
+			url.search
+		);
 	}
 
 	const metrics = {
@@ -43,14 +48,15 @@ export const load: PageLoad = async ({ url }: { url: URL }) => {
 	};
 
 	const global = {
-		historicalCarbon: await historicalCarbon(),
-		pathwayCarbon: await pathwayCarbon(url.search),
-		currentPolicy: await currentPolicy()
+		historicalEmissions: await historicalEmissions(),
+		pathway: await globalPathway(url.search),
+		currentPolicy: await currentPolicy(),
+		budget: await budget(url.search)
 	};
 
 	const data = {
 		pathway,
-		effortSharing: selectedEffortSharing,
+		allocationMethod: selectedAllocationMethod,
 		metrics,
 		global
 	};
