@@ -3,11 +3,33 @@
 	import { page } from '$app/stores';
 	import logo from '$lib/logo.svg';
 	import clsx from 'clsx';
+	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
 
 	let { children }: Props = $props();
+
+	let showSpinner = $state(false);
+	let navigationTimer: ReturnType<typeof setTimeout> | null = null;
+
+	beforeNavigate(() => {
+		if (navigationTimer) {
+			clearTimeout(navigationTimer);
+			showSpinner = false;
+		}
+		navigationTimer = setTimeout(() => {
+			showSpinner = true;
+		}, 200);
+	});
+
+	afterNavigate(() => {
+		if (navigationTimer) {
+			clearTimeout(navigationTimer);
+			navigationTimer = null;
+		}
+		showSpinner = false;
+	});
 </script>
 
 <svelte:head>
@@ -77,6 +99,9 @@
 				/> Carbon Budget Explorer</a
 			>
 		</div>
+		{#if showSpinner}
+			<div class="loading loading-spinner loading-md me-4" title="Loading..."></div>
+		{/if}
 		<div class="alert" style="width: 50%">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
