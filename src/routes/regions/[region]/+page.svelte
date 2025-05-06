@@ -79,9 +79,12 @@
 	});
 
 	const hoverTextNdc = function (e: ComponentEvents<SvelteComponent>) {
-		    const myevt = {e, msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry. Read more on the About page.'};
-			evt = myevt;
+		const myevt = {
+			e,
+			msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry. Read more on the About page.'
 		};
+		evt = myevt;
+	};
 
 	function hoverAllocationMethod(id: string) {
 		return hoverBuilder(
@@ -172,11 +175,10 @@
 								<span
 									class="tooltip tooltip-right text-lg"
 									data-tip="This highly depends on the uncertain past LULUCF emissions and can differ from what is displayed in the graph"
-								>ⓘ</span>
+									>ⓘ</span
+								>
 							{/if}
-
 						</span>
-
 					</p>
 				</div>
 			</section>
