@@ -168,7 +168,15 @@
 									0
 								)} to ${data.ndcReduction.max.toFixed(0)} % reduction`}
 							{/if}
+							{#if !data.isEuMemberState}
+								<span
+									class="tooltip tooltip-right text-lg"
+									data-tip="This highly depends on the uncertain past LULUCF emissions and can differ from what is displayed in the graph"
+								>ⓘ</span>
+							{/if}
+
 						</span>
+
 					</p>
 				</div>
 			</section>
