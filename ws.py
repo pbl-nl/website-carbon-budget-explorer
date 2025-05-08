@@ -11,6 +11,7 @@ Run with
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 from json import loads
 from pathlib import Path
 
@@ -844,6 +845,7 @@ def emission_allocations(region):
     return allocations
 
 
+@lru_cache(maxsize=20)
 def create_allocator(region):
     lulucf="incl"
     gas="GHG"
