@@ -22,6 +22,8 @@ from dotenv import dotenv_values
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+from effortsharing.allocation import allocation
+
 
 @dataclass(frozen=True)
 class Config:
@@ -760,7 +762,7 @@ def get_ds(region):
     return xr.open_dataset(fn)
 
 
-def emission_allocation_per_method(region, allocation_method):
+def emission_allocation_per_method_old(region, allocation_method):
     selection = global_pathway_choices()
     ds = get_ds(region)[allocation_method].sel(**selection).rename(Time="time")
     # set time as the first dimension
@@ -796,15 +798,76 @@ def emission_allocation_per_method(region, allocation_method):
 
 allocation_methods = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
 
+def emission_allocation_per_method(allocator_ds, allocation_method):
+    ds = allocator_ds.rename(Time="time")
+    dim_order = ["time"] + [dim for dim in ds.dims if dim != "time"]
+    ds = ds.transpose(*dim_order)
+
+    # extract the 'most reasonable' (mr) df which will be the main trajectory line
+    mr_selection = dict()
+    if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
+        mr_selection.update(Scenario="SSP2")
+    if allocation_method in ["PCC", "ECPC"]:
+        mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+    if allocation_method in ["ECPC", "GDR"]:
+        mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
+    if allocation_method == "ECPC":
+        mr_selection.update(
+            Discount_factor=DEFAULT_DISCOUNT_FACTOR,
+        )
+    if allocation_method == "GDR":
+        mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
+
+    mr_df = ds.sel(**mr_selection).to_pandas().rename("mean")
+
+    if mr_df.isna().all():
+        return None
+
+    agg_dims = [dim for dim in ds.dims if dim != "time"]
+    min_df = ds.min(agg_dims, skipna=True).to_pandas().rename("min")
+    max_df = ds.max(agg_dims, skipna=True).to_pandas().rename("max")
+
+    return pd.concat([mr_df, min_df, max_df], axis=1).reset_index().dropna().to_dict(orient="records")
 
 @app.get("/timeseries/<region>/emissions/allocations")
 def emission_allocations(region):
+    allocator = create_allocator(region)
+    allocations = {}
+    selection = global_pathway_choices()
+    for allocation_method in allocation_methods:
+        allocation_data = emission_allocation_per_method(
+            allocator.xr_total[allocation_method].sel(**selection), 
+            allocation_method,
+        )
+        if allocation_data is None:
+            continue
+        allocations[allocation_method] = allocation_data
+    return allocations
+
+def create_allocator(region):
+    lulucf="incl"
+    gas="GHG"
+    input_file = '../effort-sharing/notebooks/input.yml'
+    allocator = allocation(
+        region, lulucf=lulucf, gas=gas,
+        input_file=input_file,
+    )
+    allocator.gf()
+    allocator.pc()
+    allocator.pcc()
+    allocator.pcb()
+    allocator.ecpc()
+    allocator.ap()
+    allocator.gdr()
+    return allocator
+
+def emission_allocations_old(region):
     """
     http://127.0.0.1:5000/timeseries/USA/emissions/allocations?exceedanceRisk=0.67&negativeEmissions=0.4&temperature=1.8: 36.94ms
     """
     allocations = {}
     for allocation_method in allocation_methods:
-        allocation = emission_allocation_per_method(region, allocation_method)
+        allocation = emission_allocation_per_method_old(region, allocation_method)
         if allocation is None:
             continue
         allocations[allocation_method] = allocation
@@ -813,6 +876,34 @@ def emission_allocations(region):
 
 @app.get("/statistics/reductions/<region>")
 def allocation_reduction(region):
+    periods = (2030, 2040)
+    selection = dict(
+        **global_pathway_choices(),
+        Time=periods,
+    )
+
+    hist = ds_global.GHG_hist.sel(Region=region, Time=1990).values + 0
+
+    allocator = create_allocator(region)
+    reductions = {}
+    for allocation_method in allocation_methods:
+        pselection = selection.copy()
+        if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
+            pselection.update(Scenario="SSP2")
+        if allocation_method in ["PCC", "ECPC"]:
+            pselection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
+        reductions[allocation_method] = {}
+        for period in periods:
+            pselection.update(Time=period)
+            es = allocator.xr_total[allocation_method].sel(**pselection).mean().values + 0
+            if np.isnan(es) or np.isnan(hist) or hist == 0:
+                reductions[allocation_method][period] = None
+            else:
+                reductions[allocation_method][period] = -(es - hist) / hist * 100
+
+    return reductions
+
+def allocation_reduction_old(region):
     periods = (2030, 2040)
     selection = dict(
         **global_pathway_choices(),

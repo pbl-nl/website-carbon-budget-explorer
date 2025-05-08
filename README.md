@@ -13,7 +13,7 @@ Should have the following data files:
 1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders` and move downloaded file to CABE_DATA_DIR directory.
 1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{REGION}.nc"` - Region specific data
+1. ~`{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{REGION}.nc"` - Region specific data~ Use data from effort-sharing repo
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Aggregated_files" / "xr_alloc_{YEAR}.nc"` - Aggregated data
 
 The `CABE_DATA_DIR` variable is the path to the data directory.
@@ -36,6 +36,7 @@ Dependencies can be installed with
 # From the root of the repository
 # To install Node.js dependencies
 npm install
+# Activate Python environment from effort-sharing repo
 # To install Python dependencies
 pip install -r requirements.txt
 ```
