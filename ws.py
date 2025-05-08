@@ -50,7 +50,8 @@ def load_env() -> Config:
 config = load_env()
 
 sentry_sdk.init(
-    dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
+    # TODO re-enable for non-dev environments
+    # dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
     traces_sample_rate=0.0,
     profiles_sample_rate=0.0,
 )
