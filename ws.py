@@ -19,10 +19,9 @@ import pandas as pd
 import sentry_sdk
 import xarray as xr
 from dotenv import dotenv_values
+from effortsharing.allocation import allocation
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
-from effortsharing.allocation import allocation
 
 
 @dataclass(frozen=True)
