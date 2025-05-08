@@ -856,7 +856,9 @@ def create_allocator(region):
     allocator.pc()
     allocator.pcc()
     allocator.pcb()
+    allocator.dim_histstartyear = [DEFAULT_HISTORICAL_STARTYEAR]
     allocator.dim_convyears = [DEFAULT_CONVERGENCE_YEAR]
+    allocator.dim_discountrates = [DEFAULT_DISCOUNT_FACTOR]
     allocator.ecpc()
     allocator.ap()
     allocator.gdr()
