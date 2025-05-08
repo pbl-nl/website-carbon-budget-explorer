@@ -843,6 +843,7 @@ def emission_allocations(region):
         allocations[allocation_method] = allocation_data
     return allocations
 
+
 def create_allocator(region):
     lulucf="incl"
     gas="GHG"
@@ -855,6 +856,7 @@ def create_allocator(region):
     allocator.pc()
     allocator.pcc()
     allocator.pcb()
+    allocator.dim_convyears = [DEFAULT_CONVERGENCE_YEAR]
     allocator.ecpc()
     allocator.ap()
     allocator.gdr()
@@ -932,4 +934,4 @@ def allocation_reduction_old(region):
 
 
 if __name__ == "__main__":
-    print(ndc_reductions("USA"))
+    print(create_allocator("BRA"))
