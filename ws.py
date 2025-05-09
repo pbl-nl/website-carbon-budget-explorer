@@ -21,6 +21,7 @@ import sentry_sdk
 import xarray as xr
 from dotenv import dotenv_values
 from effortsharing.allocation import allocation
+from effortsharing.datareading import datareading
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -67,7 +68,32 @@ CORS(app)
 # TODO write tests with dummy data
 
 # Global data (xr_dataread.nc)
-ds_global = xr.open_dataset(config.data_dir / config.start_year / "xr_dataread.nc")
+def read_ds_global():
+    datareader = datareading(config.effort_sharing_config)
+    datareader.read_general()
+    datareader.read_ssps()
+    datareader.read_undata()
+    datareader.read_hdi()
+    datareader.read_historicalemis_jones()
+    datareader.read_ar6()
+    datareader.nonco2variation()
+    datareader.determine_global_nonco2_trajectories()
+    datareader.determine_global_budgets()
+    datareader.determine_global_co2_trajectories()
+    datareader.read_baseline()
+    datareader.read_ndc()
+    datareader.read_ndc_climateresource()
+    datareader.merge_xr()
+    datareader.add_country_groups()
+    xr_normal = datareader.xr_total.sel(
+        Temperature=np.array(datareader.settings["dimension_ranges"]["peak_temperature_saved"])
+        .astype(float)
+        .round(2)
+        )
+    print("Global data read")
+    return xr_normal
+
+ds_global = read_ds_global()
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
