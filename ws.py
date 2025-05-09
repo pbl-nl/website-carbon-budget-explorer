@@ -30,6 +30,7 @@ class Config:
     data_dir: Path
     start_year: str
     assumption_set: str
+    effort_sharing_config: Path
 
 
 def load_env() -> Config:
@@ -40,10 +41,13 @@ def load_env() -> Config:
         raise ValueError("CABE_START_YEAR not set in .env file")
     if "CABE_ASSUMPTIONSET" not in config or config["CABE_ASSUMPTIONSET"] is None:
         raise ValueError("CABE_ASSUMPTIONSET not set in .env file")
+    if "CABE_EFFORT_SHARING_CONFIG" not in config or config["CABE_EFFORT_SHARING_CONFIG"] is None:
+        raise ValueError("CABE_EFFORT_SHARING_CONFIG not set in .env file")
     return Config(
         data_dir=Path(config["CABE_DATA_DIR"]),
         start_year=config["CABE_START_YEAR"],
         assumption_set=config["CABE_ASSUMPTIONSET"],
+        effort_sharing_config=Path(config["CABE_EFFORT_SHARING_CONFIG"]),
     )
 
 
@@ -811,7 +815,7 @@ def emission_allocations(region):
 def create_allocator(region):
     lulucf = "incl"
     gas = "GHG"
-    input_file = "../effort-sharing/notebooks/input.yml"
+    input_file = config.effort_sharing_config
     allocator = allocation(
         region,
         lulucf=lulucf,
