@@ -811,7 +811,7 @@ def emission_allocations(region):
     return allocations
 
 
-@lru_cache(maxsize=20)
+@lru_cache(maxsize=1)
 def create_allocator(region):
     lulucf = "incl"
     gas = "GHG"
@@ -866,4 +866,4 @@ def allocation_reduction(region):
 
 
 if __name__ == "__main__":
-    print(create_allocator("BRA"))
+    print(create_allocator("African Group"))
