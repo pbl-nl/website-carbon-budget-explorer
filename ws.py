@@ -22,6 +22,7 @@ import xarray as xr
 from dotenv import dotenv_values
 from effortsharing.allocation import allocation
 from effortsharing.datareading import datareading
+from effortsharing.policyscens import policyscenadding
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -668,7 +669,17 @@ def allocation_map(year, allocation_method):
     return {"data": rows, "domain": domain}
 
 
+def read_policy_scenarios():
+    policyscenner = policyscenadding(
+        input_file=config.effort_sharing_config,
+        xr_total=ds_global,
+    )
+    policyscenner.read_engage_data()
+    policyscenner.filter_and_convert()
+
 # Reference pathway data (xr_policyscen.nc)
+# TODO once I got the engage data, I can try read_policy_scenarios()
+# ds_policyscenner = read_policy_scenarios()
 ds_policyscen = xr.open_dataset(config.data_dir / "xr_policyscen.nc")
 
 
