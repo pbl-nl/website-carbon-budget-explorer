@@ -147,6 +147,12 @@ The end-to-end test can be run with
 npm run test
 ```
 
+When developing effort sharing package at the same time, you can install effortsharing package in editable mode with
+
+```bash
+pip install -e ../effort-sharing
+```
+
 ## Building
 
 To create a production version of your app:
