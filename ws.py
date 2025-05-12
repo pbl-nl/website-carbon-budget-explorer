@@ -676,11 +676,11 @@ def read_policy_scenarios():
     )
     policyscenner.read_engage_data()
     policyscenner.filter_and_convert()
+    print("Policy scenarios dataset generated")
+    return policyscenner._to_xr(policyscenner.xr_eng, policyscenner.xr_total)
 
 # Reference pathway data (xr_policyscen.nc)
-# TODO once I got the engage data, I can try read_policy_scenarios()
-# ds_policyscenner = read_policy_scenarios()
-ds_policyscen = xr.open_dataset(config.data_dir / "xr_policyscen.nc")
+ds_policyscen = read_policy_scenarios()
 
 
 @app.get("/timeseries/<region>/policies/<policy>")
