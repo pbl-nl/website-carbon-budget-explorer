@@ -174,7 +174,7 @@
 							{#if !data.isEuMemberState}
 								<span
 									class="tooltip tooltip-right text-lg"
-									data-tip="This highly depends on the uncertain past LULUCF emissions and can differ from what is displayed in the graph"
+									data-tip="To calculate reduction numbers from NDC targets, country inventory data are compared to historic emissions, which are affected by uncertainties and varying land use accounting methods. These numbers may therefore differ from those shown in the graph."
 									>ⓘ</span
 								>
 							{/if}

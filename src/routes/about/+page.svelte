@@ -228,14 +228,19 @@
 				<QA question="What NDC data is shown?">
 					When NDCs area published by countries, they are often expressed in relative terms (e.g. 30
 					% reduction in 2030 compared to 1990). The absolute values are calculations that depend on
-					the historical and baseline emission data used. We use NDC data based on the data we use
-					for the Carbon Budget Explorer (Jones et al., 2021), which is deduced from
+					the historical and baseline emission data used.
+					<br />
+					We use NDC data deduced from the
 					<a
 						href="https://themasites.pbl.nl/o/climate-ndc-policies-tool/"
 						target="_blank"
 						rel="noopener noreferrer">PBL NDC tool</a
-					>, which is based on historical data from PRIMAP. All NDC values are only an indication.
-					When precise NDC data is needed, it is better to refer to the official NDC documents.
+					>, which is based on historical data from PRIMAP and includes additional insights from
+					land use emissions accounting models. Because we analyze all greenhouse gas emissions
+					including land use, we also convert NDC data to that level.
+					<br />
+					All NDC values are only an indication. When precise NDC data is needed, it is better to refer
+					to the official NDC documents.
 				</QA>
 				<QA question="Why are there no NDCs for European Member States?">
 					European Member States have a joint NDC, which is to reduce GHG emissions by at least 55 %
