@@ -25,6 +25,8 @@
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseover: (e?: any) => void;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		mousetextover: (e?: any) => void;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		mouseout: (e?: any) => void;
 	}
 
@@ -38,6 +40,7 @@
 		textNdc,
 		color = 'black',
 		mouseover,
+		mousetextover,
 		mouseout
 	}: Props = $props();
 
@@ -100,6 +103,11 @@
 		font-size="18px"
 		font-weight="bold"
 		class="text-container"
+		onmouseover={mousetextover}
+		onfocus={() => mouseover()}
+		onmouseout={() => mouseout()}
+		onblur={() => mouseout()}
+		role="tooltip"
 	>
 		{textNdc}
 	</text>

@@ -75,8 +75,16 @@
 		}
 		return `Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
 			0
-		)} to ${row.min.toFixed(0)} Mt CO₂e`;
+		)} to ${row.min.toFixed(0)} Mt CO₂e.`;
 	});
+
+	const hoverTextNdc = function (e: ComponentEvents<SvelteComponent>) {
+		const myevt = {
+			e,
+			msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry. Read more on the About page.'
+		};
+		evt = myevt;
+	};
 
 	function hoverAllocationMethod(id: string) {
 		return hoverBuilder(
@@ -163,6 +171,13 @@
 									0
 								)} to ${data.ndcReduction.max.toFixed(0)} % reduction`}
 							{/if}
+							{#if !data.isEuMemberState}
+								<span
+									class="tooltip tooltip-right text-lg"
+									data-tip="To calculate reduction numbers from NDC targets, country inventory data are compared to historic emissions, which are affected by uncertainties and varying land use accounting methods. These numbers may therefore differ from those shown in the graph."
+									>ⓘ</span
+								>
+							{/if}
 						</span>
 					</p>
 				</div>
@@ -229,9 +244,10 @@
 									y1={range[1]}
 									textNdcMin={`Min: ${range[0].toFixed(0)}`}
 									textNdcMax={`Max: ${range[1].toFixed(0)}`}
-									textNdc={`NDC`}
+									textNdc="NDC"
 									color="black"
 									mouseover={hoverNdc}
+									mousetextover={hoverTextNdc}
 									mouseout={(e) => (evt = e)}
 								/>
 							{/if}
