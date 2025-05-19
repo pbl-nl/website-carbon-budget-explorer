@@ -45,11 +45,9 @@
 			<tr>
 				<th>2030 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<th>
-						<span class={id === 'GF' ? grandfatheringColor : ''}>
+					<td class={id==='GF' ? grandfatheringColor : ""}>
 							{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%
-						</span>
-					</th>
+					</td>
 				{/each}
 			</tr>
 			<tr>
