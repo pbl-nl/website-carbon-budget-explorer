@@ -53,17 +53,15 @@
 			<tr>
 				<th>2040 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<th>
-						<span class={id === 'GF' ? grandfatheringColor : ''}>
+					<td class={id==='GF' ? grandfatheringColor : ""}>
 							{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%
-						</span>
-					</th>
+					</td>
 				{/each}
 			</tr>
 			<tr>
 				<th>Display graph</th>
 				{#each Object.entries(allocationMethods) as [id, { color }]}
-					<th>
+					<td>
 						{#if availableAllocationMethods.has(id)}
 							<input
 								type="checkbox"
@@ -80,7 +78,7 @@
 								title="Not available for this region"
 							/>
 						{/if}
-					</th>
+					</td>
 				{/each}
 			</tr>
 		</tbody>
