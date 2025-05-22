@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import CountryHeader from '$lib/CountryHeader.svelte';
 
 	import StatsTable from '$lib/StatsTable.svelte';
@@ -15,13 +13,14 @@
 	import Area from '$lib/charts/components/Area.svelte';
 	import { allocationMethods } from '$lib/allocationMethods';
 	import { cubicOut } from 'svelte/easing';
-	import { tweened } from 'svelte/motion';
+	import { Tween } from 'svelte/motion';
 	import MiniPathwayCard from '$lib/MiniPathwayCard.svelte';
 	import GlobalBudgetCard from '$lib/GlobalBudgetCard.svelte';
 	import GlobalQueryCard from '$lib/GlobalQueryCard.svelte';
 	import type { ComponentEvents, SvelteComponent } from 'svelte';
 	import NdcRange from '$lib/charts/components/NdcRange.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	import NdcDot from '$lib/charts/components/NdcDot.svelte';
 
 	interface Props {
 		data: PageData;
@@ -52,10 +51,7 @@
 
 	// Transitions
 	const tweenOptions = { duration: 1000, easing: cubicOut };
-	const tweenedAllocationMethod = tweened(data.allocationMethod, tweenOptions);
-	run(() => {
-		tweenedAllocationMethod.set(data.allocationMethod);
-	});
+	const tweenedAllocationMethod = Tween.of(() => data.allocationMethod, tweenOptions);
 
 	// Hover effort sharing
 	let evt = $state({});
@@ -73,12 +69,22 @@
 	const hoverhistoricalEmissions = hoverBuilder(
 		(row) => `Historical emissions in ${row.time} were ${row.value.toFixed(0)} Mt CO₂e`
 	);
-	const hoverNdc = hoverBuilder(
-		(row) =>
-			`Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
-				0
-			)} to ${row.min.toFixed(0)} Mt CO₂e`
-	);
+	const hoverNdc = hoverBuilder((row) => {
+		if (row.min.toFixed(0) === row.max.toFixed(0)) {
+			return `Nationally determined contribution in ${row.time} is ${row.max.toFixed(0)} Mt CO₂e`;
+		}
+		return `Nationally determined contribution in ${row.time} ranges from ${row.max.toFixed(
+			0
+		)} to ${row.min.toFixed(0)} Mt CO₂e.`;
+	});
+
+	const hoverTextNdc = function (e: ComponentEvents<SvelteComponent>) {
+		const myevt = {
+			e,
+			msg: 'The NDC data shown here are country reported inventory data based on the most recent NDC submission available in the UNFCCC NDC registry. Read more on the About page.'
+		};
+		evt = myevt;
+	};
 
 	function hoverAllocationMethod(id: string) {
 		return hoverBuilder(
@@ -86,56 +92,32 @@
 		);
 	}
 
-	const euMemberStates = [
-		'AUT',
-		'BEL',
-		'BGR',
-		'HRV',
-		'CYP',
-		'CZE',
-		'DNK',
-		'EST',
-		'FIN',
-		'FRA',
-		'DEU',
-		'GRC',
-		'HUN',
-		'IRL',
-		'ITA',
-		'LVA',
-		'LTU',
-		'LUX',
-		'MLT',
-		'NLD',
-		'POL',
-		'PRT',
-		'ROU',
-		'SVK',
-		'SVN',
-		'ESP',
-		'SWE'
-	];
-
-	// Function to check if the region is an EU member state
-	function isEuMemberState(region: string) {
-		return euMemberStates.includes(region);
-	}
-
 	let domainExtent = $derived.by(() => {
+		// Set a reasonable default
 		const extent: [number, number] = [-100, 100];
+		const padding = 1.1; // works for min & max since min should be <= 0
+
+		// Refine default with extents of historical emissions
+		// Make sure 0-line is always visible (min <=0)
 		if (data.historicalEmissions.extent[1] !== undefined) {
-			extent[0] = data.historicalEmissions.extent[1] * -0.3;
-			extent[1] = data.historicalEmissions.extent[1] * 1.5;
-		} else {
-			// If there is no historical data, use all effort sharing data
-			const allocationMethods = Object.values(data.allocationMethod).flatMap((d) => d);
-			if (allocationMethods.length > 0) {
-				extent[0] = Math.min(...allocationMethods.map((d) => d.min));
-				extent[1] = Math.max(...allocationMethods.map((d) => d.max));
-			}
+			extent[0] = Math.min(0, data.historicalEmissions.extent[0] * padding);
+			extent[1] = Math.max(0, data.historicalEmissions.extent[1] * padding);
+		}
+		// Refine defaults with extents of active allocationMethods
+		const allocationMethods = Object.entries(data.allocationMethod)
+			.filter(([key]) => activeAllocationMethods[key])
+			.map(([, value]) => value)
+			.flatMap((d) => d);
+		if (allocationMethods.length > 0) {
+			const activeMethodMin = Math.min(...allocationMethods.map((d) => d.mean)) * padding;
+			const activeMethodMax = Math.max(...allocationMethods.map((d) => d.mean)) * padding;
+			extent[0] = Math.min(extent[0], activeMethodMin);
+			extent[1] = Math.max(extent[1], activeMethodMax);
 		}
 		return extent;
 	});
+
+	const tweeneddomainExtent = Tween.of(() => domainExtent, tweenOptions);
 </script>
 
 <div class="flex h-full flex-row gap-4">
@@ -154,16 +136,20 @@
 	<div class="flex h-full grow flex-col">
 		<!-- setting *any* initial height + grow fixes overflow-auto with h-full -->
 		<div class="flex h-[100px] grow flex-col overflow-y-auto rounded-md bg-base-100 p-2 shadow-xl">
-			<CountryHeader info={data.info} />
+			<CountryHeader
+				info={data.info}
+				regionsOfCountry={data.regionsOfCountry}
+				countriesOfRegion={data.countriesOfRegion}
+			/>
 			<section id="key-indicators">
 				<div class="px-12">
 					<p>
-						<span class="font-bold"> NDC ambition in 2030 relative to 2015: </span>
+						<span> NDC ambition in 2030 relative to 2015: </span>
 						<span>
 							{#if data.ndcReduction === null}
 								-
-							{:else if data.ndcReduction.min === data.ndcReduction.max}
-								{#if isEuMemberState(data.info.iso3)}
+							{:else if data.ndcReduction.min.toFixed(0) === data.ndcReduction.max.toFixed(0)}
+								{#if data.isEuMemberState}
 									EU Member States do not have individual NDCs. The EU27's joint NDC target is to
 									reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
 									translates to 2085 Mt CO₂e in 2030.
@@ -172,7 +158,7 @@
 								{:else}
 									{data.ndcReduction.min.toFixed(0)} % reduction
 								{/if}
-							{:else if isEuMemberState(data.info.iso3)}
+							{:else if data.isEuMemberState}
 								EU Member States do not have individual NDCs. The EU27's joint NDC target is to
 								reduce GHG emissions by at least 55% by 2030 compared to 1990 levels. This
 								translates to 2085 Mt CO₂e in 2030.
@@ -183,7 +169,14 @@
 							{:else}
 								{`${data.ndcReduction.min.toFixed(
 									0
-								)} - ${data.ndcReduction.max.toFixed(0)} % reduction`}
+								)} to ${data.ndcReduction.max.toFixed(0)} % reduction`}
+							{/if}
+							{#if !data.isEuMemberState}
+								<span
+									class="tooltip tooltip-right text-lg"
+									data-tip="To calculate reduction numbers from NDC targets, country inventory data are compared to historic emissions, which are affected by uncertainties and varying land use accounting methods. These numbers may therefore differ from those shown in the graph."
+									>ⓘ</span
+								>
 							{/if}
 						</span>
 					</p>
@@ -196,7 +189,11 @@
 				{availableAllocationMethods}
 			/>
 			<section id="overview" class="grow">
-				<Pathway yDomain={domainExtent} {evt} yAxisTtle="GHG emissions (Mt CO₂e/year)">
+				<Pathway
+					yDomain={tweeneddomainExtent.current}
+					{evt}
+					yAxisTtle="GHG emissions (Mt CO₂e/year)"
+				>
 					<Line
 						data={data.historicalEmissions.data.filter((d) => d.time >= 1990)}
 						x={'time'}
@@ -209,7 +206,7 @@
 						{#if activeAllocationMethods[id]}
 							<g name={id}>
 								<Line
-									data={$tweenedAllocationMethod[id]}
+									data={tweenedAllocationMethod.current[id]}
 									x={'time'}
 									y={'mean'}
 									{color}
@@ -217,7 +214,7 @@
 									mouseout={(e) => (evt = e)}
 								/>
 								<Area
-									data={$tweenedAllocationMethod[id]}
+									data={tweenedAllocationMethod.current[id]}
 									x={'time'}
 									y0={'min'}
 									y1={'max'}
@@ -228,19 +225,32 @@
 							</g>
 						{/if}
 					{/each}
-					{#if !isEuMemberState(data.info.iso3) && data.ndcProjection.ndc_inventory !== null}
+					{#if !data.isEuMemberState && data.ndcProjection.ndc_inventory !== null}
 						{#each Object.entries(data.ndcProjection.ndc_inventory) as [year, range]}
-							<NdcRange
-								x={parseInt(year)}
-								y0={range[0]}
-								y1={range[1]}
-								textNdcMin={`Min: ${range[0].toFixed(0)}`}
-								textNdcMax={`Max: ${range[1].toFixed(0)}`}
-								textNdc={`NDC`}
-								color="black"
-								mouseover={hoverNdc}
-								mouseout={(e) => (evt = e)}
-							/>
+							{#if range[0].toFixed(0) === range[1].toFixed(0)}
+								<NdcDot
+									x={parseInt(year)}
+									y={range[0]}
+									textNdc={`NDC`}
+									text4Dot={range[1].toFixed(0)}
+									color="black"
+									mouseover={hoverNdc}
+									mouseout={(e) => (evt = e)}
+								/>
+							{:else}
+								<NdcRange
+									x={parseInt(year)}
+									y0={range[0]}
+									y1={range[1]}
+									textNdcMin={`Min: ${range[0].toFixed(0)}`}
+									textNdcMax={`Max: ${range[1].toFixed(0)}`}
+									textNdc="NDC"
+									color="black"
+									mouseover={hoverNdc}
+									mousetextover={hoverTextNdc}
+									mouseout={(e) => (evt = e)}
+								/>
+							{/if}
 						{/each}
 						<!-- {#each Object.entries(data.ndcProjection.ndc_jones) as [year, range]}
 							<NdcRange

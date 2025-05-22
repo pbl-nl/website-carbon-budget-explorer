@@ -280,6 +280,242 @@ def build_regions():
                 data.append(countries_from_geojson[region])
             else:
                 data.append(additional_regions[region])
+
+    countries_of_regions = {
+        "EU": [
+            "AUT",
+            "BEL",
+            "BGR",
+            "CYP",
+            "CZE",
+            "DEU",
+            "DNK",
+            "ESP",
+            "EST",
+            "FIN",
+            "FRA",
+            "GRC",
+            "HRV",
+            "HUN",
+            "IRL",
+            "ITA",
+            "LTU",
+            "LUX",
+            "LVA",
+            "MLT",
+            "NLD",
+            "POL",
+            "PRT",
+            "ROU",
+            "SVK",
+            "SVN",
+            "SWE",
+        ],
+        "African Group": [
+            "AGO",
+            "BDI",
+            "BEN",
+            "BFA",
+            "BWA",
+            "CAF",
+            "CIV",
+            "CMR",
+            "COD",
+            "COG",
+            "COM",
+            "CPV",
+            "DJI",
+            "DZA",
+            "EGY",
+            "ERI",
+            "ETH",
+            "GAB",
+            "GHA",
+            "GIN",
+            "GMB",
+            "GNB",
+            "GNQ",
+            "KEN",
+            "LBR",
+            "LBY",
+            "LSO",
+            "MAR",
+            "MDG",
+            "MLI",
+            "MOZ",
+            "MRT",
+            "MUS",
+            "MWI",
+            "NAM",
+            "NER",
+            "NGA",
+            "RWA",
+            "SDN",
+            "SEN",
+            "SLE",
+            "SOM",
+            "SSD",
+            "STP",
+            "SWZ",
+            "SYC",
+            "TCD",
+            "TGO",
+            "TUN",
+            "TZA",
+            "UGA",
+            "ZAF",
+            "ZMB",
+            "ZWE",
+        ],
+        "Northern America": ["CAN", "USA"],
+        "Australasia": ["AUS", "NZL"],
+        "Umbrella": ["AUS", "CAN", "ISL", "ISR", "JPN", "KAZ", "NOR", "NZL", "UKR", "USA"],
+        "G7": ["CAN", "DEU", "FRA", "GBR", "ITA", "JPN", "USA"],
+        "G20": [
+            "ARG",
+            "AUS",
+            "AUT",
+            "BEL",
+            "BGR",
+            "BRA",
+            "CAN",
+            "CHN",
+            "CYP",
+            "CZE",
+            "DEU",
+            "DNK",
+            "ESP",
+            "EST",
+            "FIN",
+            "FRA",
+            "GBR",
+            "GRC",
+            "HRV",
+            "HUN",
+            "IDN",
+            "IND",
+            "IRL",
+            "ITA",
+            "JPN",
+            "KOR",
+            "LTU",
+            "LUX",
+            "LVA",
+            "MEX",
+            "MLT",
+            "NLD",
+            "POL",
+            "PRT",
+            "ROU",
+            "RUS",
+            "SAU",
+            "SVK",
+            "SVN",
+            "SWE",
+            "TUR",
+            "USA",
+            "ZAF",
+        ],
+        "FSM": ["MHL"],
+        "LDC": [
+            "AFG",
+            "AGO",
+            "BDI",
+            "BEN",
+            "BFA",
+            "BGD",
+            "BTN",
+            "CAF",
+            "COD",
+            "COM",
+            "DJI",
+            "ERI",
+            "ETH",
+            "GIN",
+            "GMB",
+            "GNB",
+            "HTI",
+            "KHM",
+            "KIR",
+            "LAO",
+            "LBR",
+            "LSO",
+            "MDG",
+            "MLI",
+            "MMR",
+            "MOZ",
+            "MRT",
+            "MWI",
+            "NER",
+            "NPL",
+            "RWA",
+            "SDN",
+            "SEN",
+            "SLB",
+            "SLE",
+            "SOM",
+            "SSD",
+            "STP",
+            "TCD",
+            "TGO",
+            "TLS",
+            "TUV",
+            "TZA",
+            "UGA",
+            "YEM",
+            "ZMB",
+        ],
+        "SIDS": [
+            "ATG",
+            "BHS",
+            "BLZ",
+            "BRB",
+            "COK",
+            "COM",
+            "CPV",
+            "CUB",
+            "DMA",
+            "DOM",
+            "FJI",
+            "FSM",
+            "GNB",
+            "GRD",
+            "GUY",
+            "HTI",
+            "JAM",
+            "KIR",
+            "KNA",
+            "LCA",
+            "MDV",
+            "MHL",
+            "MUS",
+            "NIU",
+            "NRU",
+            "PLW",
+            "PNG",
+            "SGP",
+            "SLB",
+            "STP",
+            "SUR",
+            "SYC",
+            "TLS",
+            "TON",
+            "TTO",
+            "TUV",
+            "VCT",
+            "VUT",
+            "WSM",
+        ],
+    }
+    for region in data:
+        if region["iso3"] in countries_of_regions:
+            region["countries"] = countries_of_regions[region["iso3"]]
+        for region2, countries in countries_of_regions.items():
+            if region["iso3"] in countries:
+                if "regions" not in region:
+                    region["regions"] = []
+                region["regions"] = sorted(region["regions"] + [region2])
+
     return sorted(data, key=lambda x: x["name"])
 
 
@@ -362,7 +598,7 @@ def allocation_map(year, allocation_method):
     selection = global_pathway_choices()
     if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         selection.update(Scenario="SSP2")
-    if allocation_method == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if allocation_method in ["ECPC", "GDR"]:
         selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
@@ -535,14 +771,13 @@ def emission_allocation_per_method(region, allocation_method):
     mr_selection = dict()
     if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
         mr_selection.update(Scenario="SSP2")
-    if allocation_method == "PCC":
+    if allocation_method in ["PCC", "ECPC"]:
         mr_selection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
     if allocation_method in ["ECPC", "GDR"]:
         mr_selection.update(Historical_startyear=DEFAULT_HISTORICAL_STARTYEAR)
     if allocation_method == "ECPC":
         mr_selection.update(
             Discount_factor=DEFAULT_DISCOUNT_FACTOR,
-            Convergence_year=DEFAULT_CONVERGENCE_YEAR,
         )
     if allocation_method == "GDR":
         mr_selection.update(RCI_weight=DEFAULT_RCI_WEIGHT, Capability_threshold=DEFAULT_CAPABILITY_THRESHOLD)
@@ -592,7 +827,7 @@ def allocation_reduction(region):
         pselection = selection.copy()
         if allocation_method in ["PC", "PCC", "AP", "GDR", "ECPC"]:
             pselection.update(Scenario="SSP2")
-        if allocation_method == "PCC":
+        if allocation_method in ["PCC", "ECPC"]:
             pselection.update(Convergence_year=DEFAULT_CONVERGENCE_YEAR)
         reductions[allocation_method] = {}
         for period in periods:

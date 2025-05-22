@@ -65,15 +65,6 @@
 	run(() => {
 		updateAllocationTime(allocationTime);
 	});
-
-	let hoveredFeature:
-		| GeoJSON.Feature<GeoJSON.GeometryObject, GeoJSON.GeoJsonProperties>
-		| undefined = $state();
-	let hoveredMetric = $derived(
-		hoveredFeature
-			? data.metrics.data.find((m) => m.Region === hoveredFeature!.properties!.ISO_A3_EH)
-			: undefined
-	);
 </script>
 
 <div class="flex h-full gap-4">
@@ -98,41 +89,27 @@
 			<div class="flex grow flex-col">
 				<div class="relative h-full w-full">
 					<div
-						class="absolute left-0 top-0 z-[500] min-h-[4.5rem] w-64 rounded-br-md bg-white p-2 shadow"
+						class="absolute left-2 top-2 z-[500] flex w-fit flex-row items-center rounded-lg border border-gray-300 bg-white p-2 shadow-2xl"
 					>
-						{#if hoveredFeature && hoveredFeature.properties && hoveredMetric}
-							<div>
-								{hoveredFeature.properties.NAME}
-							</div>
-							<div>
-								{hoveredMetric.value.toFixed(0)} tonnes CO₂e per capita
-							</div>
-						{:else}
-							<div>Click on a country or</div>
-							<details class="dropdown">
-								<summary class="btn btn-ghost btn-sm w-60 font-normal"
-									>Select country &#9660;</summary
-								>
-								<!-- TODO dont hardcode height and width -->
-								<div
-									class="card dropdown-content compact rounded-box z-[500] h-[600px] w-[900px] overflow-y-scroll bg-base-100 shadow"
-								>
-									<!-- TODO add filter input box to make it easier to find country -->
-									<div class="card-body">
-										<RegionList regions={data.regions} />
-									</div>
+						<div>Click on a country or</div>
+						<details class="dropdown">
+							<summary class="btn btn-ghost btn-xs ps-1 text-base font-normal normal-case"
+								>select country &#9660;</summary
+							>
+							<!-- TODO dont hardcode height and width -->
+							<div
+								class="card dropdown-content compact rounded-box z-[500] h-[600px] w-[600px] overflow-y-scroll bg-base-100 shadow sm:w-96 xl:w-[800px] 2xl:w-[900px]"
+							>
+								<!-- TODO add filter input box to make it easier to find country -->
+								<div class="card-body">
+									<RegionList regions={data.regions} />
 								</div>
-							</details>
-						{/if}
+							</div>
+						</details>
 					</div>
 					<div class="h-full w-full">
 						<div class="flex h-full w-full items-center justify-center bg-white">
-							<LeafletMap
-								borders={data.borders}
-								metrics={data.metrics}
-								bind:clickedFeature
-								bind:hoveredFeature
-							/>
+							<LeafletMap borders={data.borders} metrics={data.metrics} bind:clickedFeature />
 						</div>
 					</div>
 					<div class="absolute bottom-2 z-[400] w-full">

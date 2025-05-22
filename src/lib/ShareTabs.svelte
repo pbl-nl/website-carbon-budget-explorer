@@ -16,7 +16,7 @@
 				d="m3.5 6.5l6 6.01l4-4L22 17.08l-1.41 1.41l-7.09-7.97l-4 4L2 7.01z"
 			/></svg
 		>
-		Global budget</a
+		Global pathway</a
 	>
 	<a
 		href={`/map${$page.url.search}`}
@@ -35,6 +35,6 @@
 					d="M11.5 3a17 17 0 0 0 0 18m1-18a16.984 16.984 0 0 1 2.574 8.62M15 18a3 3 0 1 0 6 0a3 3 0 1 0-6 0m5.2 2.2L22 22"
 				/></g
 			></svg
-		>World map with shares</a
+		>World map with allocations</a
 	>
 </div>

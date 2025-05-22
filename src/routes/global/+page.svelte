@@ -151,10 +151,10 @@
 		<div id="references">
 			<div class="card card-compact min-w-full bg-base-100 shadow-xl">
 				<div class="card-body">
-					<h2 class="card-title">Reference pathways</h2>
+					<h2 class="card-title">Policy pathways</h2>
 					<p>
-						Use the checkboxes below to compare your pathway with common references. Of particular
-						interest is the
+						Compare your pathway to projections of various policy levels. Of particular interest is
+						the
 						<span
 							class="tooltip cursor-pointer"
 							role="tooltip"
@@ -193,7 +193,7 @@
 									style={`background-color: ${ipcc_red}`}
 									class="m-1 scale-125 shadow"
 									bind:checked={policyPathwayToggles.current}
-								/>{' '}Projections of current policies</label
+								/>{' '}Current policies</label
 							>
 						</li>
 						<li>
@@ -203,7 +203,7 @@
 									style={`background-color: ${ipcc_purple}`}
 									class="m-1 scale-125 shadow"
 									bind:checked={policyPathwayToggles.ndc}
-								/>{' '}Projections of nationally determined contributions (NDCs)</label
+								/>{' '}Nationally determined contributions (NDCs)</label
 							>
 						</li>
 						<li>
@@ -213,7 +213,7 @@
 									style={`background-color: ${ipcc_blue}`}
 									class="m-1 scale-125 shadow"
 									bind:checked={policyPathwayToggles.netzero}
-								/>{' '}Projections of net-zero pledges</label
+								/>{' '}Net-zero pledges</label
 							>
 						</li>
 					</ul>

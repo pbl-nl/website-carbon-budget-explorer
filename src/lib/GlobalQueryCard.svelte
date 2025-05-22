@@ -52,14 +52,14 @@
 <div class="card prose card-compact min-w-full bg-base-100 shadow-xl">
 	<div class="card-body">
 		<div>
-			<h2 class="not-prose card-title">Global budget</h2>
-			<p class="italic">How much do we have left?</p>
+			<h2 class="not-prose card-title">Global settings</h2>
+			<p class="italic">The remaining emissions are determined by:</p>
 			<div class="block">
 				Limit global warming to (&deg;C)
 				<span
 					class="tooltip text-lg"
 					data-tip="The peak temperature target determines the emissions we can globally still emit. A
-			less ambitious target (for example, 2.2°C) implies the possibility to emit more greenhouse gases."
+			less ambitious target (for example, 2.2 °C) implies the possibility to emit more greenhouse gases."
 					>ⓘ</span
 				>
 				<CustomRange
@@ -86,9 +86,9 @@
 				Reduction of non-CO<sub>2</sub> emissions
 				<span
 					class="tooltip z-[750] text-lg"
-					data-tip="Not only CO2, but also other gases play a role in the global emissions trajectory. Setting this slider to low values assumes small reductions in non-CO2 by 2040, which means that CO2 has to reduce much more, and vica versa.
-							  In the graph to the right, we show all greenhouse gases (CO2 and non-CO2), so the green line will barely move if you adjust this slider, as the temperature goal remains fixed.
-							  However, this does greatly affect the carbon budget (which is only the CO2 part) in the top-left corner of your screen."
+					data-tip="Not only CO₂, but also other gases play a role in the global emissions trajectory. Setting this slider to low values assumes small reductions in non-CO₂ by 2040, which means that CO₂ has to reduce much more, and vica versa.
+							  In the graph to the right, we show all greenhouse gases (CO₂ and non-CO₂), so the green line will barely move if you adjust this slider, as the temperature goal remains fixed.
+							  However, this does greatly affect the carbon budget (which is only the CO₂ part) in the top-left corner of your screen."
 					>ⓘ</span
 				>
 				<CustomRange
@@ -97,8 +97,7 @@
 					name="nonCO2red"
 				/>
 			</div>
-			<h2 class="not-prose card-title">Global pathway</h2>
-			<p><i>How do we spend these emissions over time?</i></p>
+			<p><i>The allocation of these emissions over time is determined by:</i></p>
 			<div class="block">
 				End-of-century negative emissions
 				<span
@@ -114,10 +113,10 @@
 				/>
 			</div>
 			<div>
-				The timing of early-century mitigation
+				Timing of early-century mitigation
 				<span
 					class="tooltip text-lg"
-					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5, so identical data will be shown in that case."
+					data-tip="Analogous to IPCC WGIII scenarios, we distinguish global emission pathways with delayed (i.e., near-similar emissions up to 2030) and immediate action. Delayed action is infeasible with a temperature target of 1.5 °C, so identical data will be shown in that case."
 					>ⓘ</span
 				>
 				<CategoryPicker bind:value={timing} options={options.timing} name="timing" />

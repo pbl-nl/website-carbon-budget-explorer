@@ -20,9 +20,14 @@ test.skip('Renders region pages', async ({ page }) => {
 	await page.goto('/map?allocTime=2030');
 	await page.getByText('Select country ▼').click();
 
-	const regions = await page.getByLabel('Regions').evaluate((regionsdiv) => {
+	const noncountryRegions = await page.getByLabel('Regions').evaluate((regionsdiv) => {
 		return Array.from(regionsdiv.querySelectorAll('a')).map((a) => a.ariaLabel!);
 	});
+	const countries = await page.getByLabel('Countries').evaluate((regionsdiv) => {
+		return Array.from(regionsdiv.querySelectorAll('a')).map((a) => a.ariaLabel!);
+	});
+	const regions = noncountryRegions.concat(countries);
+
 	expect(regions).not.toHaveLength(0);
 
 	// Close region list
