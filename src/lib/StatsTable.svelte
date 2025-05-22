@@ -32,7 +32,7 @@
 				<th>Allocation method</th>
 				{#each Object.values(allocationMethods) as { label }}
 					<th>
-						{#if label === 'Grandfathering'}
+						{#if label==='Grandfathering'}
 							<span class={grandfatheringColor}>{label}</span>
 						{:else}
 							{label}
@@ -45,16 +45,16 @@
 			<tr>
 				<th>2030 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<td class={id === 'GF' ? grandfatheringColor : ''}>
-						{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%
+					<td class={id==='GF' ? grandfatheringColor : ""}>
+							{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%
 					</td>
 				{/each}
 			</tr>
 			<tr>
 				<th>2040 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<td class={id === 'GF' ? grandfatheringColor : ''}>
-						{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%
+					<td class={id==='GF' ? grandfatheringColor : ""}>
+							{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%
 					</td>
 				{/each}
 			</tr>
