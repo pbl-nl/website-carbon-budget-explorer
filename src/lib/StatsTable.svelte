@@ -25,8 +25,8 @@
 	const grandfatheringColor = 'text-gray-400';
 </script>
 
-<div class="rounded px-12 py-8">
-	<table class="prose w-full max-w-none table-auto">
+<div class="rounded px-12 py-6">
+	<table class="prose w-full max-w-none table-fixed">
 		<thead>
 			<tr>
 				<th>Allocation method</th>

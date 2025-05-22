@@ -139,7 +139,7 @@
 </script>
 
 <div class="flex h-full flex-row gap-4">
-	<Sidebar>
+	<Sidebar className="min-w-fit">
 		<GlobalBudgetCard
 			remaining={data.global.budget.remaining}
 			relative={data.global.budget.relative}
