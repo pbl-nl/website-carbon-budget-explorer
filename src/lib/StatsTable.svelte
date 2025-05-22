@@ -22,15 +22,22 @@
 	run(() => {
 		tweenedReductions.set(reductions);
 	});
+	const grandfatheringColor = 'text-gray-400';
 </script>
 
-<div class="rounded px-12 py-8">
-	<table class="prose w-full max-w-none table-auto" align="center">
+<div class="rounded px-12 py-6">
+	<table class="prose w-full max-w-none table-fixed">
 		<thead>
 			<tr>
 				<th>Allocation method</th>
 				{#each Object.values(allocationMethods) as { label }}
-					<th>{label}</th>
+					<th>
+						{#if label === 'Grandfathering'}
+							<span class={grandfatheringColor}>{label}</span>
+						{:else}
+							{label}
+						{/if}
+					</th>
 				{/each}
 			</tr>
 		</thead>
@@ -38,19 +45,23 @@
 			<tr>
 				<th>2030 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<th>{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%</th>
+					<td class={id === 'GF' ? grandfatheringColor : ''}>
+						{reductions[id][2030] === null ? '-' : $tweenedReductions[id][2030].toFixed(0)}%
+					</td>
 				{/each}
 			</tr>
 			<tr>
 				<th>2040 reductions<br />relative to 2015</th>
 				{#each Object.keys(allocationMethods) as id}
-					<th>{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%</th>
+					<td class={id === 'GF' ? grandfatheringColor : ''}>
+						{reductions[id][2040] === null ? '-' : $tweenedReductions[id][2040].toFixed(0)}%
+					</td>
 				{/each}
 			</tr>
 			<tr>
 				<th>Display graph</th>
 				{#each Object.entries(allocationMethods) as [id, { color }]}
-					<th>
+					<td>
 						{#if availableAllocationMethods.has(id)}
 							<input
 								type="checkbox"
@@ -67,7 +78,7 @@
 								title="Not available for this region"
 							/>
 						{/if}
-					</th>
+					</td>
 				{/each}
 			</tr>
 		</tbody>
