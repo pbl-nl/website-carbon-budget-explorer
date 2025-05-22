@@ -13,14 +13,15 @@ Should have the following data files:
 1. `{CABE_DATA_DIR} / "ne_110m_admin_0_countries.geojson"` - can be downloaded with `npm run download:borders` and move downloaded file to CABE_DATA_DIR directory.
 1. `{CABE_DATA_DIR} / "xr_policyscen.nc"`- Policy scenario data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / "xr_dataread.nc"` - Global data
-1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Allocations" / "xr_alloc_{REGION}.nc"` - Region specific data
 1. `{CABE_DATA_DIR} / {CABE_START_YEAR} / {CABE_ASSUMPTIONSET} / "Aggregated_files" / "xr_alloc_{YEAR}.nc"` - Aggregated data
+1. `{CABE_EFFORT_SHARING_CONFIG}` - Effort sharing configuration file.
 
 The `CABE_DATA_DIR` variable is the path to the data directory.
 The `CABE_START_YEAR` variable is the start year of the allocation.
 The `CABE_ASSUMPTIONSET` variable encodes assumptions on which gases are included (GHG or CO2_only) and land use (included/excluded).
 The `REGION` variable is the 3 letter ISO code of the region.
 The `YEAR` variable is the year of the allocation.
+The `CABE_EFFORT_SHARING_CONFIG` variable is the path to the [effort sharing configuration file](https://github.com/imagepbl/effort-sharing/blob/main/notebooks/input.yml).
 
 The `CABE_` variables are defined in the `.env` file.
 See [.env.example](.env.example) file for an example.
@@ -36,6 +37,7 @@ Dependencies can be installed with
 # From the root of the repository
 # To install Node.js dependencies
 npm install
+# Activate Python environment from effort-sharing repo
 # To install Python dependencies
 pip install -r requirements.txt
 ```
@@ -144,6 +146,12 @@ The end-to-end test can be run with
 
 ```bash
 npm run test
+```
+
+When developing effort sharing package at the same time, you can install effortsharing package in editable mode with
+
+```bash
+pip install -e ../effort-sharing
 ```
 
 ## Building

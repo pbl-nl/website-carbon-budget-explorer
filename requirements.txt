@@ -7,3 +7,5 @@ sentry-sdk[flask]>=2.20.0
 python-dotenv>=1.0.1
 gevent>=24.11.1
 supervisor>=4.2.5
+# TODO on pr 96 merge update branch to main
+git+https://github.com/imagepbl/effort-sharing.git@refactor-data-read#egg=effortsharing

@@ -13,8 +13,8 @@ import { expect, test } from '@playwright/test';
  * Look at screenshots/ folder for screenshots of each region page.
  * Use `npx playwright show-report` for test results.
  */
-test.skip('Renders region pages', async ({ page }) => {
-	test.setTimeout(600_000); // 10 minutes
+test('Renders region pages', async ({ page }) => {
+	test.setTimeout(3600_000); // 1 hour
 
 	// Fetch list of regions
 	await page.goto('/map?allocTime=2030');
@@ -39,16 +39,20 @@ test.skip('Renders region pages', async ({ page }) => {
 			async () => {
 				await page.getByText('Select country ▼').click();
 				await page.getByRole('link', { name: region, exact: true }).click();
-				await expect(page).toHaveURL(new RegExp(`/regions/${encodeURIComponent(region)}`));
+				await expect(page).toHaveURL(new RegExp(`/regions/${encodeURIComponent(region)}`), {
+					timeout: 20_000
+				});
 
 				const path = `screenshots/${region}.png`;
 				await page.screenshot({ path });
 
 				await page.getByRole('heading', { name: 'Global budget' });
 				await page.getByRole('link', { name: 'Back to map' }).click();
-				await expect(page).toHaveURL(new RegExp(`/map`));
+				await expect(page).toHaveURL(new RegExp(`/map`), {
+					timeout: 20_000
+				});
 			},
-			{ timeout: 2_000 }
+			{ timeout: 30_000 }
 		);
 	}
 });

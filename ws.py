@@ -11,6 +11,7 @@ Run with
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 from json import loads
 from pathlib import Path
 
@@ -19,6 +20,9 @@ import pandas as pd
 import sentry_sdk
 import xarray as xr
 from dotenv import dotenv_values
+from effortsharing.allocation import allocation
+from effortsharing.datareading import datareading
+from effortsharing.policyscens import policyscenadding
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -28,6 +32,7 @@ class Config:
     data_dir: Path
     start_year: str
     assumption_set: str
+    effort_sharing_config: Path
 
 
 def load_env() -> Config:
@@ -38,17 +43,21 @@ def load_env() -> Config:
         raise ValueError("CABE_START_YEAR not set in .env file")
     if "CABE_ASSUMPTIONSET" not in config or config["CABE_ASSUMPTIONSET"] is None:
         raise ValueError("CABE_ASSUMPTIONSET not set in .env file")
+    if "CABE_EFFORT_SHARING_CONFIG" not in config or config["CABE_EFFORT_SHARING_CONFIG"] is None:
+        raise ValueError("CABE_EFFORT_SHARING_CONFIG not set in .env file")
     return Config(
         data_dir=Path(config["CABE_DATA_DIR"]),
         start_year=config["CABE_START_YEAR"],
         assumption_set=config["CABE_ASSUMPTIONSET"],
+        effort_sharing_config=Path(config["CABE_EFFORT_SHARING_CONFIG"]),
     )
 
 
 config = load_env()
 
 sentry_sdk.init(
-    dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
+    # TODO re-enable for non-dev environments
+    # dsn="https://12eb01a8df644a3596e747a145f14033@app.glitchtip.com/10011",
     traces_sample_rate=0.0,
     profiles_sample_rate=0.0,
 )
@@ -60,7 +69,32 @@ CORS(app)
 # TODO write tests with dummy data
 
 # Global data (xr_dataread.nc)
-ds_global = xr.open_dataset(config.data_dir / config.start_year / "xr_dataread.nc")
+def read_ds_global():
+    datareader = datareading(config.effort_sharing_config)
+    datareader.read_general()
+    datareader.read_ssps()
+    datareader.read_undata()
+    datareader.read_hdi()
+    datareader.read_historicalemis_jones()
+    datareader.read_ar6()
+    datareader.nonco2variation()
+    datareader.determine_global_nonco2_trajectories()
+    datareader.determine_global_budgets()
+    datareader.determine_global_co2_trajectories()
+    datareader.read_baseline()
+    datareader.read_ndc()
+    datareader.read_ndc_climateresource()
+    datareader.merge_xr()
+    datareader.add_country_groups()
+    xr_normal = datareader.xr_total.sel(
+        Temperature=np.array(datareader.settings["dimension_ranges"]["peak_temperature_saved"])
+        .astype(float)
+        .round(2)
+        )
+    print("Global data read")
+    return xr_normal
+
+ds_global = read_ds_global()
 
 # PCC convergence year is standard on 2050
 DEFAULT_CONVERGENCE_YEAR = 2050
@@ -635,8 +669,18 @@ def allocation_map(year, allocation_method):
     return {"data": rows, "domain": domain}
 
 
+def read_policy_scenarios():
+    policyscenner = policyscenadding(
+        input_file=config.effort_sharing_config,
+        xr_total=ds_global,
+    )
+    policyscenner.read_engage_data()
+    policyscenner.filter_and_convert()
+    print("Policy scenarios dataset generated")
+    return policyscenner._to_xr(policyscenner.xr_eng, policyscenner.xr_total)
+
 # Reference pathway data (xr_policyscen.nc)
-ds_policyscen = xr.open_dataset(config.data_dir / "xr_policyscen.nc")
+ds_policyscen = read_policy_scenarios()
 
 
 @app.get("/timeseries/<region>/policies/<policy>")
@@ -753,17 +797,11 @@ def ndc_projections(region):
     return {"ndc_inventory": ndc_range_inventory(region), "ndc_jones": ndc_range_jones(region)}
 
 
-def get_ds(region):
-    if region not in available_region_files:
-        raise ValueError(f"Region {region} not found")
-    fn = available_region_files[region]
-    return xr.open_dataset(fn)
+allocation_methods = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
 
 
-def emission_allocation_per_method(region, allocation_method):
-    selection = global_pathway_choices()
-    ds = get_ds(region)[allocation_method].sel(**selection).rename(Time="time")
-    # set time as the first dimension
+def emission_allocation_per_method(allocator_ds, allocation_method):
+    ds = allocator_ds.rename(Time="time")
     dim_order = ["time"] + [dim for dim in ds.dims if dim != "time"]
     ds = ds.transpose(*dim_order)
 
@@ -794,21 +832,44 @@ def emission_allocation_per_method(region, allocation_method):
     return pd.concat([mr_df, min_df, max_df], axis=1).reset_index().dropna().to_dict(orient="records")
 
 
-allocation_methods = {"PC", "PCC", "AP", "GDR", "ECPC", "GF"}
-
-
 @app.get("/timeseries/<region>/emissions/allocations")
 def emission_allocations(region):
-    """
-    http://127.0.0.1:5000/timeseries/USA/emissions/allocations?exceedanceRisk=0.67&negativeEmissions=0.4&temperature=1.8: 36.94ms
-    """
+    allocator = create_allocator(region)
     allocations = {}
+    selection = global_pathway_choices()
     for allocation_method in allocation_methods:
-        allocation = emission_allocation_per_method(region, allocation_method)
-        if allocation is None:
+        allocation_data = emission_allocation_per_method(
+            allocator.xr_total[allocation_method].sel(**selection),
+            allocation_method,
+        )
+        if allocation_data is None:
             continue
-        allocations[allocation_method] = allocation
+        allocations[allocation_method] = allocation_data
     return allocations
+
+
+@lru_cache(maxsize=1)
+def create_allocator(region):
+    lulucf = "incl"
+    gas = "GHG"
+    input_file = config.effort_sharing_config
+    allocator = allocation(
+        region,
+        lulucf=lulucf,
+        gas=gas,
+        input_file=input_file,
+    )
+    allocator.gf()
+    allocator.pc()
+    allocator.pcc()
+    allocator.pcb()
+    allocator.dim_histstartyear = [DEFAULT_HISTORICAL_STARTYEAR]
+    allocator.dim_convyears = [DEFAULT_CONVERGENCE_YEAR]
+    allocator.dim_discountrates = [DEFAULT_DISCOUNT_FACTOR]
+    allocator.ecpc()
+    allocator.ap()
+    allocator.gdr()
+    return allocator
 
 
 @app.get("/statistics/reductions/<region>")
@@ -820,8 +881,8 @@ def allocation_reduction(region):
     )
 
     hist = ds_global.GHG_hist.sel(Region=region, Time=1990).values + 0
-    ds = get_ds(region)
 
+    allocator = create_allocator(region)
     reductions = {}
     for allocation_method in allocation_methods:
         pselection = selection.copy()
@@ -832,7 +893,7 @@ def allocation_reduction(region):
         reductions[allocation_method] = {}
         for period in periods:
             pselection.update(Time=period)
-            es = ds[allocation_method].sel(**pselection).mean().values + 0
+            es = allocator.xr_total[allocation_method].sel(**pselection).mean().values + 0
             if np.isnan(es) or np.isnan(hist) or hist == 0:
                 reductions[allocation_method][period] = None
             else:
@@ -842,4 +903,4 @@ def allocation_reduction(region):
 
 
 if __name__ == "__main__":
-    print(ndc_reductions("USA"))
+    print(create_allocator("African Group"))
